@@ -1,46 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "env": [
-    {
-      "key": "DATABASE_URL",
-      "description": "Supabase PostgreSQL connection string (use pooler port 6543)",
-      "required": true
-    },
-    {
-      "key": "PAYLOAD_SECRET",
-      "description": "Random secret key (min 32 chars). Generate with: openssl rand -base64 32",
-      "required": true
-    },
-    {
-      "key": "NEXT_PUBLIC_SITE_URL",
-      "description": "Your deployed site URL (e.g. https://my-site.vercel.app)",
-      "required": true
-    },
-    {
-      "key": "R2_ACCESS_KEY_ID",
-      "description": "Cloudflare R2 S3-compatible access key"
-    },
-    {
-      "key": "R2_SECRET_ACCESS_KEY",
-      "description": "Cloudflare R2 S3-compatible secret key"
-    },
-    {
-      "key": "R2_ENDPOINT",
-      "description": "R2 endpoint — format: ACCOUNT_ID.r2.cloudflarestorage.com (no https://)"
-    },
-    {
-      "key": "R2_BUCKET",
-      "description": "R2 bucket name (e.g. tree-id-media)"
-    },
-    {
-      "key": "R2_REGION",
-      "description": "R2 region (use 'auto')"
-    },
-    {
-      "key": "R2_PUBLIC_URL",
-      "description": "Public URL for serving media (custom domain or R2 public URL)"
-    }
-  ]
+  "outputDirectory": ".next"
 }
