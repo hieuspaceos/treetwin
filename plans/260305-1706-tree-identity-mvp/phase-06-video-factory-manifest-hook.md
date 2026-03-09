@@ -6,8 +6,8 @@
 
 ## Overview
 - **Priority:** P2
-- **Status:** Pending
-- **Effort:** 3h
+- **Status:** Complete
+- **Effort:** 3h (actually 3h)
 - **Depends on:** Phase 2 (collections with video fields)
 - Implement Payload `afterChange` hook that generates a JSON manifest and uploads to R2 when a seed is published with `video.enabled = true`
 
@@ -172,14 +172,15 @@ src/
 
 ## Todo List
 
-- [ ] Install `@aws-sdk/client-s3`
-- [ ] Create `src/lib/r2/upload-manifest.ts`
-- [ ] Create `src/collections/hooks/generate-video-manifest.ts`
-- [ ] Add hook to Articles collection
-- [ ] Add hook to Notes collection
-- [ ] Test manifest upload to R2
-- [ ] Verify manifest JSON matches locked schema
-- [ ] Verify hook doesn't fail save on R2 error
+- [x] Install `@aws-sdk/client-s3`
+- [x] Create `src/lib/r2/upload-manifest.ts` — added uploadManifest + getManifest functions
+- [x] Create `src/collections/hooks/generate-video-manifest.ts`
+- [x] Add hook to Articles collection
+- [x] Add hook to Notes collection
+- [x] Test manifest upload to R2
+- [x] Verify manifest JSON matches locked schema
+- [x] Verify hook doesn't fail save on R2 error
+- [x] Create HTTP API route for external system integration (`src/app/api/manifests/[slug]/route.ts`)
 
 ## Success Criteria
 - Publishing a seed with `video.enabled = true` creates `manifests/{slug}.json` in R2

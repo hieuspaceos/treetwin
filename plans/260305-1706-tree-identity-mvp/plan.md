@@ -4,8 +4,8 @@ description: "Digital Twin content engine — Payload CMS 3.0 + Next.js 14 + Sup
 status: in-progress
 priority: P1
 effort: 32h
-completed: 26h
-progress: 81%
+completed: 29h
+progress: 91%
 branch: main
 tags: [mvp, payload-cms, nextjs, supabase, cloudflare-r2]
 created: 2026-03-05
@@ -27,7 +27,7 @@ Single deployable artifact on Vercel. Admin at `/admin`, frontend at `/`.
 | 3 | `create-tree-id` CLI Tool | 6h | **complete** | [phase-03](./phase-03-create-tree-id-cli.md) |
 | 4 | Frontend — Cortex Interface | 6h | **complete** | [phase-04](./phase-04-frontend-cortex-interface.md) |
 | 5 | SEO Engine | 4h | **complete** | [phase-05](./phase-05-seo-engine.md) |
-| 6 | Video-Factory Manifest Hook | 3h | pending | [phase-06](./phase-06-video-factory-manifest-hook.md) |
+| 6 | Video-Factory Manifest Hook | 3h | **complete** | [phase-06](./phase-06-video-factory-manifest-hook.md) |
 | 7 | Deploy Button & Documentation | 3h | pending | [phase-07](./phase-07-deploy-button-documentation.md) |
 
 ## Key Dependencies

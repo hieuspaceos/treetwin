@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 
 // Build an S3Client pointed at Cloudflare R2 using env vars
 function buildR2Client(): S3Client {
@@ -27,4 +27,22 @@ export async function uploadManifest(slug: string, manifest: Record<string, unkn
     Body: JSON.stringify(manifest, null, 2),
     ContentType: 'application/json',
   }))
+}
+
+/** Read a manifest JSON from R2 by slug, returns null if not found */
+export async function getManifest(slug: string): Promise<Record<string, unknown> | null> {
+  const bucket = process.env.R2_BUCKET
+  if (!bucket) return null
+
+  try {
+    const client = buildR2Client()
+    const response = await client.send(new GetObjectCommand({
+      Bucket: bucket,
+      Key: `manifests/${slug}.json`,
+    }))
+    const body = await response.Body?.transformToString()
+    return body ? JSON.parse(body) : null
+  } catch {
+    return null
+  }
 }
