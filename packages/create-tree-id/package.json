@@ -1,0 +1,23 @@
+{
+  "name": "create-tree-id",
+  "version": "0.1.0",
+  "description": "CLI scaffolding tool for Tree Identity sites — provisions Supabase + Cloudflare R2",
+  "bin": { "create-tree-id": "./bin/cli.js" },
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": { "node": ">=18.0.0" },
+  "keywords": ["tree-id", "create", "cli", "scaffold"],
+  "license": "MIT"
+}
