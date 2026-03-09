@@ -1,9 +1,12 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import type { SerializedEditorState } from 'lexical'
 import { getPayloadClient, getSeedBySlug } from '@/lib/payload-helpers'
 import { Breadcrumb } from '@/components/breadcrumb'
 import { LexicalRenderer, extractHeadings } from '@/components/lexical-renderer'
 import { Toc } from '@/components/toc'
+import { generateSeedMetadata } from '@/lib/seo/generate-metadata'
+import { articleJsonLd } from '@/lib/seo/json-ld'
 
 /** Seed shape until payload-types.ts is generated */
 interface SeedDoc {
@@ -20,6 +23,13 @@ export const revalidate = 3600
 
 interface SeedPageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: SeedPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const seed = (await getSeedBySlug('articles', slug) || await getSeedBySlug('notes', slug)) as unknown as SeedDoc | null
+  if (!seed) return {}
+  return generateSeedMetadata(seed)
 }
 
 export default async function SeedPage({ params }: SeedPageProps) {
@@ -49,6 +59,7 @@ export default async function SeedPage({ params }: SeedPageProps) {
 
   return (
     <article>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(seed)) }} />
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },

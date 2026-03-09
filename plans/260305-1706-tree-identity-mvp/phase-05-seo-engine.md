@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P2
-- **Status:** Pending
+- **Status:** COMPLETE
 - **Effort:** 4h
 - **Depends on:** Phase 4 (pages must exist)
 - Implement Next.js Metadata API for all pages, JSON-LD structured data, OG image generation, dynamic sitemap, robots.txt
@@ -228,20 +228,20 @@ src/app/
 
 ## Todo List
 
-- [ ] Install `@vercel/og`
-- [ ] Create `src/lib/seo/generate-metadata.ts`
-- [ ] Create `src/lib/seo/json-ld.ts`
-- [ ] Create `src/app/og/route.tsx`
-- [ ] Create `src/app/sitemap.ts`
-- [ ] Create `src/app/robots.ts`
-- [ ] Add `generateMetadata` to homepage
-- [ ] Add `generateMetadata` to seed detail page
-- [ ] Add JSON-LD to homepage
-- [ ] Add JSON-LD to seed detail page
-- [ ] Verify OG image renders at `/og?title=Test`
-- [ ] Verify `/sitemap.xml` lists published seeds
-- [ ] Verify `/robots.txt` correct
-- [ ] Test with Google Rich Results Test tool
+- [x] Install `@vercel/og`
+- [x] Create `src/lib/seo/generate-metadata.ts`
+- [x] Create `src/lib/seo/json-ld.ts`
+- [x] Create `src/app/og/route.tsx`
+- [x] Create `src/app/sitemap.ts`
+- [x] Create `src/app/robots.ts`
+- [x] Add `generateMetadata` to homepage
+- [x] Add `generateMetadata` to seed detail page
+- [x] Add JSON-LD to homepage
+- [x] Add JSON-LD to seed detail page
+- [x] Verify OG image renders at `/og?title=Test`
+- [x] Verify `/sitemap.xml` lists published seeds
+- [x] Verify `/robots.txt` correct
+- [x] Test with Google Rich Results Test tool
 
 ## Success Criteria
 - Every page has unique `<title>` and `<meta description>`

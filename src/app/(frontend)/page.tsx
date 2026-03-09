@@ -1,6 +1,12 @@
 import { getPublishedSeeds } from '@/lib/payload-helpers'
 import { SeedCard } from '@/components/seed-card'
 import { siteConfig } from '@/config/site-config'
+import { generateHomeMetadata } from '@/lib/seo/generate-metadata'
+import { websiteJsonLd } from '@/lib/seo/json-ld'
+
+export function generateMetadata() {
+  return generateHomeMetadata()
+}
 
 /** Base seed shape until payload-types.ts is generated */
 interface SeedDoc {
@@ -33,6 +39,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
       <section className="mb-12">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">{siteConfig.name}</h1>
         <p className="text-lg text-gray-600">{siteConfig.description}</p>
