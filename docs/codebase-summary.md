@@ -61,6 +61,9 @@ tree-id/
 │   │   ├── search.astro            # Pagefind search results
 │   │   ├── 404.astro               # 404 page
 │   │   ├── robots.txt.ts           # robots.txt generation
+│   │   ├── rss.xml.ts              # RSS feed (Bing/ChatGPT freshness)
+│   │   ├── llms.txt.ts             # AI/LLM site overview (llmstxt.org)
+│   │   ├── llms-full.txt.ts        # Extended AI/LLM context
 │   │   ├── og.ts                   # Dynamic OG image generation
 │   │   └── api/
 │   │       └── manifests/[slug].ts # Video manifest HTTP API
@@ -116,6 +119,7 @@ Defined in `keystatic.config.ts` + `src/content.config.ts`. All inherit base fie
 |-------|------|------|---------|
 | `title` | slug | — | Required |
 | `description` | text (multiline) | — | Required |
+| `summary` | text (multiline, max 300) | — | Optional (AI-optimized summary, falls back to description) |
 | `status` | select | — | `draft` |
 | `publishedAt` | date | — | Optional |
 | `tags` | array | — | `[]` |
@@ -222,10 +226,17 @@ Keystatic doesn't support afterChange hooks. Video manifest generation is manual
 - Params: `title`, `desc`, `style`
 - Fallback image if generation fails
 
+### AI/LLM Endpoints (GEO)
+
+- **`/rss.xml`** — RSS feed via `@astrojs/rss` (Bing/ChatGPT search freshness signal)
+- **`/llms.txt`** — Lightweight site overview for AI models (llmstxt.org spec, speculative)
+- **`/llms-full.txt`** — Extended context with categories, tags, per-article metadata
+- All prerendered at build time
+
 ### API Routes
 
 - **`/api/manifests/[slug]`** — Video manifest HTTP endpoint (return JSON)
-- **`/robots.txt`** — SEO robots.txt (respects `seo.noindex`)
+- **`/robots.txt`** — Per-agent AI crawler policy (allow search bots, block training bots)
 
 ## Components
 
@@ -262,11 +273,15 @@ All queries filter `status === 'published'` (security-critical to prevent draft 
 
 Requires `R2_*` env vars (optional for MVP).
 
-### SEO Generation (`lib/seo/json-ld.ts`)
+### SEO & GEO Generation (`lib/seo/json-ld.ts`)
 
-- JSON-LD schema generation (Schema.org)
-- Article type for articles, CreativeWork for notes
-- Includes author, datePublished, URL
+- `articleJsonLd()` — Article schema with abstract, image, keywords, articleSection, inLanguage
+- `websiteJsonLd()` — WebSite schema for homepage
+- `breadcrumbJsonLd()` — BreadcrumbList for article pages
+- `personJsonLd()` — Person schema for author (renders only when author.name set)
+- `safeJsonLd()` — XSS-safe serializer (escapes `</script>`)
+- AI meta tags: Dublin Core (DC.title, DC.creator, DC.date), citation_* tags
+- robots max-snippet/-1 for full AI extraction
 
 ### Site Configuration (`config/site-config.ts`)
 

@@ -2,6 +2,10 @@
 import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
 import { getActiveThemeId } from '@/lib/get-active-theme-id'
 import { siteConfig } from '@/config/site-config'
+import { personJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
+
+const personLd = personJsonLd()
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
 import Nav from '@/components/nav.astro'
 import Footer from '@/components/footer.astro'
 import '@/styles/globals.css'
@@ -29,6 +33,14 @@ const styleString = Object.entries(themeVars)
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.name} href="/rss.xml" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="DC.title" content={title} />
+    {siteConfig.author.name && <meta name="DC.creator" content={siteConfig.author.name} />}
+    {personLd && (
+      <script is:inline type="application/ld+json" set:html={safeJsonLd(personLd)} />
+    )}
     <slot name="head" />
   </head>
   <body>

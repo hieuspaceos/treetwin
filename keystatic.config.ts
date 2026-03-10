@@ -5,6 +5,12 @@ import { config, collection, singleton, fields } from '@keystatic/core'
 // Shared seed fields — applies to all content types (articles, notes, records)
 // Mirrors base-seed-fields from the previous Payload CMS schema
 const baseSeedFields = {
+  summary: fields.text({
+    label: 'AI Summary',
+    description: 'Optional short summary for AI discovery (max 300 chars). Falls back to description if empty.',
+    multiline: true,
+    validation: { isRequired: false },
+  }),
   status: fields.select({
     label: 'Status',
     options: [

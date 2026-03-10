@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content'
 import BaseLayout from '@/layouts/base-layout.astro'
 import Breadcrumb from '@/components/breadcrumb.astro'
 import { Toc } from '@/components/islands/toc'
-import { articleJsonLd } from '@/lib/seo/json-ld'
+import { articleJsonLd, breadcrumbJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
 import { siteConfig } from '@/config/site-config'
 
 export async function getStaticPaths() {
@@ -60,13 +60,28 @@ const ogImageUrl =
     <script
       is:inline
       type="application/ld+json"
-      set:html={JSON.stringify(
+      set:html={safeJsonLd(
         articleJsonLd({
           title: entry.data.title,
           description: entry.data.description,
+          summary: entry.data.summary,
           slug: entry.id,
           publishedAt: entry.data.publishedAt,
+          image: ogImageUrl,
+          keywords: entry.data.tags,
+          category: entry.data.category,
         }),
+      )}
+    />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={safeJsonLd(
+        breadcrumbJsonLd([
+          { name: 'Home', url: siteConfig.url },
+          { name: isArticle ? 'Articles' : 'Notes', url: `${siteConfig.url}/seeds` },
+          { name: entry.data.title },
+        ]),
       )}
     />
     <meta property="og:title" content={entry.data.seo?.seoTitle || entry.data.title} />
@@ -79,6 +94,11 @@ const ogImageUrl =
     )}
     <meta name="twitter:card" content="summary_large_image" />
     {entry.data.seo?.noindex && <meta name="robots" content="noindex, nofollow" />}
+    {entry.data.publishedAt && <meta name="DC.date" content={entry.data.publishedAt} />}
+    <meta name="citation_title" content={entry.data.title} />
+    <meta name="citation_url" content={`${siteConfig.url}/seeds/${entry.id}`} />
+    {siteConfig.author.name && <meta name="citation_author" content={siteConfig.author.name} />}
+    {entry.data.publishedAt && <meta name="citation_publication_date" content={entry.data.publishedAt} />}
   </Fragment>
 
   <article data-pagefind-body>

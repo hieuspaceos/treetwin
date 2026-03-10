@@ -8,6 +8,7 @@ import { glob } from 'astro/loaders'
 const baseSeedSchema = z.object({
   title: z.string(),
   description: z.string(),
+  summary: z.string().max(300).optional().nullable(),
   status: z.enum(['draft', 'published']).default('draft'),
   publishedAt: z.string().optional().nullable(),
   tags: z.array(z.string()).default([]),

@@ -94,6 +94,7 @@ Pages:
   - /search         (Pagefind UI)
   - /api/*          (SSR endpoints)
   - /robots.txt, /sitemap.xml, /og
+  - /llms.txt, /llms-full.txt (AI/LLM context)
         ↓
 dist/ (static HTML)
 pagefind/ (search index)
@@ -142,7 +143,10 @@ Detail Page (/seeds/[slug])
 |-------|------|---------|
 | `/og` | Edge Function | Dynamic OG image (params: title, desc) |
 | `/api/manifests/[slug]` | API Route | Video manifest JSON (manual trigger) |
-| `/robots.txt` | SSR | Respects seo.noindex flags |
+| `/robots.txt` | Prerendered | Per-agent AI crawler policy |
+| `/rss.xml` | Prerendered | RSS feed (Bing/ChatGPT freshness) |
+| `/llms.txt` | Prerendered | AI/LLM site overview (speculative) |
+| `/llms-full.txt` | Prerendered | Extended AI context with metadata |
 
 ### Client-Side Islands
 

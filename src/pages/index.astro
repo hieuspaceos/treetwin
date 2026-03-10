@@ -3,14 +3,14 @@ import BaseLayout from '@/layouts/base-layout.astro'
 import SeedCard from '@/components/seed-card.astro'
 import { siteConfig } from '@/config/site-config'
 import { getAllPublishedSeeds } from '@/lib/content-helpers'
-import { websiteJsonLd } from '@/lib/seo/json-ld'
+import { websiteJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
 
 const seeds = await getAllPublishedSeeds()
 ---
 
 <BaseLayout>
   <Fragment slot="head">
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteJsonLd())} />
+    <script is:inline type="application/ld+json" set:html={safeJsonLd(websiteJsonLd())} />
   </Fragment>
 
   <!-- Hero section -->
