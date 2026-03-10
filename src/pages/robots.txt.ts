@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro'
 import { siteConfig } from '@/config/site-config'
 
+// Prerender at build time — content is static
+export const prerender = true
+
 // Dynamic robots.txt — disallows admin and API paths from crawlers
 export const GET: APIRoute = () => {
   const body = `User-agent: *
