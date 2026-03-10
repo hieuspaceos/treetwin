@@ -65,8 +65,13 @@ const baseSeedFields = {
   ),
 }
 
+// Use GitHub storage on production (CTV can edit via web), local in dev
+const isProduction = import.meta.env.PROD
+
 export default config({
-  storage: { kind: 'local' },
+  storage: isProduction
+    ? { kind: 'github', repo: 'hieuspaceos/tree-id' }
+    : { kind: 'local' },
   collections: {
     // Articles: long-form Markdoc content (replaces Payload Lexical richText)
     articles: collection({
