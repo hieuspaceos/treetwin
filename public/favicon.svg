@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Tree canopy layers -->
+  <path d="M16 3L9 13h4l-4 7h5l-4 6h12l-4-6h5l-4-7h4L16 3z" fill="#2d6a4f"/>
+  <!-- Trunk -->
+  <rect x="14" y="26" width="4" height="4" rx="0.5" fill="#6b4226"/>
+  <!-- Root lines -->
+  <path d="M14 30L11 32M18 30L21 32" stroke="#6b4226" stroke-width="1" stroke-linecap="round"/>
+</svg>
