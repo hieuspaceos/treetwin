@@ -61,7 +61,8 @@ src/payload-types.ts
 build
 GoogleService-Info.plist
 
-repomix-output.xml
+repomix-output.*
+repomix-snapshot.*
 .serena/cache
 plans/**/*
 !plans/templates/*
