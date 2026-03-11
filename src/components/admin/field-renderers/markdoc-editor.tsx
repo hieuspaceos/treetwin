@@ -9,7 +9,7 @@ import { gfm } from '@milkdown/preset-gfm'
 import { history } from '@milkdown/plugin-history'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
-import { nord } from '@milkdown/theme-nord'
+// nord theme removed — causes Vite EnvironmentPlugin error. Using custom CSS instead.
 import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react'
 import { getMarkdown, replaceAll } from '@milkdown/utils'
 import { EditorToolbar } from './editor-toolbar'
@@ -30,7 +30,6 @@ function MilkdownEditorInner({ value, onChange }: Props) {
 
   const { get } = useEditor((root) =>
     Editor.make()
-      .config(nord)
       .config((ctx) => {
         ctx.set(rootCtx, root)
         ctx.set(defaultValueCtx, initialValue.current || '')
