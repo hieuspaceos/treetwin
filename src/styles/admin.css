@@ -1,0 +1,263 @@
+/*
+ * Admin dashboard styles — extends glass theme tokens from globals.css
+ * Scoped to admin SPA, imported only in admin page
+ * globals.css is imported via Astro frontmatter (same page), no @import needed
+ */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-glass-white: rgba(255, 255, 255, 0.12);
+  --color-glass-border: var(--t-glass-border);
+  --color-glass-bg: var(--t-glass-bg);
+  --color-glass-card: var(--t-glass-card);
+  --color-accent: var(--t-accent);
+  --color-accent-soft: var(--t-accent-soft);
+}
+
+/* Admin layout */
+.admin-sidebar {
+  width: 260px;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border-right: 1px solid var(--t-glass-border);
+}
+
+.admin-main {
+  margin-left: 260px;
+  min-height: 100vh;
+  padding: 1.5rem 2rem;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--t-glass-border);
+}
+
+/* Sidebar nav items */
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 150ms ease, color 150ms ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.admin-nav-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1e293b;
+}
+
+.admin-nav-item.active {
+  background: var(--t-accent-soft);
+  color: var(--t-accent);
+  font-weight: 600;
+}
+
+.admin-nav-section {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-top: 0.75rem;
+}
+
+.admin-nav-divider {
+  height: 1px;
+  background: var(--t-glass-border);
+  margin: 0.5rem 1rem;
+}
+
+/* Stat cards */
+.admin-stat-card {
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.admin-stat-card .stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+}
+
+.admin-stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.admin-stat-card .stat-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.125rem;
+}
+
+/* Admin table */
+.admin-table {
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  border-bottom: 1px solid var(--t-glass-border);
+}
+
+.admin-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+
+.admin-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.admin-table tr:hover td {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+/* Status badge */
+.admin-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.admin-badge-published {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.admin-badge-draft {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* Admin button */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+}
+
+.admin-btn-primary {
+  background: var(--t-accent);
+  color: white;
+}
+
+.admin-btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid var(--t-glass-border);
+}
+
+.admin-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1e293b;
+}
+
+.admin-btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.admin-btn-danger:hover {
+  background: #fecaca;
+}
+
+/* Login page */
+.admin-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .admin-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 35;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar {
+    transition: none;
+  }
+
+  .admin-btn-primary:hover {
+    transform: none;
+  }
+}

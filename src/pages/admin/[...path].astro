@@ -1,0 +1,27 @@
+---
+/**
+ * Admin SPA host page — renders full React admin island
+ * All admin routing handled client-side by wouter
+ */
+export const prerender = false
+
+import { siteConfig } from '@/config/site-config'
+import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
+import AdminApp from '@/components/admin/admin-app'
+import '@/styles/admin.css'
+
+const theme = getTheme(siteConfig.theme.id)
+const themeVars = themeToStyleVars(theme)
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin | {siteConfig.name}</title>
+</head>
+<body style={themeVars}>
+  <AdminApp client:only="react" siteName={siteConfig.name} />
+</body>
+</html>
