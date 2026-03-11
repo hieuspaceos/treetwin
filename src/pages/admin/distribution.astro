@@ -1,0 +1,128 @@
+---
+export const prerender = false
+
+import '@/styles/globals.css'
+import { getAllPublishedSeeds } from '@/lib/content-helpers'
+import {
+  parseDistributionLog,
+  getDistributionStats,
+  buildContentInventory,
+  syncMetricsDoc,
+} from '@/lib/distribution-helpers'
+import { DistributionTable } from '@/components/islands/distribution-table'
+
+if (import.meta.env.PROD) {
+  return Astro.redirect('/404')
+}
+
+const entries = parseDistributionLog()
+const stats = getDistributionStats(entries)
+const seeds = await getAllPublishedSeeds()
+const inventory = buildContentInventory(seeds, entries)
+const recentEntries = entries.slice(-10).reverse()
+
+syncMetricsDoc(stats, entries)
+
+const platformNames = Object.keys(stats.platformCounts)
+const platformSummary = platformNames.length > 3
+  ? platformNames.slice(0, 3).join(', ') + '...'
+  : platformNames.join(', ')
+const sinceLabel = stats.firstDate ? 'Since ' + stats.firstDate : 'No data yet'
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Distribution Dashboard</title>
+</head>
+<body class="bg-slate-50 p-8 font-sans text-slate-800">
+  <div class="mx-auto max-w-5xl">
+
+    <div class="mb-8 flex items-center gap-4">
+      <a href="/keystatic" class="text-sm text-slate-500 no-underline hover:text-blue-500">&larr; Keystatic</a>
+      <h1 class="m-0 text-2xl font-bold">Distribution Dashboard</h1>
+      <span class="ml-auto text-xs text-slate-400">Dev only</span>
+    </div>
+
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <div class="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">Total Distributed</div>
+        <div class="text-3xl font-bold">{stats.total}</div>
+        <div class="mt-1 text-xs text-slate-400">{sinceLabel}</div>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <div class="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">Posted</div>
+        <div class="text-3xl font-bold text-green-700">{stats.posted}</div>
+        <div class="mt-1 text-xs text-slate-400">{stats.drafted} drafted</div>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <div class="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">Platforms</div>
+        <div class="text-3xl font-bold">{platformNames.length}</div>
+        <div class="mt-1 text-xs text-slate-400">{platformSummary || 'none'}</div>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <div class="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">Frequency</div>
+        <div class="text-3xl font-bold">{stats.avgPerWeek || '-'}</div>
+        <div class="mt-1 text-xs text-slate-400">posts/week</div>
+      </div>
+    </div>
+
+    <p class="mb-8 text-xs text-slate-400">Stats auto-synced to docs/marketing-metrics.md</p>
+
+    <div class="mb-8">
+      <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Content Inventory</h2>
+      <DistributionTable client:load items={inventory} />
+    </div>
+
+    <div class="mb-8">
+      <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Recent Activity (last 10)</h2>
+      {recentEntries.length === 0 ? (
+        <div class="py-8 text-center text-slate-400">No distribution activity yet. Run /distribute to get started.</div>
+      ) : (
+        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Slug</th>
+                <th class="px-4 py-3">Type</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Words</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {recentEntries.map((entry) => (
+                <tr class="hover:bg-slate-50/50">
+                  <td class="px-4 py-3">{entry.date}</td>
+                  <td class="px-4 py-3 font-medium">{entry.slug}</td>
+                  <td class="px-4 py-3">{entry.type}</td>
+                  <td class="px-4 py-3">
+                    {entry.status === 'posted'
+                      ? <span class="inline-block rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">posted</span>
+                      : <span class="inline-block rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">drafted</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3">{entry.wordCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+
+    <div class="mb-8">
+      <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Quick Actions</h2>
+      <div class="flex flex-wrap gap-2">
+        <code class="rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-600">/distribute slug-name</code>
+        <code class="rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-600">/distribute --latest</code>
+        <code class="rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-600">/distribute --mark-posted --slug slug-name</code>
+        <code class="rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-600">/marketing-review</code>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
