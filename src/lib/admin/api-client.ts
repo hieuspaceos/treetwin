@@ -10,21 +10,25 @@ interface ApiResponse<T = unknown> {
 }
 
 /** Core fetch wrapper for admin API calls */
-async function adminFetch<T>(path: string, opts: RequestInit = {}): Promise<ApiResponse<T>> {
+async function adminFetch<T>(
+  path: string,
+  opts: RequestInit & { skipAuthRedirect?: boolean } = {},
+): Promise<ApiResponse<T>> {
   const url = path.startsWith('/') ? path : `/api/admin/${path}`
+  const { skipAuthRedirect, ...fetchOpts } = opts
 
   try {
     const res = await fetch(url, {
-      ...opts,
+      ...fetchOpts,
       headers: {
         'Content-Type': 'application/json',
-        ...(opts.headers || {}),
+        ...(fetchOpts.headers || {}),
       },
     })
 
-    // Session expired — trigger login redirect
-    if (res.status === 401) {
-      window.location.href = '/admin/login'
+    // Session expired — redirect to login (skip for auth check to avoid infinite loop)
+    if (res.status === 401 && !skipAuthRedirect) {
+      window.location.href = '/admin'
       return { ok: false, error: 'Unauthorized' }
     }
 
@@ -59,7 +63,7 @@ export const api = {
         body: JSON.stringify({ password }),
       }),
     logout: () => adminFetch('/api/admin/auth', { method: 'DELETE' }),
-    check: () => adminFetch('/api/admin/auth'),
+    check: () => adminFetch('/api/admin/auth', { skipAuthRedirect: true }),
   },
 
   collections: {

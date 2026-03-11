@@ -2,12 +2,14 @@
 /**
  * Admin SPA host page — renders full React admin island
  * All admin routing handled client-side by wouter
+ * Imports globals.css for base theme + glass utilities, then admin.css for admin-specific styles
  */
 export const prerender = false
 
 import { siteConfig } from '@/config/site-config'
 import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
 import AdminApp from '@/components/admin/admin-app'
+import '@/styles/globals.css'
 import '@/styles/admin.css'
 
 const theme = getTheme(siteConfig.theme.id)
@@ -22,6 +24,11 @@ const themeVars = themeToStyleVars(theme)
   <title>Admin | {siteConfig.name}</title>
 </head>
 <body style={themeVars}>
+  <!-- Static loading placeholder — visible until React hydrates and removes it -->
+  <div id="admin-loader" class="admin-loading">
+    <div class="admin-loading-spinner"></div>
+    Loading...
+  </div>
   <AdminApp client:only="react" siteName={siteConfig.name} />
 </body>
 </html>

@@ -24,33 +24,35 @@ function AdminAppInner({ siteName }: Props) {
     })
   }, [])
 
+  // Hide static Astro loader only AFTER auth check completes
+  useEffect(() => {
+    if (authed === null) return
+    const loader = document.getElementById('admin-loader')
+    if (loader) loader.remove()
+  }, [authed])
+
   async function handleLogout() {
     await api.auth.logout()
     setAuthed(false)
     toast.success('Logged out')
   }
 
-  // Loading state
-  if (authed === null) {
+  // Still checking — Astro static loader stays visible
+  if (authed === null) return null
+
+  if (!authed) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#94a3b8',
-        fontSize: '0.875rem',
-      }}>
-        Loading...
+      <div className="admin-root">
+        <AdminLogin siteName={siteName} onLogin={() => setAuthed(true)} />
       </div>
     )
   }
 
-  if (!authed) {
-    return <AdminLogin siteName={siteName} onLogin={() => setAuthed(true)} />
-  }
-
-  return <AdminLayout siteName={siteName} onLogout={handleLogout} />
+  return (
+    <div className="admin-root">
+      <AdminLayout siteName={siteName} onLogout={handleLogout} />
+    </div>
+  )
 }
 
 /** Root component mounted by Astro — wraps with Router + Toast providers */

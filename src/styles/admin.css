@@ -1,18 +1,42 @@
 /*
- * Admin dashboard styles — extends glass theme tokens from globals.css
+ * Admin dashboard styles — extends glass theme from globals.css
  * Scoped to admin SPA, imported only in admin page
- * globals.css is imported via Astro frontmatter (same page), no @import needed
+ * globals.css is imported separately in the Astro page frontmatter
  */
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
-@theme {
-  --color-glass-white: rgba(255, 255, 255, 0.12);
-  --color-glass-border: var(--t-glass-border);
-  --color-glass-bg: var(--t-glass-bg);
-  --color-glass-card: var(--t-glass-card);
-  --color-accent: var(--t-accent);
-  --color-accent-soft: var(--t-accent-soft);
+/* Admin loading spinner (shown before React hydrates) */
+.admin-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.admin-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-top-color: var(--t-accent, #6366f1);
+  border-radius: 50%;
+  animation: admin-spin 0.6s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fade in when React mounts */
+.admin-root {
+  animation: admin-fade-in 200ms ease-out;
+}
+
+@keyframes admin-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Admin layout */
@@ -210,6 +234,29 @@
 
 .admin-btn-danger:hover {
   background: #fecaca;
+}
+
+/* Form field styles */
+.admin-field-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.375rem;
+}
+
+.admin-field-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+
+.admin-field-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
 }
 
 /* Login page */

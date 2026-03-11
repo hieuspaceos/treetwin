@@ -18,8 +18,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next()
   }
 
-  // Allow login endpoint without auth
-  if (path === '/api/admin/auth' && context.request.method === 'POST') {
+  // Allow auth endpoint without cookie (login POST + session check GET + logout DELETE)
+  if (path === '/api/admin/auth') {
     return next()
   }
 

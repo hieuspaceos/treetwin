@@ -7,6 +7,9 @@ import { Route, Switch } from 'wouter'
 import { AdminSidebar } from './admin-sidebar'
 import { AdminTopbar } from './admin-topbar'
 import { AdminDashboard } from './admin-dashboard'
+import { ContentList } from './content-list'
+import { ContentEditor } from './content-editor'
+import { SettingsEditor } from './settings-editor'
 
 interface Props {
   siteName: string
@@ -31,42 +34,42 @@ export function AdminLayout({ siteName, onLogout }: Props) {
         <Switch>
           <Route path="/" component={AdminDashboard} />
 
-          {/* Content list routes — placeholder for Phase 4 */}
+          {/* Content list routes */}
           <Route path="/articles">
-            <ContentPlaceholder collection="articles" />
+            <ContentList collection="articles" />
           </Route>
           <Route path="/notes">
-            <ContentPlaceholder collection="notes" />
+            <ContentList collection="notes" />
           </Route>
           <Route path="/records">
-            <ContentPlaceholder collection="records" />
+            <ContentList collection="records" />
           </Route>
 
-          {/* Create routes — placeholder for Phase 4 */}
+          {/* Create routes */}
           <Route path="/articles/new">
-            <EditorPlaceholder collection="articles" mode="create" />
+            <ContentEditor collection="articles" />
           </Route>
           <Route path="/notes/new">
-            <EditorPlaceholder collection="notes" mode="create" />
+            <ContentEditor collection="notes" />
           </Route>
           <Route path="/records/new">
-            <EditorPlaceholder collection="records" mode="create" />
+            <ContentEditor collection="records" />
           </Route>
 
-          {/* Edit routes — placeholder for Phase 4 */}
+          {/* Edit routes */}
           <Route path="/articles/:slug">
-            {(params) => <EditorPlaceholder collection="articles" mode="edit" slug={params.slug} />}
+            {(params) => <ContentEditor collection="articles" slug={params.slug} />}
           </Route>
           <Route path="/notes/:slug">
-            {(params) => <EditorPlaceholder collection="notes" mode="edit" slug={params.slug} />}
+            {(params) => <ContentEditor collection="notes" slug={params.slug} />}
           </Route>
           <Route path="/records/:slug">
-            {(params) => <EditorPlaceholder collection="records" mode="edit" slug={params.slug} />}
+            {(params) => <ContentEditor collection="records" slug={params.slug} />}
           </Route>
 
-          {/* Settings — placeholder for Phase 4 */}
+          {/* Settings */}
           <Route path="/settings">
-            <SettingsPlaceholder />
+            <SettingsEditor />
           </Route>
 
           {/* 404 */}
@@ -80,37 +83,6 @@ export function AdminLayout({ siteName, onLogout }: Props) {
           </Route>
         </Switch>
       </main>
-    </div>
-  )
-}
-
-// ── Placeholder components (replaced in Phase 4) ──
-
-function ContentPlaceholder({ collection }: { collection: string }) {
-  return (
-    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px', textAlign: 'center', color: '#94a3b8' }}>
-      <h2 style={{ color: '#1e293b', marginBottom: '0.5rem', textTransform: 'capitalize' }}>{collection}</h2>
-      <p>Content list UI coming in Phase 4</p>
-    </div>
-  )
-}
-
-function EditorPlaceholder({ collection, mode, slug }: { collection: string; mode: string; slug?: string }) {
-  return (
-    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px', textAlign: 'center', color: '#94a3b8' }}>
-      <h2 style={{ color: '#1e293b', marginBottom: '0.5rem', textTransform: 'capitalize' }}>
-        {mode === 'create' ? `New ${collection}` : `Edit ${slug}`}
-      </h2>
-      <p>Content editor UI coming in Phase 4</p>
-    </div>
-  )
-}
-
-function SettingsPlaceholder() {
-  return (
-    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px', textAlign: 'center', color: '#94a3b8' }}>
-      <h2 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>Settings</h2>
-      <p>Settings editor UI coming in Phase 4</p>
     </div>
   )
 }
