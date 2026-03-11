@@ -28,6 +28,60 @@ Used by Claude Code, Gemini Flash, or any model in the distribution pipeline.
 - End with article link
 - No hashtag spam (max 3 relevant ones)
 
+### Dev.to Article
+- Repost full article with canonical_url pointing to original
+- Add front matter: `title`, `published: true`, `tags` (max 4), `canonical_url`
+- Keep all code blocks and formatting intact
+- Add "Originally published at [tree-id.dev](link)" at the bottom
+- Tags: use popular Dev.to tags (webdev, javascript, tutorial, beginners, etc.)
+
+### Hashnode Post
+- Repost full article with canonical URL
+- Add front matter: `title`, `slug`, `canonical`
+- Keep markdown formatting, code blocks intact
+- Select relevant tags (max 5)
+
+### Reddit Post
+- Target subreddits: r/webdev, r/programming, r/javascript, r/reactjs (match content topic)
+- Title: direct, no clickbait, state what the post is about
+- Body: 2-3 sentence intro + link. Reddit hates self-promotion — lead with value
+- Only post if genuinely useful to the subreddit. Skip if too niche or promotional
+- Format: plain text, no markdown headers
+
+### Facebook Post
+- Max 500 chars for feed post (longer gets truncated behind "See more")
+- Hook in first 2 lines (visible before fold)
+- Casual tone, slightly more personal than LinkedIn
+- Tag relevant Facebook groups if applicable (webdev, JS, etc.)
+- Link at the end, not inline
+- No hashtags (Facebook algorithm doesn't reward them)
+
+### Medium Article
+- Repost full article with canonical URL (Import Story feature)
+- Submit to relevant publications: Better Programming, JavaScript in Plain English, The Startup
+- Tags: max 5, use high-traffic tags (programming, javascript, web-development, software-engineering)
+- Add subtitle (1 sentence hook)
+
+### Hacker News
+- Title: factual, no hype — HN penalizes clickbait
+- Format: "Show HN: ..." for projects, plain title for articles
+- NO body text — just the link. HN is link-only for submissions
+- Only submit genuinely novel/insightful content. HN audience is senior devs
+- Best time: US morning (EST 8-10am)
+
+### Threads Post
+- Max 500 chars per post
+- Conversational, casual — like Twitter but less formal
+- Can do multi-post threads for longer content
+- No hashtags (algorithm doesn't use them yet)
+- Visual-first platform — mention if article has diagrams/screenshots
+
+### Viblo (Vietnamese tech community)
+- Only for Vietnamese articles
+- Repost full article with canonical URL
+- Tags: max 5, use popular Viblo tags (javascript, web, nodejs, etc.)
+- Series support — group related articles
+
 ## Content Extraction Rules
 - Read the full article/note markdown
 - Identify: main thesis, 2-3 supporting points, conclusion
@@ -38,25 +92,141 @@ Used by Claude Code, Gemini Flash, or any model in the distribution pipeline.
 ## UTM Parameters
 - Always append UTM to article links in social posts
 - Format: `?utm_source={platform}&utm_medium=social&utm_campaign=distribute`
-- Platforms: `twitter`, `linkedin`, `reddit`
+- Platforms: `twitter`, `linkedin`, `devto`, `hashnode`, `reddit`, `facebook`, `medium`, `hackernews`, `threads`, `viblo`
 
-## Output Format
-When generating posts, output in this exact format:
+## Output Format & Content Templates
+
+Generate each platform section using these templates. Example article: "Building a Content Engine with Astro and Keystatic" at `https://tree-id.dev/articles/building-content-engine`.
 
 ```
 === TWITTER THREAD ===
 
-[1/N] <tweet text>
+[1/3] I rebuilt my blog from Next.js + Postgres to Astro + Keystatic.
 
-[2/N] <tweet text>
+Zero database. Zero CMS hosting. Just markdown files in git.
 
-[N/N] <link with UTM>
+Here's what I learned:
+
+[2/3] The key insight: you don't need a database for a personal site.
+
+Keystatic reads/writes markdown directly. Git is your database. Vercel deploys on push.
+
+Total infrastructure cost: $0/month.
+
+[3/3] Full write-up with code examples:
+
+https://tree-id.dev/articles/building-content-engine?utm_source=twitter&utm_medium=social&utm_campaign=distribute
 
 === LINKEDIN ===
 
-<post text>
+I just mass-deleted my entire backend.
 
-<link with UTM>
+No more PostgreSQL. No more CMS server. No more $20/month hosting bill.
+
+I rebuilt my personal site with Astro + Keystatic — a static site generator that treats markdown files as your CMS. Content lives in git. Deploy on push.
+
+The result: a site that's faster, cheaper, and easier to maintain than anything I've built before.
+
+If you're running a personal blog on a full-stack framework, you might be overengineering it.
+
+https://tree-id.dev/articles/building-content-engine?utm_source=linkedin&utm_medium=social&utm_campaign=distribute
+
+#webdev #astro #staticsite
+
+=== DEV.TO ===
+
+---
+title: Building a Content Engine with Astro and Keystatic
+published: true
+tags: webdev, astro, javascript, tutorial
+canonical_url: https://tree-id.dev/articles/building-content-engine
+---
+
+[Full article content here — keep all markdown, code blocks, images intact]
+
+---
+
+*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=devto&utm_medium=social&utm_campaign=distribute)*
+
+=== HASHNODE ===
+
+---
+title: Building a Content Engine with Astro and Keystatic
+slug: building-content-engine-astro-keystatic
+canonical: https://tree-id.dev/articles/building-content-engine
+tags: webdev, astro, javascript, static-site, tutorial
+---
+
+[Full article content here — keep all markdown, code blocks, images intact]
+
+---
+
+*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=hashnode&utm_medium=social&utm_campaign=distribute)*
+
+=== REDDIT ===
+
+Subreddit: r/webdev
+Title: I replaced my Next.js + PostgreSQL blog with Astro + Keystatic — zero database, zero CMS cost
+
+I was paying $20/month to host a PostgreSQL database for a personal blog. Felt ridiculous.
+
+Switched to Astro + Keystatic: content lives as markdown in git, Keystatic gives you a local CMS UI, Vercel deploys on push. Total cost: $0.
+
+Wrote up the full migration process with code: https://tree-id.dev/articles/building-content-engine?utm_source=reddit&utm_medium=social&utm_campaign=distribute
+
+=== FACEBOOK ===
+
+Vừa xoá sạch backend cho blog cá nhân.
+
+Không database, không CMS server, không hosting phí. Chuyển sang Astro + Keystatic — content là markdown files trong git, deploy tự động qua Vercel.
+
+Nhanh hơn, rẻ hơn, dễ maintain hơn mọi stack trước đó.
+
+https://tree-id.dev/articles/building-content-engine?utm_source=facebook&utm_medium=social&utm_campaign=distribute
+
+=== MEDIUM ===
+
+Title: Building a Content Engine with Astro and Keystatic
+Subtitle: How I eliminated my database and cut hosting costs to $0
+
+[Full article content here — keep all formatting, code blocks intact]
+
+---
+
+*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=medium&utm_medium=social&utm_campaign=distribute)*
+
+Tags: Programming, JavaScript, Web Development, Static Site, Tutorial
+
+=== HACKER NEWS ===
+
+Title: Building a content engine with Astro and Keystatic – zero database, git-based CMS
+URL: https://tree-id.dev/articles/building-content-engine?utm_source=hackernews&utm_medium=social&utm_campaign=distribute
+
+=== THREADS ===
+
+I mass-deleted my entire backend for a personal blog.
+
+Switched from Next.js + PostgreSQL to Astro + Keystatic. Content = markdown in git. No database. No CMS hosting.
+
+Cost went from $20/month to $0. Speed doubled.
+
+Sometimes the best architecture is the simplest one.
+
+https://tree-id.dev/articles/building-content-engine?utm_source=threads&utm_medium=social&utm_campaign=distribute
+
+=== VIBLO === (Vietnamese content only)
+
+---
+title: Xây dựng Content Engine với Astro và Keystatic
+tags: javascript, web, astro, tutorial, devops
+canonical_url: https://tree-id.dev/articles/building-content-engine
+---
+
+[Toàn bộ nội dung bài viết tiếng Việt — giữ nguyên markdown, code blocks]
+
+---
+
+*Bài gốc tại [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=viblo&utm_medium=social&utm_campaign=distribute)*
 ```
 
 ## Quality Checklist

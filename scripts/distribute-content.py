@@ -156,7 +156,7 @@ def log_distribution(slug: str, content_type: str, word_count: int, notes: str =
             datetime.now().strftime("%Y-%m-%d"),
             slug,
             content_type,
-            "twitter,linkedin",
+            "twitter,linkedin,devto,hashnode,reddit,facebook,medium,hackernews,threads",
             "drafted",
             word_count,
             notes,

@@ -85,4 +85,12 @@ We keep all important docs in `./docs` folder and keep updating them, structure 
 └── project-roadmap.md
 ```
 
+## Context Efficiency with Repomix
+
+When spawning subagents that need broad codebase understanding (planning, refactoring, auditing, code review), use Repomix `pack_codebase` to pack the codebase first, then let the subagent read the packed file via `attach_packed_output` or `read_repomix_output`. This keeps the main session context clean.
+
+- Use `compress: true` for large codebases (>50K tokens)
+- Use `includePatterns` to pack only relevant modules
+- Do NOT pack for simple tasks targeting 1-2 specific files — use Glob+Read directly
+
 **IMPORTANT:** *MUST READ* and *MUST COMPLY* all *INSTRUCTIONS* in project `./CLAUDE.md`, especially *WORKFLOWS* section is *CRITICALLY IMPORTANT*, this rule is *MANDATORY. NON-NEGOTIABLE. NO EXCEPTIONS. MUST REMEMBER AT ALL TIMES!!!*
