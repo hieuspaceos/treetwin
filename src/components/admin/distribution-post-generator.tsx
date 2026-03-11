@@ -5,6 +5,12 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/admin/api-client'
 import { DistributionPostCard } from './distribution-post-card'
+import { DistributionPlatformSelector } from './distribution-platform-selector'
+
+const DEFAULT_PLATFORMS = [
+  'Twitter/X', 'LinkedIn', 'Facebook', 'Reddit', 'Threads',
+  'Hacker News', 'Dev.to', 'Hashnode', 'Medium', 'Viblo', 'Substack',
+]
 
 interface SocialPost {
   platform: string
@@ -34,6 +40,7 @@ export function DistributionPostGenerator({ collection, slug, title, onClose }: 
   const [error, setError] = useState<string | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
   const [language, setLanguage] = useState<LanguageOption>('auto')
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([...DEFAULT_PLATFORMS])
   const [postiz, setPostiz] = useState<PostizState>({
     configured: false, platforms: [], integrationMap: {}, status: {},
   })
@@ -76,7 +83,8 @@ export function DistributionPostGenerator({ collection, slug, title, onClose }: 
     setLoading(true)
     setError(null)
     try {
-      const res = await api.distribution.generate(collection, slug, language)
+      const platforms = selectedPlatforms.length < DEFAULT_PLATFORMS.length ? selectedPlatforms : undefined
+      const res = await api.distribution.generate(collection, slug, language, platforms)
       if (res.ok && res.data?.posts) {
         setPosts(res.data.posts)
       } else {
@@ -133,7 +141,18 @@ export function DistributionPostGenerator({ collection, slug, title, onClose }: 
                 <option value="en">English</option>
               </select>
             </div>
-            <button className="admin-btn admin-btn-primary" onClick={handleGenerate}>Generate Posts</button>
+            <DistributionPlatformSelector
+              selected={selectedPlatforms}
+              onChange={setSelectedPlatforms}
+              language={language}
+            />
+            <button
+              className="admin-btn admin-btn-primary"
+              onClick={handleGenerate}
+              disabled={selectedPlatforms.length === 0}
+            >
+              Generate Posts{selectedPlatforms.length < DEFAULT_PLATFORMS.length ? ` (${selectedPlatforms.length})` : ''}
+            </button>
           </div>
         )}
 

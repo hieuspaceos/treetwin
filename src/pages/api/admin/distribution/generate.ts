@@ -19,8 +19,8 @@ function json(data: unknown, status = 200) {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json()
-    const { collection, slug, language } = body as {
-      collection?: string; slug?: string; language?: LanguageOption
+    const { collection, slug, language, platforms } = body as {
+      collection?: string; slug?: string; language?: LanguageOption; platforms?: string[]
     }
 
     if (!collection || !slug) {
@@ -39,7 +39,9 @@ export const POST: APIRoute = async ({ request }) => {
     const validLanguages: LanguageOption[] = ['auto', 'vi', 'en']
     const lang = validLanguages.includes(language as LanguageOption) ? (language as LanguageOption) : 'auto'
 
-    const posts = await generateSocialPosts(collection, slug, lang)
+    // Validate platforms if provided
+    const validPlatforms = Array.isArray(platforms) ? platforms.filter((p) => typeof p === 'string') : undefined
+    const posts = await generateSocialPosts(collection, slug, lang, validPlatforms)
     return json({ ok: true, data: { posts } })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Generation failed'

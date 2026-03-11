@@ -125,10 +125,10 @@ export const api = {
 
   distribution: {
     stats: () => adminFetch<unknown>('/api/admin/distribution'),
-    generate: (collection: string, slug: string, language: 'auto' | 'vi' | 'en' = 'auto') =>
+    generate: (collection: string, slug: string, language: 'auto' | 'vi' | 'en' = 'auto', platforms?: string[]) =>
       adminFetch<{ posts: Array<{ platform: string; content: string }> }>(
         '/api/admin/distribution/generate',
-        { method: 'POST', body: JSON.stringify({ collection, slug, language }) },
+        { method: 'POST', body: JSON.stringify({ collection, slug, language, platforms }) },
       ),
     connectedPlatforms: () =>
       adminFetch<{ platforms: string[]; integrationMap: Record<string, string>; configured: boolean }>(

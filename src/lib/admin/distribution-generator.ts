@@ -28,6 +28,12 @@ async function loadBrandRules(): Promise<string> {
 
 export type LanguageOption = 'auto' | 'vi' | 'en'
 
+/** All available platforms for distribution */
+export const ALL_PLATFORMS = [
+  'Twitter/X', 'LinkedIn', 'Facebook', 'Reddit', 'Threads',
+  'Hacker News', 'Dev.to', 'Hashnode', 'Medium', 'Viblo', 'Substack',
+] as const
+
 /** Build Gemini prompt for social post generation */
 function buildPrompt(
   articleContent: string,
@@ -35,15 +41,22 @@ function buildPrompt(
   slug: string,
   siteUrl: string,
   language: LanguageOption = 'auto',
+  selectedPlatforms?: string[],
 ): string {
   const url = contentType === 'article'
     ? `${siteUrl}/seeds/${slug}`
     : `${siteUrl}/notes/${slug}`
 
-  // Conditionally include/exclude Viblo based on language
-  const platforms = language === 'en'
-    ? 'Twitter/X, LinkedIn, Facebook, Reddit, Threads, Hacker News, Dev.to, Hashnode, Medium, Substack'
-    : 'Twitter/X, LinkedIn, Facebook, Reddit, Threads, Hacker News, Dev.to, Hashnode, Medium, Viblo (Vietnamese only), Substack'
+  // Use selected platforms or default based on language
+  let platformList: string[]
+  if (selectedPlatforms && selectedPlatforms.length > 0) {
+    platformList = selectedPlatforms
+  } else {
+    platformList = language === 'en'
+      ? ALL_PLATFORMS.filter((p) => p !== 'Viblo') as unknown as string[]
+      : [...ALL_PLATFORMS]
+  }
+  const platforms = platformList.join(', ')
 
   // Language instruction
   const languageInstruction = language === 'vi'
@@ -76,6 +89,7 @@ export async function generateSocialPosts(
   collection: string,
   slug: string,
   language: LanguageOption = 'auto',
+  selectedPlatforms?: string[],
 ): Promise<SocialPost[]> {
   const apiKey = import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY
   if (!apiKey) {
@@ -98,7 +112,7 @@ export async function generateSocialPosts(
 
   // Load brand rules as system instruction
   const systemPrompt = await loadBrandRules()
-  const userPrompt = buildPrompt(articleContent, contentType, slug, siteUrl, language)
+  const userPrompt = buildPrompt(articleContent, contentType, slug, siteUrl, language, selectedPlatforms)
 
   // Call Gemini
   const genAI = new GoogleGenerativeAI(apiKey)
