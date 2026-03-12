@@ -2,10 +2,10 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-11)
+## Current Status (2026-03-12)
 
-**Phase:** Post-launch iteration & productization
-**Completion:** 95% (all core features shipped)
+**Phase:** Post-launch iteration — categories, editor refactoring, admin polish
+**Completion:** 95% (core complete, categories feature in progress)
 **Active Team:** Solo (HieuSpace)
 
 ---
@@ -63,7 +63,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 ### Deliverables
 - [x] Admin shell: sidebar navigation, topbar, glass-panel styling
 - [x] API layer: CRUD for articles/notes/records, auth middleware
-- [x] Content editor: Milkdown rich text with Markdoc output
+- [x] Content editor: enhanced Markdown textarea with toolbar + Markdoc output
 - [x] Media browser: drag-drop upload, R2 integration, thumbnails
 - [x] Preview: live seed page preview with draft support
 - [x] Polish: error boundaries, keyboard shortcuts, loading skeletons
@@ -74,7 +74,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - Admin SPA at `/admin` (Astro SSR shell + React islands)
 - Auth: env-var password + 7-day session cookies
 - Media: Cloudflare R2 with `ListObjectsV2` pagination
-- Editor: Milkdown (ProseMirror) with custom Markdoc serializer
+- Editor: Enhanced Markdown textarea with formatting toolbar
 
 **Breaking Changes:**
 - Keystatic UI no longer user-facing (internal schema only)
@@ -290,5 +290,5 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-**Last updated:** 2026-03-11
+**Last updated:** 2026-03-12
 **Next review:** 2026-04-01

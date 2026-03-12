@@ -295,7 +295,7 @@ Themes are **CSS variable tokens** injected at build time.
 
 ### Admin Stack
 - **Frontend:** React islands in Astro (client-side routing)
-- **Editor:** Milkdown (ProseMirror-based, Markdown-native, ~80KB bundle)
+- **Editor:** Enhanced Markdown textarea with formatting toolbar
 - **UI:** Radix UI headless + Tailwind CSS 4 glass-panel styling
 - **Auth:** Env-var password + 7-day session cookies via Astro middleware
 
@@ -310,7 +310,7 @@ Astro SSR shell (prerender: false)
         ├─ AdminTopbar (breadcrumbs, session indicator)
         └─ Content area (dynamic per route)
               ├─ ContentList (table + pagination)
-              ├─ ContentEditor (form + Milkdown editor + preview)
+              ├─ ContentEditor (form + Markdown textarea + preview)
               └─ MediaBrowser (grid + upload zone)
 
 POST /api/admin/* (API Routes)
@@ -323,7 +323,7 @@ POST /api/admin/* (API Routes)
 
 ### Admin Features
 - **Content CRUD:** Create, read, update, delete articles/notes/records
-- **Rich text:** Milkdown editor with Markdoc output (bold, italic, code blocks, lists, etc.)
+- **Rich text:** Enhanced Markdown textarea with toolbar — Markdoc output (bold, italic, code blocks, lists, etc.)
 - **Media browser:** Drag-drop upload to R2, thumbnails, search, delete
 - **Media integration:** "Browse" buttons in cover/OG image fields, image insertion in editor
 - **Preview:** Opens seed detail page in new tab with draft content
@@ -424,7 +424,7 @@ MediaUploadZone component
 2. **OG image field** — `seo.ogImage` text field
    - Same integration as cover image
 
-3. **Editor image insertion** — Milkdown editor
+3. **Editor image insertion** — Markdown textarea
    - Image button opens MediaBrowser dialog
    - On select: inserts `![alt](url)` Markdoc syntax
 

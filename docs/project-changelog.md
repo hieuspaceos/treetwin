@@ -14,7 +14,7 @@ Major feature release: replaced Keystatic's default UI with a premium custom adm
 - Custom admin shell with sidebar navigation, topbar, and glass-panel styling
 - Admin API layer for CRUD operations (read/write content files, auth)
 - Content management UI: listing, filtering, pagination for articles/notes/records
-- Rich Markdown editor powered by Milkdown with:
+- Rich Markdown editor (enhanced textarea with formatting toolbar):
   - Keyboard shortcuts (Ctrl+B/I/U, Ctrl+E for lists, etc.)
   - Code blocks with syntax highlighting
   - Block quotes, horizontal rules, heading levels
@@ -28,7 +28,7 @@ Major feature release: replaced Keystatic's default UI with a premium custom adm
 - Media search by filename
 - Integration with content editor:
   - Browse media button on cover/OG image fields
-  - Image insertion in Milkdown editor from media library
+  - Image insertion in Markdown editor from media library
   - Copy media URL to clipboard
 - Delete media files from grid
 - Graceful degradation when R2 not configured
