@@ -1,76 +1,18 @@
 /**
  * Marketing/Distribution dashboard — integrated into admin SPA
  * Fetches distribution stats + content inventory from /api/admin/distribution
- * Reuses DistributionTable patterns but styled for admin glass-panel theme
+ * Composed from modular sub-components for maintainability
  */
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, lazy, Suspense } from 'react'
 import { api } from '@/lib/admin/api-client'
+import type { DistributionData, ContentItem } from './marketing-types'
+import { StatCard } from './marketing-stat-card'
+import { MarketingContentTable } from './marketing-content-table'
+import { MarketingActivityTable } from './marketing-activity-table'
 
-// ── Types ──
-
-interface DistributionStats {
-  total: number
-  posted: number
-  drafted: number
-  platformCounts: Record<string, number>
-  firstDate: string | null
-  lastDate: string | null
-  avgPerWeek: number
-}
-
-interface ContentItem {
-  title: string
-  slug: string
-  collection: 'articles' | 'notes'
-  publishedAt: string | null
-  distributedPlatforms: string[]
-  distributionStatus: 'not_distributed' | 'drafted' | 'posted'
-  distributionDate: string | null
-}
-
-interface DistributionEntry {
-  date: string
-  slug: string
-  type: string
-  status: string
-  wordCount: number
-}
-
-interface DistributionData {
-  stats: DistributionStats
-  inventory: ContentItem[]
-  recentEntries: DistributionEntry[]
-}
-
-// ── Status badge helpers ──
-
-const STATUS_LABEL: Record<string, string> = {
-  posted: 'Posted',
-  drafted: 'Drafted',
-  not_distributed: 'Not distributed',
-}
-
-const STATUS_CLASS: Record<string, string> = {
-  posted: 'admin-badge-success',
-  drafted: 'admin-badge-warning',
-  not_distributed: 'admin-badge-neutral',
-}
-
-// ── Stat Card ──
-
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub: string }) {
-  return (
-    <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
-      <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: '0.25rem' }}>
-        {label}
-      </div>
-      <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1e293b' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>{sub}</div>
-    </div>
-  )
-}
-
-// ── Main Component ──
+const DistributionPostGenerator = lazy(() =>
+  import('./distribution-post-generator').then((m) => ({ default: m.DistributionPostGenerator })),
+)
 
 export function MarketingDashboard() {
   const [data, setData] = useState<DistributionData | null>(null)
@@ -78,6 +20,7 @@ export function MarketingDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [generatingItem, setGeneratingItem] = useState<ContentItem | null>(null)
 
   useEffect(() => {
     api.distribution.stats()
@@ -140,11 +83,10 @@ export function MarketingDashboard() {
         <StatCard label="Frequency" value={stats.avgPerWeek || '-'} sub="posts/week" />
       </div>
 
-      {/* Content inventory */}
+      {/* Content inventory filters */}
       <h2 style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: '0.75rem' }}>
         Content Inventory
       </h2>
-
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', alignItems: 'center' }}>
         <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="admin-select">
           <option value="all">All types</option>
@@ -162,100 +104,13 @@ export function MarketingDashboard() {
         </span>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px', textAlign: 'center', color: '#94a3b8' }}>
-          No content found. Create articles or notes first.
-        </div>
-      ) : (
-        <div className="glass-panel" style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Platforms</th>
-                  <th>Status</th>
-                  <th>Published</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((item) => (
-                  <tr key={item.slug}>
-                    <td style={{ fontWeight: 500 }}>{item.title}</td>
-                    <td>
-                      <span className="admin-badge-neutral">
-                        {item.collection === 'articles' ? 'Article' : 'Note'}
-                      </span>
-                    </td>
-                    <td>
-                      {item.distributedPlatforms.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                          {item.distributedPlatforms.map((p) => (
-                            <span key={p} className="admin-badge-info">{p}</span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span style={{ color: '#cbd5e1' }}>-</span>
-                      )}
-                    </td>
-                    <td>
-                      <span className={STATUS_CLASS[item.distributionStatus]}>
-                        {STATUS_LABEL[item.distributionStatus]}
-                      </span>
-                    </td>
-                    <td style={{ color: '#64748b' }}>
-                      {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <MarketingContentTable items={filtered} total={data.inventory.length} onGenerate={setGeneratingItem} />
 
       {/* Recent activity */}
       <h2 style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: '0.75rem' }}>
         Recent Activity
       </h2>
-
-      {recentEntries.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px', textAlign: 'center', color: '#94a3b8' }}>
-          No distribution activity yet. Run <code>/distribute</code> to get started.
-        </div>
-      ) : (
-        <div className="glass-panel" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Slug</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Words</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentEntries.map((entry, i) => (
-                  <tr key={`${entry.slug}-${i}`}>
-                    <td>{entry.date}</td>
-                    <td style={{ fontWeight: 500 }}>{entry.slug}</td>
-                    <td>{entry.type}</td>
-                    <td>
-                      <span className={entry.status === 'posted' ? 'admin-badge-success' : 'admin-badge-warning'}>
-                        {entry.status}
-                      </span>
-                    </td>
-                    <td>{entry.wordCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <MarketingActivityTable entries={recentEntries} />
 
       {/* Quick actions */}
       <div style={{ marginTop: '2rem' }}>
@@ -270,6 +125,18 @@ export function MarketingDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Distribution post generator modal */}
+      {generatingItem && (
+        <Suspense fallback={null}>
+          <DistributionPostGenerator
+            collection={generatingItem.collection}
+            slug={generatingItem.slug}
+            title={generatingItem.title}
+            onClose={() => setGeneratingItem(null)}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

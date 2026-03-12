@@ -15,6 +15,7 @@
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/vercel": "^9.0.4",
     "@aws-sdk/client-s3": "^3.0.0",
+    "@google/generative-ai": "^0.24.1",
     "@keystatic/astro": "^5.0.6",
     "@keystatic/core": "^0.5.48",
     "@radix-ui/react-dialog": "^1.1.15",

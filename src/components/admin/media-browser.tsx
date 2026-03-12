@@ -1,5 +1,5 @@
 /**
- * Media browser — combines upload zone + search + grid
+ * Media browser — combines upload zone + search + grid + load more pagination
  * Works in page mode (standalone /admin/media) and dialog mode (field picker)
  */
 import { useState, useEffect, useCallback } from 'react'
@@ -17,9 +17,12 @@ interface Props {
 export function MediaBrowser({ mode, onSelect, onClose }: Props) {
   const [items, setItems] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [configured, setConfigured] = useState(true)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<MediaItem | null>(null)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
   const toast = useToast()
 
   const fetchMedia = useCallback(async () => {
@@ -28,11 +31,25 @@ export function MediaBrowser({ mode, onSelect, onClose }: Props) {
     if (res.ok && res.data) {
       setItems(res.data.items)
       setConfigured(res.data.configured)
+      setHasMore(res.data.hasMore || false)
+      setNextCursor(res.data.nextCursor || null)
     }
     setLoading(false)
   }, [])
 
   useEffect(() => { fetchMedia() }, [fetchMedia])
+
+  async function handleLoadMore() {
+    if (!nextCursor || loadingMore) return
+    setLoadingMore(true)
+    const res = await api.media.list(nextCursor)
+    if (res.ok && res.data) {
+      setItems((prev) => [...prev, ...res.data!.items])
+      setHasMore(res.data.hasMore || false)
+      setNextCursor(res.data.nextCursor || null)
+    }
+    setLoadingMore(false)
+  }
 
   async function handleDelete(item: MediaItem) {
     if (!confirm(`Delete ${item.key.split('/').pop()}?`)) return
@@ -96,6 +113,20 @@ export function MediaBrowser({ mode, onSelect, onClose }: Props) {
         onDelete={handleDelete}
         dialogMode={mode === 'dialog'}
       />
+
+      {/* Load more button */}
+      {hasMore && !search && (
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn-ghost"
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load more'}
+          </button>
+        </div>
+      )}
     </>
   )
 

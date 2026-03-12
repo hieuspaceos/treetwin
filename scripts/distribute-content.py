@@ -24,7 +24,7 @@ NOTES_DIR = PROJECT_ROOT / "src" / "content" / "notes"
 RULES_FILE = PROJECT_ROOT / ".claude" / "rules" / "content-distribution.md"
 LOG_FILE = PROJECT_ROOT / "logs" / "distribution-log.csv"
 SITE_URL = os.getenv("PUBLIC_SITE_URL", "https://tree-id.dev")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-preview-05-20")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 SLUG_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
 
 

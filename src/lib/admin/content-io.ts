@@ -94,7 +94,7 @@ export class LocalContentIO implements ContentIO {
           if (data) {
             entries.push({
               slug: data.slug,
-              title: data.title,
+              title: data.title || (data as Record<string, unknown>).name as string || data.slug,
               status: data.status || 'draft',
               description: data.description || '',
               publishedAt: data.publishedAt as string | undefined,

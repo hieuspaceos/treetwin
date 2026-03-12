@@ -93,7 +93,7 @@ export default function MarkdocEditor({ value, onChange }: Props) {
         <button type="button" title="Blockquote" onClick={() => ins('\n> ')}>❝</button>
         <div className="toolbar-divider" />
         <button type="button" title="Link (Ctrl+K)" onClick={() => fmt('[', '](url)')}>🔗</button>
-        <button type="button" title="Insert image from media" onClick={() => setShowMedia(true)}>🖼</button>
+        <button type="button" title="Insert image — opens media browser (Ctrl+Shift+I)" onClick={() => setShowMedia(true)}>🖼</button>
         <button type="button" title="Code block" onClick={() => fmt('\n```\n', '\n```\n')}>{'{}'}</button>
         <button type="button" title="Horizontal rule" onClick={() => ins('\n---\n')}>—</button>
       </div>
@@ -104,7 +104,7 @@ export default function MarkdocEditor({ value, onChange }: Props) {
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         spellCheck={false}
-        style={{ minHeight: '350px' }}
+        placeholder="Start writing markdown... (click 🖼 in toolbar to insert images)"
       />
 
       {showMedia && (

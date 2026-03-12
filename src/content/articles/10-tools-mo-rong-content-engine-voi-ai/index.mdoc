@@ -1,6 +1,8 @@
 ---
 title: 10 công cụ mở rộng content engine với AI
-description: Nghiên cứu 10 công cụ AI từ SEO monitoring đến social distribution -- cái nào đáng tích hợp, cái nào chạy riêng
+description: >-
+  Nghiên cứu 10 công cụ AI từ SEO monitoring đến social distribution -- cái nào
+  đáng tích hợp, cái nào chạy riêng
 status: published
 publishedAt: '2026-03-10'
 tags:
@@ -8,19 +10,27 @@ tags:
   - seo
   - content-distribution
   - workflow
-category: engineering
-summary: Nghiên cứu 10 công cụ AI để mở rộng content engine. 3 cái đáng tích hợp (GSC/GA4 MCP, Postiz, /api/ask), 7 cái chạy riêng hoặc chỉ để tham khảo.
+  - heelo
+category: general
+summary: >-
+  Nghiên cứu 10 công cụ AI để mở rộng content engine. 3 cái đáng tích hợp
+  (GSC/GA4 MCP, Postiz, /api/ask), 7 cái chạy riêng hoặc chỉ để tham khảo.
 ---
 
-# 10 công cụ mở rộng content engine với AI
+# 10 công cụ mở rộng content engine với AI 222
 
 Tôi vừa review 10 công cụ AI để xem cái nào đáng tích hợp vào Tree-ID -- static content engine chạy Astro + Keystatic. Kết quả: 3 cái actionable, 7 cái out of scope.
+
+`ccccc`
 
 ## Đáng tích hợp
 
 ### 1. Google Search Console + GA4 MCP Servers
 
 **Vấn đề:** Sau khi deploy, không biết content perform thế nào trên search engines.
+[Google](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0e4ifHWn--ldf7qGG0fJR6RS0VE-UPPFFPw&s)
+
+[Hello](http://hieuspace.com)
 
 **Giải pháp:** Cài MCP servers cho Claude Code -- query GSC/GA4 data trực tiếp trong terminal.
 
@@ -37,7 +47,7 @@ Chỉ cần tạo Google Cloud service account, thêm vào `.mcp.json`. Không t
 
 **Giải pháp:** Postiz -- open-source scheduler hỗ trợ 13+ platforms (X, LinkedIn, Instagram, TikTok, Facebook, Discord, Pinterest, Threads, Reddit...).
 
-Pipeline: Article → Claude generate posts → Postiz API → 13 platforms.
+**Pipeline: Article → Claude generate posts → Postiz API → 13 platforms.**
 
 Self-host Docker hoặc dùng cloud. Có NodeJS SDK + API cho automation.
 
@@ -49,7 +59,9 @@ Self-host Docker hoặc dùng cloud. Có NodeJS SDK + API cho automation.
 
 **Giải pháp:** Build Astro SSR endpoint `/api/ask` -- search content bằng FTS5/BM25, feed context vào LLM, stream response.
 
-Không cần vector DB vì content nhỏ (tens of articles). SQLite FTS5 chunk theo headings là đủ.
+**Không cần vector DB vì content nhỏ (tens of articles). SQLite FTS5 chunk theo headings là đủ.**
+
+
 
 **Status:** Backlog. Plan đã tạo với 5 phases.
 

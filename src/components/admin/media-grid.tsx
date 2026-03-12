@@ -41,7 +41,13 @@ export function MediaGrid({ items, loading, selectedKey, onSelect, onDelete, dia
   if (!items.length) {
     return (
       <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94a3b8' }}>
-        <p style={{ fontSize: '0.9rem' }}>No media files yet</p>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 0.75rem', opacity: 0.4, display: 'block' }}>
+          <polyline points="16 16 12 12 8 16" />
+          <line x1="12" y1="12" x2="12" y2="21" />
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+          <polyline points="16 16 12 12 8 16" />
+        </svg>
+        <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>No media files yet</p>
         <p style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>Upload images above to get started</p>
       </div>
     )
