@@ -1,5 +1,6 @@
 /**
  * Admin authentication — PBKDF2 password hashing + JWT session tokens
+ * Supports multi-user via ADMIN_USERS env var or single-user via ADMIN_PASSWORD
  * Uses Web Crypto API (works in Node.js 18+ and Vercel Edge)
  */
 import { SignJWT, jwtVerify } from 'jose'
@@ -7,6 +8,27 @@ import { SignJWT, jwtVerify } from 'jose'
 // Cookie config
 export const COOKIE_NAME = 'admin_session'
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
+
+export type AdminRole = 'admin' | 'editor'
+
+export interface AdminUser {
+  username: string
+  password: string
+  role: AdminRole
+}
+
+/** Parse ADMIN_USERS env var (JSON array) or return null for single-user mode */
+function getAdminUsers(): AdminUser[] | null {
+  const raw = import.meta.env.ADMIN_USERS || process.env.ADMIN_USERS
+  if (!raw) return null
+  try {
+    const users = JSON.parse(raw) as AdminUser[]
+    if (!Array.isArray(users) || users.length === 0) return null
+    return users
+  } catch {
+    return null
+  }
+}
 
 /** Derive a 256-bit key from ADMIN_SECRET env var for JWT signing */
 function getSecret(): Uint8Array {
@@ -90,9 +112,38 @@ export async function checkAdminPassword(plain: string): Promise<boolean> {
   return diff === 0
 }
 
+/**
+ * Authenticate a user by username+password (multi-user) or password-only (single-user).
+ * Returns { username, role } on success, null on failure.
+ */
+export async function authenticateUser(
+  password: string,
+  username?: string,
+): Promise<{ username: string; role: AdminRole } | null> {
+  // Multi-user mode: ADMIN_USERS env var set
+  const users = getAdminUsers()
+  if (users) {
+    if (!username) return null
+    const user = users.find((u) => u.username === username)
+    if (!user) return null
+    // Direct comparison (passwords stored in env var, not hashed)
+    if (user.password !== password) return null
+    return { username: user.username, role: user.role }
+  }
+  // Single-user fallback: use existing checkAdminPassword
+  const valid = await checkAdminPassword(password)
+  if (!valid) return null
+  return { username: 'admin', role: 'admin' }
+}
+
+/** Check if multi-user mode is enabled (ADMIN_USERS env var is set) */
+export function isMultiUserMode(): boolean {
+  return getAdminUsers() !== null
+}
+
 /** Sign a JWT token with 7-day expiration */
 export async function signToken(payload: Record<string, unknown> = {}): Promise<string> {
-  return new SignJWT({ ...payload, role: 'admin' })
+  return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')

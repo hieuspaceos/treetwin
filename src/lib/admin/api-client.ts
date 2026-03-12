@@ -72,13 +72,14 @@ export interface MediaListResponse {
 
 export const api = {
   auth: {
-    login: (password: string) =>
-      adminFetch('/api/admin/auth', {
+    login: (password: string, username?: string) =>
+      adminFetch<{ username: string; role: string }>('/api/admin/auth', {
         method: 'POST',
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, username }),
       }),
     logout: () => adminFetch('/api/admin/auth', { method: 'DELETE' }),
-    check: () => adminFetch('/api/admin/auth', { skipAuthRedirect: true }),
+    check: () => adminFetch<{ username: string; role: string }>('/api/admin/auth', { skipAuthRedirect: true }),
+    checkMode: () => adminFetch<{ multiUser: boolean }>('/api/admin/auth?check=mode', { skipAuthRedirect: true }),
   },
 
   collections: {

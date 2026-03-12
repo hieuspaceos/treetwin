@@ -1,32 +1,40 @@
 /**
- * Admin login form — glass-card centered, password auth
+ * Admin login form — glass-card centered, supports multi-user (username+password) and single-user (password-only)
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '@/lib/admin/api-client'
 import { useToast } from './admin-toast'
 
 interface Props {
   siteName: string
-  onLogin: () => void
+  onLogin: (user: { username: string; role: string }) => void
 }
 
 export function AdminLogin({ siteName, onLogin }: Props) {
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [multiUser, setMultiUser] = useState(false)
   const toast = useToast()
+
+  useEffect(() => {
+    api.auth.checkMode().then((res) => {
+      if (res.ok && res.data?.multiUser) setMultiUser(true)
+    })
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const res = await api.auth.login(password)
+    const res = await api.auth.login(password, multiUser ? username : undefined)
     setLoading(false)
 
-    if (res.ok) {
-      toast.success('Logged in')
-      onLogin()
+    if (res.ok && res.data) {
+      toast.success(`Welcome, ${res.data.username}`)
+      onLogin({ username: res.data.username, role: res.data.role })
     } else {
       setError(res.error || 'Login failed')
     }
@@ -59,6 +67,35 @@ export function AdminLogin({ siteName, onLogin }: Props) {
           </div>
         )}
 
+        {multiUser && (
+          <>
+            <label
+              htmlFor="admin-username"
+              style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '0.5rem' }}
+            >
+              Username
+            </label>
+            <input
+              id="admin-username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="glass-input"
+              placeholder="Enter username"
+              autoFocus
+              required
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                borderRadius: '10px',
+                fontSize: '0.9rem',
+                marginBottom: '1rem',
+                boxSizing: 'border-box',
+              }}
+            />
+          </>
+        )}
+
         <label
           htmlFor="admin-password"
           style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '0.5rem' }}
@@ -71,8 +108,8 @@ export function AdminLogin({ siteName, onLogin }: Props) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="glass-input"
-          placeholder="Enter admin password"
-          autoFocus
+          placeholder="Enter password"
+          autoFocus={!multiUser}
           required
           style={{
             width: '100%',
@@ -86,7 +123,7 @@ export function AdminLogin({ siteName, onLogin }: Props) {
 
         <button
           type="submit"
-          disabled={loading || !password}
+          disabled={loading || !password || (multiUser && !username)}
           className="admin-btn admin-btn-primary"
           style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem' }}
         >

@@ -49,12 +49,35 @@ export const siteConfig = {
     search: true,
   },
 
+  /** About/portfolio page — set these to enable /about */
+  about: {
+    /** Short bio text (plain text or simple markdown) */
+    bio: '',
+    /** Skill tags displayed on about page */
+    skills: [] as string[],
+    /** Avatar image URL (leave empty to hide) */
+    avatar: '',
+  },
+
   /** Admin dashboard config — customizes the admin SPA at /admin */
   admin: {
     /** Title shown in sidebar header */
     title: 'Admin',
     /** Accent color override for admin UI (optional) */
     brandColor: '',
+  },
+
+  /** Google Analytics 4 — set GA_MEASUREMENT_ID env var to enable tracking */
+  analytics: {
+    measurementId: import.meta.env.GA_MEASUREMENT_ID || '',
+  },
+
+  /** Email newsletter — set RESEND_API_KEY env var to enable subscribe form */
+  email: {
+    /** Sender email address (must be verified in Resend) */
+    from: import.meta.env.RESEND_FROM_EMAIL || 'noreply@example.com',
+    /** Name shown in email "From" field */
+    fromName: 'Tree Identity',
   },
 
   /** Cloudflare R2 — optional, only needed for video manifests / media storage

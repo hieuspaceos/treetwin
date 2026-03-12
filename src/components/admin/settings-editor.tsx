@@ -7,6 +7,7 @@ import { getSchemaForSingleton } from '@/lib/admin/schema-registry'
 import { useFormState } from '@/lib/admin/form-reducer'
 import { renderField } from './field-renderers/render-field'
 import { useToast } from './admin-toast'
+import { SettingsIntegrationStatus } from './settings-integration-status'
 
 export function SettingsEditor() {
   const toast = useToast()
@@ -62,6 +63,8 @@ export function SettingsEditor() {
           </div>
         </form>
       </div>
+
+      <SettingsIntegrationStatus />
     </div>
   )
 }

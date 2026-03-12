@@ -20,6 +20,12 @@ const socials = Object.entries(siteConfig.socialLinks).filter(([, url]) => url)
     </a>
 
     <div class="flex items-center gap-1">
+      <a
+        href="/about"
+        class="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-black/[0.04] hover:text-slate-900"
+      >
+        About
+      </a>
       {siteConfig.features.search && (
         <a
           href="/search"

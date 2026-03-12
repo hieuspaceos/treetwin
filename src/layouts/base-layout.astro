@@ -46,6 +46,18 @@ const styleString = Object.entries(themeVars)
     {personLd && (
       <script is:inline type="application/ld+json" set:html={safeJsonLd(personLd)} />
     )}
+    {siteConfig.analytics.measurementId && (
+      <>
+        <meta name="ga-measurement-id" content={siteConfig.analytics.measurementId} />
+        <script is:inline src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.analytics.measurementId}`} async></script>
+        <script is:inline define:vars={{ gaMeasurementId: siteConfig.analytics.measurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaMeasurementId);
+        </script>
+      </>
+    )}
     <slot name="head" />
   </head>
   <body>

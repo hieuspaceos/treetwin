@@ -48,7 +48,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next()
   }
 
-  // Set admin flag for downstream handlers
-  ;(context.locals as Record<string, unknown>).isAdmin = true
+  // Set admin user info for downstream handlers
+  const locals = context.locals as Record<string, unknown>
+  locals.isAdmin = true
+  locals.adminUser = {
+    username: (payload.username as string) || 'admin',
+    role: (payload.role as string) || 'admin',
+  }
   return next()
 })

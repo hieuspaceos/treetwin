@@ -15,8 +15,14 @@ interface Props {
   siteName: string
 }
 
+export interface AdminUserInfo {
+  username: string
+  role: string
+}
+
 function AdminAppInner({ siteName }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null) // null = checking
+  const [user, setUser] = useState<AdminUserInfo | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const toast = useToast()
 
@@ -24,6 +30,9 @@ function AdminAppInner({ siteName }: Props) {
   useEffect(() => {
     api.auth.check().then((res) => {
       setAuthed(res.ok)
+      if (res.ok && res.data) {
+        setUser({ username: res.data.username, role: res.data.role })
+      }
     })
   }, [])
 
@@ -66,6 +75,7 @@ function AdminAppInner({ siteName }: Props) {
   async function handleLogout() {
     await api.auth.logout()
     setAuthed(false)
+    setUser(null)
     toast.success('Logged out')
   }
 
@@ -75,14 +85,20 @@ function AdminAppInner({ siteName }: Props) {
   if (!authed) {
     return (
       <div className="admin-root">
-        <AdminLogin siteName={siteName} onLogin={() => setAuthed(true)} />
+        <AdminLogin
+          siteName={siteName}
+          onLogin={(u) => {
+            setUser(u)
+            setAuthed(true)
+          }}
+        />
       </div>
     )
   }
 
   return (
     <div className="admin-root">
-      <AdminLayout siteName={siteName} onLogout={handleLogout} />
+      <AdminLayout siteName={siteName} onLogout={handleLogout} user={user} />
       {showShortcuts && <KeyboardShortcuts onClose={() => setShowShortcuts(false)} />}
     </div>
   )

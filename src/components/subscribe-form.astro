@@ -1,0 +1,66 @@
+---
+/**
+ * Subscribe form — email capture widget, shown only when Resend is configured
+ * Uses vanilla JS fetch (no React dependency)
+ */
+import { isEmailConfigured } from '@/lib/email/resend-client'
+
+const showForm = isEmailConfigured()
+---
+
+{showForm && (
+  <form class="glass-panel rounded-2xl px-6 py-6" id="subscribe-form">
+    <h3 class="mb-1 text-base font-semibold text-slate-900">Stay updated</h3>
+    <p class="mb-4 text-sm text-slate-500">Get notified when new articles are published.</p>
+    <div class="flex gap-2">
+      <input
+        type="email"
+        name="email"
+        placeholder="your@email.com"
+        required
+        class="glass-input flex-1 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        type="submit"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+      >
+        Subscribe
+      </button>
+    </div>
+    <p id="subscribe-msg" class="mt-2 hidden text-sm"></p>
+  </form>
+  <script is:inline>
+    document.getElementById('subscribe-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const form = e.target
+      const email = form.email.value
+      const msg = document.getElementById('subscribe-msg')
+      const btn = form.querySelector('button[type="submit"]')
+      btn.disabled = true
+      btn.textContent = 'Subscribing...'
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        })
+        const data = await res.json()
+        msg.classList.remove('hidden')
+        if (data.ok) {
+          msg.textContent = 'Subscribed! Check your email.'
+          msg.style.color = '#22c55e'
+          form.email.value = ''
+        } else {
+          msg.textContent = data.error || 'Something went wrong'
+          msg.style.color = '#ef4444'
+        }
+      } catch {
+        msg.textContent = 'Network error'
+        msg.style.color = '#ef4444'
+        msg.classList.remove('hidden')
+      }
+      btn.disabled = false
+      btn.textContent = 'Subscribe'
+    })
+  </script>
+)}

@@ -4,6 +4,7 @@ import SeedCard from '@/components/seed-card.astro'
 import { siteConfig } from '@/config/site-config'
 import { getAllPublishedSeeds } from '@/lib/content-helpers'
 import { websiteJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
+import SubscribeForm from '@/components/subscribe-form.astro'
 
 const seeds = await getAllPublishedSeeds()
 ---
@@ -62,4 +63,8 @@ const seeds = await getAllPublishedSeeds()
       </div>
     </section>
   )}
+
+  <div class="mt-10">
+    <SubscribeForm />
+  </div>
 </BaseLayout>

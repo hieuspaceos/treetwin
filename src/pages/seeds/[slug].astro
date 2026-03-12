@@ -5,6 +5,7 @@ import Breadcrumb from '@/components/breadcrumb.astro'
 import { Toc } from '@/components/islands/toc'
 import { articleJsonLd, breadcrumbJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
 import { siteConfig } from '@/config/site-config'
+import SubscribeForm from '@/components/subscribe-form.astro'
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles', (e) => e.data.status === 'published')
@@ -165,4 +166,8 @@ const ogImageUrl =
       )}
     </div>
   </article>
+
+  <div class="mt-10">
+    <SubscribeForm />
+  </div>
 </BaseLayout>

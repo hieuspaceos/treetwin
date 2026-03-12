@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react'
 import { Route, Switch } from 'wouter'
+import type { AdminUserInfo } from './admin-app'
 import { AdminSidebar } from './admin-sidebar'
 import { AdminTopbar } from './admin-topbar'
 import { AdminDashboard } from './admin-dashboard'
@@ -14,15 +15,18 @@ import { MediaBrowser } from './media-browser'
 import { MarketingDashboard } from './marketing-dashboard'
 import { CategoriesList } from './categories-list'
 import { CategoryEditor } from './category-editor'
+import { AdminSubscribersPage } from './admin-subscribers-page'
+import { AdminAnalyticsPage } from './admin-analytics-page'
 
 interface Props {
   siteName: string
   onLogout: () => void
+  user: AdminUserInfo | null
 }
 
 const SIDEBAR_KEY = 'admin-sidebar-collapsed'
 
-export function AdminLayout({ siteName, onLogout }: Props) {
+export function AdminLayout({ siteName, onLogout, user }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem(SIDEBAR_KEY) === 'true' } catch { return false }
@@ -44,7 +48,7 @@ export function AdminLayout({ siteName, onLogout }: Props) {
       />
 
       <main className="admin-main">
-        <AdminTopbar onToggleSidebar={() => setSidebarOpen((s) => !s)} />
+        <AdminTopbar onToggleSidebar={() => setSidebarOpen((s) => !s)} user={user} />
 
         <Switch>
           <Route path="/" component={AdminDashboard} />
@@ -101,6 +105,16 @@ export function AdminLayout({ siteName, onLogout }: Props) {
           {/* Marketing */}
           <Route path="/marketing">
             <MarketingDashboard />
+          </Route>
+
+          {/* Subscribers */}
+          <Route path="/subscribers">
+            <AdminSubscribersPage />
+          </Route>
+
+          {/* Analytics */}
+          <Route path="/analytics">
+            <AdminAnalyticsPage />
           </Route>
 
           {/* Settings */}
