@@ -4,6 +4,7 @@
   "buildCommand": "astro build",
   "outputDirectory": "dist",
   "redirects": [
-    { "source": "/hs-admin", "destination": "/keystatic", "permanent": true }
+    { "source": "/hs-admin", "destination": "/admin", "permanent": true },
+    { "source": "/keystatic", "destination": "/admin", "permanent": true }
   ]
 }
