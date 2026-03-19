@@ -1,8 +1,13 @@
 name: Professional Business
 description: Business communication for non-technical audience. Clear, authoritative, solution-focused.
-tone: professional
-industry: business
-audience: business
+tone:
+  - professional
+industry:
+  - business
+  - technology
+audience:
+  - business
+  - non-tech
 targetReader: >-
   Business managers and decision-makers, 30-50. Non-technical but tech-savvy.
   Read LinkedIn, industry newsletters. Want ROI numbers, case studies,

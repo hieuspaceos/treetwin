@@ -1,8 +1,14 @@
 name: Storytelling Travel (Tiếng Việt)
 description: Kể chuyện du lịch/trải nghiệm. Cảm xúc, chi tiết giác quan, cá nhân. Cho blog cá nhân tiếng Việt.
-tone: storytelling
-industry: travel
-audience: general
+tone:
+  - storytelling
+  - casual
+industry:
+  - travel
+  - food
+  - lifestyle
+audience:
+  - general
 targetReader: >-
   Người Việt 20-40 tuổi, thích đi du lịch và khám phá ẩm thực. Đọc Facebook,
   TikTok, Instagram. Thích bài viết có cảm xúc, chi tiết giác quan (mùi, vị,

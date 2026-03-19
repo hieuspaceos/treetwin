@@ -1,8 +1,8 @@
 name: My Voice
 description: ''
-tone: casual
-industry: general
-audience: general
+tone: []
+industry: []
+audience: []
 targetReader: ''
 pronoun: I
 language: en

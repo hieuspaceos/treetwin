@@ -10,7 +10,7 @@ export interface FieldOption {
 
 export interface FieldSchema {
   name: string
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'array' | 'object' | 'markdoc' | 'dynamic-select' | 'color'
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'array' | 'object' | 'markdoc' | 'dynamic-select' | 'color' | 'chip-select'
   label: string
   required?: boolean
   options?: FieldOption[]
@@ -126,7 +126,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
     { name: 'name', type: 'text', label: 'Voice Name', required: true },
     { name: 'description', type: 'textarea', label: 'Description (when to use this voice)' },
     {
-      name: 'tone', type: 'select', label: 'Tone',
+      name: 'tone', type: 'chip-select', label: 'Tone',
       options: [
         { label: 'Casual (blog, personal)', value: 'casual' },
         { label: 'Professional (business)', value: 'professional' },
@@ -138,7 +138,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'casual',
     },
     {
-      name: 'industry', type: 'select', label: 'Industry / Topic',
+      name: 'industry', type: 'chip-select', label: 'Industry / Topic',
       options: [
         { label: 'Technology', value: 'technology' },
         { label: 'Business', value: 'business' },
@@ -153,7 +153,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'technology',
     },
     {
-      name: 'audience', type: 'select', label: 'Target Audience',
+      name: 'audience', type: 'chip-select', label: 'Target Audience',
       options: [
         { label: 'Junior Developer', value: 'junior-dev' },
         { label: 'Senior Developer', value: 'senior-dev' },

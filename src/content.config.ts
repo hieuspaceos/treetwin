@@ -84,9 +84,9 @@ const voices = defineCollection({
   schema: z.object({
     name: z.string(),
     description: z.string().optional().nullable(),
-    tone: z.enum(['casual', 'professional', 'technical', 'storytelling', 'persuasive', 'academic']).default('casual'),
-    industry: z.enum(['technology', 'business', 'travel', 'lifestyle', 'finance', 'health', 'education', 'food', 'general']).default('technology'),
-    audience: z.enum(['junior-dev', 'senior-dev', 'non-tech', 'students', 'business', 'general']).default('general'),
+    tone: z.array(z.string()).default(['casual']),
+    industry: z.array(z.string()).default(['technology']),
+    audience: z.array(z.string()).default(['general']),
     targetReader: z.string().optional().nullable(),
     pronoun: z.string().optional().nullable(),
     language: z.enum(['vi', 'en']).default('vi'),

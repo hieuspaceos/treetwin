@@ -13,6 +13,7 @@ import { ObjectField } from './object-field'
 import { MarkdocField } from './markdoc-field'
 import { DynamicSelectField } from './dynamic-select-field'
 import { ColorField } from './color-field'
+import { ChipSelectField } from './chip-select-field'
 
 /** Render a single field from its schema definition */
 export function renderField(
@@ -53,6 +54,8 @@ export function renderField(
       return <DynamicSelectField key={key} {...baseProps} apiEndpoint={schema.apiEndpoint} />
     case 'color':
       return <ColorField key={key} {...baseProps} />
+    case 'chip-select':
+      return <ChipSelectField key={key} {...baseProps} options={schema.options} />
     case 'object':
       return (
         <ObjectField

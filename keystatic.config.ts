@@ -105,44 +105,17 @@ export default config({
           name: { label: 'Voice Name', validation: { isRequired: true } },
         }),
         description: fields.text({ label: 'Description (when to use this voice)', multiline: true }),
-        tone: fields.select({
-          label: 'Tone',
-          options: [
-            { label: 'Casual (blog, personal)', value: 'casual' },
-            { label: 'Professional (business, corporate)', value: 'professional' },
-            { label: 'Technical (tutorial, documentation)', value: 'technical' },
-            { label: 'Storytelling (narrative, engaging)', value: 'storytelling' },
-            { label: 'Persuasive (sales, marketing)', value: 'persuasive' },
-            { label: 'Academic (research, formal)', value: 'academic' },
-          ],
-          defaultValue: 'casual',
+        tone: fields.array(fields.text({ label: 'Tone' }), {
+          label: 'Tone (casual, professional, technical, storytelling, persuasive, academic)',
+          itemLabel: (props) => props.value,
         }),
-        industry: fields.select({
-          label: 'Industry / Topic',
-          options: [
-            { label: 'Technology', value: 'technology' },
-            { label: 'Business', value: 'business' },
-            { label: 'Travel', value: 'travel' },
-            { label: 'Lifestyle', value: 'lifestyle' },
-            { label: 'Finance', value: 'finance' },
-            { label: 'Health', value: 'health' },
-            { label: 'Education', value: 'education' },
-            { label: 'Food', value: 'food' },
-            { label: 'General', value: 'general' },
-          ],
-          defaultValue: 'technology',
+        industry: fields.array(fields.text({ label: 'Industry' }), {
+          label: 'Industry / Topic (technology, business, travel, lifestyle, finance, health, education, food)',
+          itemLabel: (props) => props.value,
         }),
-        audience: fields.select({
-          label: 'Target Audience',
-          options: [
-            { label: 'Junior Developer', value: 'junior-dev' },
-            { label: 'Senior Developer', value: 'senior-dev' },
-            { label: 'Non-technical', value: 'non-tech' },
-            { label: 'Students', value: 'students' },
-            { label: 'Business / Management', value: 'business' },
-            { label: 'General Public', value: 'general' },
-          ],
-          defaultValue: 'general',
+        audience: fields.array(fields.text({ label: 'Audience' }), {
+          label: 'Target Audience (junior-dev, senior-dev, non-tech, students, business, general)',
+          itemLabel: (props) => props.value,
         }),
         targetReader: fields.text({
           label: 'Target Reader (describe who reads this)',

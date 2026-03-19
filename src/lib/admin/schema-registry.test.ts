@@ -37,7 +37,7 @@ describe('collectionSchemas', () => {
   })
 
   it('all schemas have valid field types', () => {
-    const validTypes = ['text', 'textarea', 'select', 'checkbox', 'date', 'array', 'object', 'markdoc', 'dynamic-select', 'color']
+    const validTypes = ['text', 'textarea', 'select', 'checkbox', 'date', 'array', 'object', 'markdoc', 'dynamic-select', 'color', 'chip-select']
     for (const [, fields] of Object.entries(collectionSchemas)) {
       for (const field of fields) {
         expect(validTypes).toContain(field.type)

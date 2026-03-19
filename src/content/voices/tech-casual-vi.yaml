@@ -1,8 +1,12 @@
 name: Tech Casual (Tiếng Việt)
 description: Developer chia sẻ kinh nghiệm thực tế. Thẳng thắn, ngắn gọn, có số liệu. Dùng cho blog tech tiếng Việt.
-tone: casual
-industry: technology
-audience: junior-dev
+tone:
+  - casual
+industry:
+  - technology
+audience:
+  - junior-dev
+  - senior-dev
 targetReader: >-
   Developer Việt Nam 22-35 tuổi, đang học hoặc đã đi làm 1-5 năm. Hay đọc
   Viblo, dev.to, theo dõi tech Twitter. Quan tâm đến stack mới, career growth,
