@@ -3,6 +3,7 @@
  * Other fields (Description, Tags, etc.) are rendered in the main panel below content
  */
 import { SeoScorePanel } from './seo-score-panel'
+import { VoiceScorePanel } from './voice-score-panel'
 import { renderField } from './field-renderers/render-field'
 import { getSchemaForCollection, type FieldSchema } from '@/lib/admin/schema-registry'
 
@@ -79,6 +80,9 @@ export function EditorSidebarPanel({
           errors={errors}
         />
       )}
+
+      {/* Voice Quality Panel */}
+      {collection === 'voices' && <VoiceScorePanel values={values} />}
     </div>
   )
 }
