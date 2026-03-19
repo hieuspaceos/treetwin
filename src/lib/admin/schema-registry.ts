@@ -134,6 +134,37 @@ export const singletonSchemas: Record<string, FieldSchema[]> = {
       options: [{ label: 'Liquid Glass', value: 'liquid-glass' }],
       defaultValue: 'liquid-glass',
     },
+    {
+      name: 'voice',
+      type: 'object',
+      label: 'Writing Voice',
+      fields: [
+        {
+          name: 'tone',
+          type: 'select',
+          label: 'Tone',
+          options: [
+            { label: 'Casual (blog, personal)', value: 'casual' },
+            { label: 'Professional (business)', value: 'professional' },
+            { label: 'Technical (tutorial, docs)', value: 'technical' },
+          ],
+          defaultValue: 'casual',
+        },
+        { name: 'pronoun', type: 'text', label: 'First Person Pronoun (e.g. "tôi", "I", "we")' },
+        {
+          name: 'language',
+          type: 'select',
+          label: 'Primary Language',
+          options: [
+            { label: 'Tiếng Việt', value: 'vi' },
+            { label: 'English', value: 'en' },
+          ],
+          defaultValue: 'vi',
+        },
+        { name: 'sample', type: 'textarea', label: 'Sample Paragraph (AI will mimic this style)' },
+        { name: 'avoid', type: 'array', label: 'Phrases to Avoid' },
+      ],
+    },
   ],
 }
 
