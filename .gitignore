@@ -77,11 +77,8 @@ __pycache__
 prompt.md
 ck.md
 
-# Agent memory (project scope)
-.claude/agent-memory/
-
-# Hook diagnostics logs
-.claude/hooks/.logs/
+# ClaudeKit tooling (not project code)
+.claude/
 
 # MCP config (contains credentials)
 .mcp.json
