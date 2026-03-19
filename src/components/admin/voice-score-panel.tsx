@@ -1,9 +1,10 @@
 /**
- * Voice effectiveness panel — evaluates voice profile on 6 dimensions
- * based on NN/G Four Dimensions + Acrolinx Three-Pillar framework:
- * Completeness, Clarity, Audience Fit, Consistency, Distinctiveness, Emotional Tone
- * Scores computed programmatically from profile data (no AI needed)
+ * Voice effectiveness panel — two modes:
+ * 1. Heuristic: fast programmatic scoring from profile data (always visible)
+ * 2. AI Analysis: Gemini-powered deep evaluation (on-demand via button)
+ * Based on NN/G + Acrolinx voice evaluation frameworks
  */
+import { useState } from 'react'
 
 interface Props {
   values: Record<string, unknown>
@@ -199,11 +200,22 @@ function barColor(score: number): string {
   return '#ef4444'
 }
 
+/** AI analysis result shape (from Gemini) */
+interface AIAnalysis {
+  overall: number
+  dimensions: { name: string; score: number; note: string }[]
+  summary: string
+  suggestions: string[]
+}
+
 export function VoiceScorePanel({ values }: Props) {
   const dimensions = evaluate(values)
+  const [aiResult, setAiResult] = useState<AIAnalysis | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   // Weighted average: Consistency 30%, Audience 25%, Clarity 20%, rest 25% split
-  const weights = [10, 20, 25, 30, 8, 7] // completeness, clarity, audience, consistency, distinct, emotional
+  const weights = [10, 20, 25, 30, 8, 7]
   const totalWeight = weights.reduce((a, b) => a + b, 0)
   const overall = Math.round(
     dimensions.reduce((sum, d, i) => sum + d.score * weights[i], 0) / totalWeight
@@ -219,11 +231,32 @@ export function VoiceScorePanel({ values }: Props) {
     ? 'Some dimensions need strengthening for best results'
     : 'Profile needs more data before AI can effectively use this voice'
 
+  async function runAIAnalysis() {
+    setAiLoading(true)
+    setAiError(null)
+    try {
+      const res = await fetch('/api/admin/voice-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voice: values }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setAiResult(data.analysis as AIAnalysis)
+      } else {
+        setAiError(data.error || 'Analysis failed')
+      }
+    } catch {
+      setAiError('Network error')
+    }
+    setAiLoading(false)
+  }
+
   return (
     <div className="editor-panel-box">
       <div className="editor-panel-box-title">Voice Effectiveness</div>
 
-      {/* Overall score */}
+      {/* Overall heuristic score */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <div style={{
           width: 44, height: 44, borderRadius: '50%',
@@ -239,7 +272,7 @@ export function VoiceScorePanel({ values }: Props) {
         </div>
       </div>
 
-      {/* Dimension bars */}
+      {/* Heuristic dimension bars */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {dimensions.map((d) => (
           <div key={d.name}>
@@ -257,6 +290,65 @@ export function VoiceScorePanel({ values }: Props) {
             <div style={{ fontSize: '0.55rem', color: '#94a3b8', fontStyle: 'italic' }}>{d.impact}</div>
           </div>
         ))}
+      </div>
+
+      {/* AI Analysis section */}
+      <div style={{ marginTop: '0.75rem', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.75rem' }}>
+        <button
+          type="button"
+          onClick={runAIAnalysis}
+          disabled={aiLoading}
+          className="admin-btn admin-btn-ghost"
+          style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem', padding: '0.4rem' }}
+        >
+          {aiLoading ? 'Analyzing...' : aiResult ? 'Re-analyze with AI' : 'Analyze with AI'}
+        </button>
+
+        {aiError && (
+          <div style={{ fontSize: '0.65rem', color: '#dc2626', marginTop: '0.375rem' }}>{aiError}</div>
+        )}
+
+        {aiResult && (
+          <div style={{ marginTop: '0.5rem' }}>
+            {/* AI overall score */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8' }}>AI Score:</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: barColor(aiResult.overall) }}>
+                {aiResult.overall}
+              </span>
+            </div>
+
+            {/* AI summary */}
+            <div style={{ fontSize: '0.65rem', color: '#475569', lineHeight: 1.5, marginBottom: '0.5rem' }}>
+              {aiResult.summary}
+            </div>
+
+            {/* AI dimension scores */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.5rem' }}>
+              {aiResult.dimensions.map((d) => (
+                <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ fontSize: '0.6rem', fontWeight: 600, color: barColor(d.score), width: '1.5rem', textAlign: 'right' }}>
+                    {d.score}
+                  </span>
+                  <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 500 }}>{d.name}</span>
+                  <span style={{ fontSize: '0.55rem', color: '#94a3b8', marginLeft: 'auto', maxWidth: '60%', textAlign: 'right' }}>
+                    {d.note}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* AI suggestions */}
+            {aiResult.suggestions.length > 0 && (
+              <div>
+                <div style={{ fontSize: '0.6rem', fontWeight: 600, color: '#94a3b8', marginBottom: '0.25rem' }}>Suggestions:</div>
+                <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.6rem', color: '#475569', lineHeight: 1.6 }}>
+                  {aiResult.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
