@@ -59,6 +59,18 @@ export const siteConfig = {
     avatar: '',
   },
 
+  /** Writing voice — guides AI content generation (used by content-creation rules)
+   *  Tone: casual (blog), professional (docs), technical (tutorial)
+   *  Pronoun: first person word — "tôi" (Vietnamese), "I" (English), "we" etc.
+   *  Sample: one paragraph showing your ideal writing style */
+  voice: {
+    tone: 'casual' as 'casual' | 'professional' | 'technical',
+    pronoun: 'tôi',
+    language: 'vi' as 'vi' | 'en',
+    sample: 'Tôi mất 3 ngày migrate từ Next.js sang Astro. Build time giảm từ 45s xuống 12s, hosting cost từ $20/tháng xuống $0. Nhưng không phải không đau — Keystatic không support live preview, phải tự build.',
+    avoid: ['chúng ta sẽ cùng tìm hiểu', 'trong bài viết này', 'như các bạn đã biết'],
+  },
+
   /** Admin dashboard config — customizes the admin SPA at /admin */
   admin: {
     /** Title shown in sidebar header */
