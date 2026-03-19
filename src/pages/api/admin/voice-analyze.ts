@@ -73,13 +73,29 @@ Evaluate this voice profile on these 6 dimensions (score 0-100 each):
 5. **Emotional Tone** — Does the voice have personality and emotional resonance?
 6. **Completeness** — Are all necessary components present for AI to effectively use this voice?
 
-IMPORTANT: Respond ONLY in valid JSON. Use English for all text values. No markdown, no code blocks, no extra text.
+IMPORTANT: Respond ONLY in valid JSON. No markdown, no code blocks, no extra text.
+
+Provide TWO evaluations: one in English ("en") and one in Vietnamese ("vi").
+
+For suggestions: each suggestion MUST be tied to a specific field the user can edit. Format: "[field] action".
+Available fields: tone, industry, audience, targetReader, description, samples, avoid, pronoun, language.
+Example suggestions:
+- "[samples] Add a tutorial-style sample paragraph to show instructional voice"
+- "[avoid] Add 3-5 more phrases like 'needless to say' or 'it goes without saying'"
+- "[targetReader] Describe reader's pain points and what motivates them"
+- "[tone] Remove 'academic' — conflicts with casual style in samples"
+- "[description] Explain when NOT to use this voice (boundaries)"
+
+Make suggestions SPECIFIC and ACTIONABLE — user should know exactly what to type/change.
 
 JSON schema:
-{"overall": number, "dimensions": [{"name": string, "score": number, "note": string}], "summary": string, "suggestions": [string]}
+{"en": {"overall": number, "dimensions": [{"name": string, "score": number, "note": string}], "summary": string, "suggestions": [string]}, "vi": {"overall": number, "dimensions": [{"name": string, "score": number, "note": string}], "summary": string, "suggestions": [string]}}
 
-Dimension names must be exactly: "Consistency", "Audience Fit", "Clarity", "Distinctiveness", "Emotional Tone", "Completeness"
-All scores are integers 0-100. Keep notes and summary short (under 100 chars each). Use only ASCII characters in all string values.`
+Dimension names in EN: "Consistency", "Audience Fit", "Clarity", "Distinctiveness", "Emotional Tone", "Completeness"
+Dimension names in VI: "Nhất quán", "Phù hợp đối tượng", "Rõ ràng", "Khác biệt", "Cảm xúc", "Đầy đủ"
+
+Both evaluations must have the SAME scores. Only text (notes, summary, suggestions) differs by language.
+All scores are integers 0-100. Keep notes under 80 chars, summary under 150 chars. Provide 3-5 suggestions.`
 }
 
 /** Call Gemini API directly via REST (no SDK dependency in server) */

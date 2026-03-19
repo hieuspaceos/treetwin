@@ -10,6 +10,7 @@ import { getSchemaForCollection, type FieldSchema } from '@/lib/admin/schema-reg
 import { useFormState } from '@/lib/admin/form-reducer'
 import { EditorMainPanel } from './editor-main-panel'
 import { EditorSidebarPanel } from './editor-sidebar-panel'
+import { VoicePreviewModal } from './voice-preview-modal'
 import { useToast } from './admin-toast'
 
 interface Props {
@@ -31,6 +32,7 @@ export function ContentEditor({ collection, slug }: Props) {
   const saving = useRef(false)
   const isCreate = !slug
   const [editedSlug, setEditedSlug] = useState(slug || '')
+  const [showVoicePreview, setShowVoicePreview] = useState(false)
 
   // Categorize fields into main panel extras (not title/content/sidebar)
   const contentField = schema.find((f) => CONTENT_FIELDS.has(f.name) && f.type === 'markdoc')
@@ -208,6 +210,10 @@ export function ContentEditor({ collection, slug }: Props) {
             onSave={handleSave}
             onCancel={() => navigate(`/${collection}`)}
             onPreview={() => {
+              if (collection === 'voices') {
+                setShowVoicePreview(true)
+                return
+              }
               const previewSlug = slug || editedSlug || (form.values.title as string || '').toLowerCase().replace(/\s+/g, '-')
               const basePath = collection === 'articles' ? 'seeds' : collection
               if (previewSlug) window.open(`/${basePath}/${previewSlug}`, '_blank')
@@ -215,6 +221,10 @@ export function ContentEditor({ collection, slug }: Props) {
           />
         </div>
       </form>
+
+      {showVoicePreview && (
+        <VoicePreviewModal values={form.values} onClose={() => setShowVoicePreview(false)} />
+      )}
     </div>
   )
 }

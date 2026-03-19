@@ -200,17 +200,24 @@ function barColor(score: number): string {
   return '#ef4444'
 }
 
-/** AI analysis result shape (from Gemini) */
-interface AIAnalysis {
+/** Single-language AI analysis */
+interface AILang {
   overall: number
   dimensions: { name: string; score: number; note: string }[]
   summary: string
   suggestions: string[]
 }
 
+/** AI analysis result — bilingual (from Gemini) */
+interface AIAnalysis {
+  en: AILang
+  vi: AILang
+}
+
 export function VoiceScorePanel({ values }: Props) {
   const dimensions = evaluate(values)
   const [aiResult, setAiResult] = useState<AIAnalysis | null>(null)
+  const [aiLang, setAiLang] = useState<'en' | 'vi'>('en')
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
 
@@ -256,99 +263,118 @@ export function VoiceScorePanel({ values }: Props) {
     <div className="editor-panel-box">
       <div className="editor-panel-box-title">Voice Effectiveness</div>
 
-      {/* Overall heuristic score */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: '50%',
-          border: `3px solid ${overallColor}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '0.85rem', fontWeight: 700, color: overallColor,
-        }}>
-          {overall}
-        </div>
-        <div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b' }}>{label}</div>
-          <div style={{ fontSize: '0.6rem', color: '#94a3b8', lineHeight: 1.4 }}>{summary}</div>
-        </div>
-      </div>
+      {/* AI Analysis — primary section */}
+      <button
+        type="button"
+        onClick={runAIAnalysis}
+        disabled={aiLoading}
+        className="admin-btn admin-btn-primary"
+        style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem', padding: '0.4rem', marginBottom: '0.5rem' }}
+      >
+        {aiLoading ? 'Analyzing...' : aiResult ? 'Re-analyze' : 'Analyze with AI'}
+      </button>
 
-      {/* Heuristic dimension bars */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {dimensions.map((d) => (
-          <div key={d.name}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#475569' }}>{d.name}</span>
-              <span style={{ fontSize: '0.6rem', color: barColor(d.score), fontWeight: 600 }}>{d.score}</span>
-            </div>
-            <div style={{ height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.06)' }}>
-              <div style={{
-                height: '100%', borderRadius: 2, width: `${d.score}%`,
-                background: barColor(d.score), transition: 'width 300ms ease',
-              }} />
-            </div>
-            <div style={{ fontSize: '0.6rem', color: '#64748b', marginTop: '0.1rem' }}>{d.description}</div>
-            <div style={{ fontSize: '0.55rem', color: '#94a3b8', fontStyle: 'italic' }}>{d.impact}</div>
-          </div>
-        ))}
-      </div>
+      {aiError && (
+        <div style={{ fontSize: '0.65rem', color: '#dc2626', marginBottom: '0.375rem' }}>{aiError}</div>
+      )}
 
-      {/* AI Analysis section */}
-      <div style={{ marginTop: '0.75rem', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.75rem' }}>
-        <button
-          type="button"
-          onClick={runAIAnalysis}
-          disabled={aiLoading}
-          className="admin-btn admin-btn-ghost"
-          style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem', padding: '0.4rem' }}
-        >
-          {aiLoading ? 'Analyzing...' : aiResult ? 'Re-analyze with AI' : 'Analyze with AI'}
-        </button>
-
-        {aiError && (
-          <div style={{ fontSize: '0.65rem', color: '#dc2626', marginTop: '0.375rem' }}>{aiError}</div>
-        )}
-
-        {aiResult && (
-          <div style={{ marginTop: '0.5rem' }}>
-            {/* AI overall score */}
+      {aiResult && (() => {
+        const ai = aiResult[aiLang] || aiResult.en
+        return (
+          <div style={{ marginBottom: '0.75rem' }}>
+            {/* AI score + language toggle */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8' }}>AI Score:</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: barColor(aiResult.overall) }}>
-                {aiResult.overall}
-              </span>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                border: `3px solid ${barColor(ai.overall)}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.8rem', fontWeight: 700, color: barColor(ai.overall),
+              }}>
+                {ai.overall}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.65rem', color: '#475569', lineHeight: 1.4 }}>{ai.summary}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                {(['en', 'vi'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setAiLang(lang)}
+                    style={{
+                      padding: '1px 6px', fontSize: '0.55rem', fontWeight: 600, borderRadius: 3, border: 'none', cursor: 'pointer',
+                      background: aiLang === lang ? 'var(--t-accent)' : 'rgba(0,0,0,0.05)',
+                      color: aiLang === lang ? '#fff' : '#94a3b8',
+                    }}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* AI summary */}
-            <div style={{ fontSize: '0.65rem', color: '#475569', lineHeight: 1.5, marginBottom: '0.5rem' }}>
-              {aiResult.summary}
-            </div>
-
-            {/* AI dimension scores */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.5rem' }}>
-              {aiResult.dimensions.map((d) => (
-                <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span style={{ fontSize: '0.6rem', fontWeight: 600, color: barColor(d.score), width: '1.5rem', textAlign: 'right' }}>
-                    {d.score}
-                  </span>
-                  <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 500 }}>{d.name}</span>
-                  <span style={{ fontSize: '0.55rem', color: '#94a3b8', marginLeft: 'auto', maxWidth: '60%', textAlign: 'right' }}>
-                    {d.note}
-                  </span>
+            {/* AI dimensions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginBottom: '0.5rem' }}>
+              {ai.dimensions.map((d) => (
+                <div key={d.name}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.1rem' }}>
+                    <span style={{ fontSize: '0.6rem', fontWeight: 600, color: barColor(d.score), width: '1.5rem', textAlign: 'right' }}>
+                      {d.score}
+                    </span>
+                    <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 500 }}>{d.name}</span>
+                  </div>
+                  <div style={{ fontSize: '0.55rem', color: '#94a3b8', marginLeft: '1.9rem' }}>{d.note}</div>
                 </div>
               ))}
             </div>
 
-            {/* AI suggestions */}
-            {aiResult.suggestions.length > 0 && (
-              <div>
-                <div style={{ fontSize: '0.6rem', fontWeight: 600, color: '#94a3b8', marginBottom: '0.25rem' }}>Suggestions:</div>
-                <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.6rem', color: '#475569', lineHeight: 1.6 }}>
-                  {aiResult.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+            {/* AI suggestions — the most important part */}
+            {ai.suggestions.length > 0 && (
+              <div style={{ background: 'rgba(99,102,241,0.04)', borderRadius: 8, padding: '0.5rem 0.6rem', border: '1px solid rgba(99,102,241,0.08)' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                  {aiLang === 'vi' ? 'Cách cải thiện:' : 'How to improve:'}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '0.85rem', fontSize: '0.65rem', color: '#475569', lineHeight: 1.7 }}>
+                  {ai.suggestions.map((s, i) => {
+                    const match = s.match(/^\[(\w+)\]\s*(.*)/)
+                    if (match) {
+                      return (
+                        <li key={i}>
+                          <span style={{ fontWeight: 700, color: 'var(--t-accent)', fontSize: '0.6rem', background: 'rgba(99,102,241,0.08)', padding: '0 4px', borderRadius: 3 }}>
+                            {match[1]}
+                          </span>
+                          {' '}{match[2]}
+                        </li>
+                      )
+                    }
+                    return <li key={i}>{s}</li>
+                  })}
                 </ul>
               </div>
             )}
           </div>
+        )
+      })()}
+
+      {/* Heuristic quick score — compact bars only */}
+      <div style={{ borderTop: aiResult ? '1px solid rgba(0,0,0,0.06)' : 'none', paddingTop: aiResult ? '0.5rem' : 0 }}>
+        {!aiResult && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: overallColor }}>{overall}</span>
+            <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{label}</span>
+          </div>
         )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          {dimensions.map((d) => (
+            <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.6rem', color: '#94a3b8', width: '5.5rem', textAlign: 'right' }}>{d.name}</span>
+              <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(0,0,0,0.06)' }}>
+                <div style={{ height: '100%', borderRadius: 2, width: `${d.score}%`, background: barColor(d.score), transition: 'width 300ms ease' }} />
+              </div>
+              <span style={{ fontSize: '0.55rem', color: barColor(d.score), fontWeight: 600, width: '1.2rem', textAlign: 'right' }}>{d.score}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

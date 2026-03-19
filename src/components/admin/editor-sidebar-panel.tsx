@@ -59,7 +59,7 @@ export function EditorSidebarPanel({
           <button type="button" className="admin-btn admin-btn-ghost" onClick={onCancel} style={{ fontSize: '0.8rem', padding: '0.375rem 0.75rem' }}>
             Cancel
           </button>
-          {!isCreate && slug && (
+          {(!isCreate && slug || collection === 'voices') && (
             <button type="button" className="admin-btn admin-btn-ghost" onClick={onPreview} style={{ fontSize: '0.8rem', padding: '0.375rem 0.75rem' }}>
               Preview
             </button>
