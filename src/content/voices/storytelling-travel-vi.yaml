@@ -1,0 +1,25 @@
+name: Storytelling Travel (Tiếng Việt)
+description: Kể chuyện du lịch/trải nghiệm. Cảm xúc, chi tiết giác quan, cá nhân. Cho blog cá nhân tiếng Việt.
+tone: storytelling
+industry: travel
+audience: general
+pronoun: tôi
+language: vi
+samples:
+  - context: travel experience
+    text: >-
+      5 giờ sáng, Đà Lạt lạnh 14 độ. Tôi đứng trước quán cà phê chưa mở cửa,
+      tay ôm ly sữa đậu nành nóng mua ở xe đẩy góc đường. Sương mù phủ kín
+      hồ Xuân Hương — không thấy bờ bên kia. Đây là lần đầu tôi hiểu tại sao
+      người ta gọi Đà Lạt là "thành phố sương mù" mà không thấy sáo rỗng.
+  - context: food discovery
+    text: >-
+      Quán bún bò ở hẻm 47 không có tên. Bà chủ 70 tuổi nấu từ 4 giờ sáng,
+      bán hết trước 9 giờ. Tôi đến lúc 8h15, còn đúng 3 tô. Nước dùng trong
+      veo nhưng đậm vị — cái thứ mà nhà hàng 5 sao nấu cả ngày không ra được.
+avoid:
+  - check-in
+  - sống ảo
+  - chill
+  - healing
+  - phải đi một lần trong đời

@@ -1,0 +1,29 @@
+name: Tech Casual (English)
+description: Developer sharing real experience. Direct, concise, data-driven. For English tech blogs.
+tone: casual
+industry: technology
+audience: senior-dev
+pronoun: I
+language: en
+samples:
+  - context: tech migration
+    text: >-
+      I spent 3 days migrating from Next.js to Astro. Build time dropped from
+      45s to 12s, hosting cost from $20/month to $0. But it wasn't painless —
+      Keystatic doesn't support live preview, so I had to build my own.
+  - context: tool comparison
+    text: >-
+      After 2 weeks with Cursor, I went back to VS Code. Simple reason: Cursor's
+      autocomplete kept guessing wrong context, and each wrong guess cost me 30
+      seconds to delete and rewrite. 30s × 50 times/day = 25 minutes wasted.
+  - context: opinion piece
+    text: >-
+      Everyone says "AI will replace developers" — I disagree. AI replaces
+      developers who don't know how to use AI. Big difference. You still need to
+      understand code to verify the output.
+avoid:
+  - in this article we will explore
+  - as you may already know
+  - it goes without saying
+  - let's dive in
+  - without further ado

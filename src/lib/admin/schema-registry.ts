@@ -122,6 +122,60 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
     { name: 'description', type: 'textarea', label: 'Description' },
     { name: 'color', type: 'color', label: 'Color' },
   ],
+  voices: [
+    { name: 'name', type: 'text', label: 'Voice Name', required: true },
+    { name: 'description', type: 'textarea', label: 'Description (when to use this voice)' },
+    {
+      name: 'tone', type: 'select', label: 'Tone',
+      options: [
+        { label: 'Casual (blog, personal)', value: 'casual' },
+        { label: 'Professional (business)', value: 'professional' },
+        { label: 'Technical (tutorial, docs)', value: 'technical' },
+        { label: 'Storytelling (narrative)', value: 'storytelling' },
+        { label: 'Persuasive (sales, marketing)', value: 'persuasive' },
+        { label: 'Academic (research, formal)', value: 'academic' },
+      ],
+      defaultValue: 'casual',
+    },
+    {
+      name: 'industry', type: 'select', label: 'Industry / Topic',
+      options: [
+        { label: 'Technology', value: 'technology' },
+        { label: 'Business', value: 'business' },
+        { label: 'Travel', value: 'travel' },
+        { label: 'Lifestyle', value: 'lifestyle' },
+        { label: 'Finance', value: 'finance' },
+        { label: 'Health', value: 'health' },
+        { label: 'Education', value: 'education' },
+        { label: 'Food', value: 'food' },
+        { label: 'General', value: 'general' },
+      ],
+      defaultValue: 'technology',
+    },
+    {
+      name: 'audience', type: 'select', label: 'Target Audience',
+      options: [
+        { label: 'Junior Developer', value: 'junior-dev' },
+        { label: 'Senior Developer', value: 'senior-dev' },
+        { label: 'Non-technical', value: 'non-tech' },
+        { label: 'Students', value: 'students' },
+        { label: 'Business / Management', value: 'business' },
+        { label: 'General Public', value: 'general' },
+      ],
+      defaultValue: 'general',
+    },
+    { name: 'pronoun', type: 'text', label: 'First Person Pronoun (e.g. "tôi", "I", "we")' },
+    {
+      name: 'language', type: 'select', label: 'Primary Language',
+      options: [
+        { label: 'Tiếng Việt', value: 'vi' },
+        { label: 'English', value: 'en' },
+      ],
+      defaultValue: 'vi',
+    },
+    { name: 'samples', type: 'array', label: 'Sample Paragraphs' },
+    { name: 'avoid', type: 'array', label: 'Phrases to Avoid' },
+  ],
 }
 
 /** Schema definitions per singleton */
@@ -135,35 +189,10 @@ export const singletonSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'liquid-glass',
     },
     {
-      name: 'voice',
-      type: 'object',
-      label: 'Writing Voice',
-      fields: [
-        {
-          name: 'tone',
-          type: 'select',
-          label: 'Tone',
-          options: [
-            { label: 'Casual (blog, personal)', value: 'casual' },
-            { label: 'Professional (business)', value: 'professional' },
-            { label: 'Technical (tutorial, docs)', value: 'technical' },
-          ],
-          defaultValue: 'casual',
-        },
-        { name: 'pronoun', type: 'text', label: 'First Person Pronoun (e.g. "tôi", "I", "we")' },
-        {
-          name: 'language',
-          type: 'select',
-          label: 'Primary Language',
-          options: [
-            { label: 'Tiếng Việt', value: 'vi' },
-            { label: 'English', value: 'en' },
-          ],
-          defaultValue: 'vi',
-        },
-        { name: 'sample', type: 'textarea', label: 'Sample Paragraph (AI will mimic this style)' },
-        { name: 'avoid', type: 'array', label: 'Phrases to Avoid' },
-      ],
+      name: 'activeVoice',
+      type: 'dynamic-select',
+      label: 'Active Writing Voice',
+      apiEndpoint: '/api/admin/collections/voices',
     },
   ],
 }

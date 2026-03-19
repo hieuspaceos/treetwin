@@ -4,7 +4,7 @@
  */
 
 /** Allowed collection names (prevents path traversal) */
-export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories'] as const
+export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories', 'voices'] as const
 export type CollectionName = (typeof ALLOWED_COLLECTIONS)[number]
 
 /** Allowed singleton names */

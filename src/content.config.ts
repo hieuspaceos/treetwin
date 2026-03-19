@@ -78,4 +78,23 @@ const categories = defineCollection({
   }),
 })
 
-export const collections = { articles, notes, records, categories }
+// Voices: writing voice profiles for AI content generation
+const voices = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/voices' }),
+  schema: z.object({
+    name: z.string(),
+    description: z.string().optional().nullable(),
+    tone: z.enum(['casual', 'professional', 'technical', 'storytelling', 'persuasive', 'academic']).default('casual'),
+    industry: z.enum(['technology', 'business', 'travel', 'lifestyle', 'finance', 'health', 'education', 'food', 'general']).default('technology'),
+    audience: z.enum(['junior-dev', 'senior-dev', 'non-tech', 'students', 'business', 'general']).default('general'),
+    pronoun: z.string().optional().nullable(),
+    language: z.enum(['vi', 'en']).default('vi'),
+    samples: z.array(z.object({
+      context: z.string().optional().nullable(),
+      text: z.string(),
+    })).default([]),
+    avoid: z.array(z.string()).default([]),
+  }),
+})
+
+export const collections = { articles, notes, records, categories, voices }

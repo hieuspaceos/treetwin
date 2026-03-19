@@ -1,0 +1,24 @@
+name: Professional Business
+description: Business communication for non-technical audience. Clear, authoritative, solution-focused.
+tone: professional
+industry: business
+audience: business
+pronoun: we
+language: en
+samples:
+  - context: product announcement
+    text: >-
+      We reduced deployment time by 73% after switching to a static-first
+      architecture. The result: our team ships features daily instead of weekly,
+      and our infrastructure costs dropped below $50/month.
+  - context: case study
+    text: >-
+      When our client's site went down during Black Friday, we had 4 hours to
+      fix it. The root cause was a database connection pool exhaustion — something
+      a load test would have caught. We now run load tests before every major sale.
+avoid:
+  - synergy
+  - leverage (as verb)
+  - circle back
+  - move the needle
+  - at the end of the day

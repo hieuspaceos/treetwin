@@ -1,0 +1,29 @@
+name: Tech Casual (Tiếng Việt)
+description: Developer chia sẻ kinh nghiệm thực tế. Thẳng thắn, ngắn gọn, có số liệu. Dùng cho blog tech tiếng Việt.
+tone: casual
+industry: technology
+audience: junior-dev
+pronoun: tôi
+language: vi
+samples:
+  - context: tech migration
+    text: >-
+      Tôi mất 3 ngày migrate từ Next.js sang Astro. Build time giảm từ 45s
+      xuống 12s, hosting cost từ $20/tháng xuống $0. Nhưng không phải không đau
+      — Keystatic không support live preview, phải tự build.
+  - context: tool review
+    text: >-
+      Sau 2 tuần dùng Cursor, tôi quay lại VS Code. Lý do đơn giản: autocomplete
+      của Cursor hay đoán sai context, và mỗi lần sai tôi mất 30 giây xoá code
+      rồi viết lại. 30 giây × 50 lần/ngày = 25 phút lãng phí.
+  - context: opinion piece
+    text: >-
+      Mọi người nói "AI sẽ thay thế developer" — tôi không đồng ý. AI thay thế
+      developer không biết dùng AI. Khác biệt lớn. Người biết prompt đúng vẫn
+      cần hiểu code để kiểm tra output.
+avoid:
+  - trong bài viết này chúng ta sẽ
+  - như các bạn đã biết
+  - không thể phủ nhận rằng
+  - hãy cùng tìm hiểu
+  - một cách toàn diện

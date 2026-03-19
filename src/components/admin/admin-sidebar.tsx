@@ -153,6 +153,7 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
         <NavItem href="/notes" icon={icons.stickyNote} label="Notes" collapsed={collapsed} />
         <NavItem href="/records" icon={icons.database} label="Records" collapsed={collapsed} />
         <NavItem href="/categories" icon={icons.folder} label="Categories" collapsed={collapsed} />
+        <NavItem href="/voices" icon={icons.edit} label="Voices" collapsed={collapsed} />
 
         {!collapsed && <div className="admin-nav-section">Assets</div>}
         {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}

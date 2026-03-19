@@ -94,6 +94,78 @@ export default config({
         color: fields.text({ label: 'Color (hex)', validation: { isRequired: false } }),
       },
     }),
+    // Voices: writing voice profiles for AI content generation
+    voices: collection({
+      label: 'Writing Voices',
+      slugField: 'name',
+      path: 'src/content/voices/*',
+      format: { data: 'yaml' },
+      schema: {
+        name: fields.slug({
+          name: { label: 'Voice Name', validation: { isRequired: true } },
+        }),
+        description: fields.text({ label: 'Description (when to use this voice)', multiline: true }),
+        tone: fields.select({
+          label: 'Tone',
+          options: [
+            { label: 'Casual (blog, personal)', value: 'casual' },
+            { label: 'Professional (business, corporate)', value: 'professional' },
+            { label: 'Technical (tutorial, documentation)', value: 'technical' },
+            { label: 'Storytelling (narrative, engaging)', value: 'storytelling' },
+            { label: 'Persuasive (sales, marketing)', value: 'persuasive' },
+            { label: 'Academic (research, formal)', value: 'academic' },
+          ],
+          defaultValue: 'casual',
+        }),
+        industry: fields.select({
+          label: 'Industry / Topic',
+          options: [
+            { label: 'Technology', value: 'technology' },
+            { label: 'Business', value: 'business' },
+            { label: 'Travel', value: 'travel' },
+            { label: 'Lifestyle', value: 'lifestyle' },
+            { label: 'Finance', value: 'finance' },
+            { label: 'Health', value: 'health' },
+            { label: 'Education', value: 'education' },
+            { label: 'Food', value: 'food' },
+            { label: 'General', value: 'general' },
+          ],
+          defaultValue: 'technology',
+        }),
+        audience: fields.select({
+          label: 'Target Audience',
+          options: [
+            { label: 'Junior Developer', value: 'junior-dev' },
+            { label: 'Senior Developer', value: 'senior-dev' },
+            { label: 'Non-technical', value: 'non-tech' },
+            { label: 'Students', value: 'students' },
+            { label: 'Business / Management', value: 'business' },
+            { label: 'General Public', value: 'general' },
+          ],
+          defaultValue: 'general',
+        }),
+        pronoun: fields.text({ label: 'First Person Pronoun (e.g. "tôi", "I", "we")' }),
+        language: fields.select({
+          label: 'Primary Language',
+          options: [
+            { label: 'Tiếng Việt', value: 'vi' },
+            { label: 'English', value: 'en' },
+          ],
+          defaultValue: 'vi',
+        }),
+        samples: fields.array(
+          fields.object({
+            context: fields.text({ label: 'Context (e.g. "tech tutorial", "opinion piece")' }),
+            text: fields.text({ label: 'Sample Paragraph', multiline: true }),
+          }),
+          { label: 'Sample Paragraphs', itemLabel: (props) => props.fields.context.value || 'Sample' },
+        ),
+        avoid: fields.array(fields.text({ label: 'Phrase' }), {
+          label: 'Phrases to Avoid',
+          itemLabel: (props) => props.value,
+        }),
+      },
+    }),
     // Articles: long-form Markdoc content (replaces Payload Lexical richText)
     articles: collection({
       label: 'Articles',
