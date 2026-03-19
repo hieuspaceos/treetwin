@@ -77,8 +77,9 @@ Requirements:
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      system_instruction: { parts: [{ text: 'You are a professional content writer. You ALWAYS write at least 200 words. Never write less than 4 paragraphs. Each paragraph must be at least 40 words long.' }] },
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.8, maxOutputTokens: 1024 },
+      generationConfig: { temperature: 0.8, maxOutputTokens: 2048 },
     }),
   })
 
