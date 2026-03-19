@@ -3,6 +3,10 @@ description: Developer sharing real experience. Direct, concise, data-driven. Fo
 tone: casual
 industry: technology
 audience: senior-dev
+targetReader: >-
+  Senior developers 28-45, read Hacker News and technical blogs daily.
+  Value depth over breadth, skeptical of hype. Prefer "I tested X, here's data"
+  over "Top 10 reasons to use X". Care about trade-offs, not just benefits.
 pronoun: I
 language: en
 samples:

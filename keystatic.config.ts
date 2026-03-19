@@ -144,6 +144,11 @@ export default config({
           ],
           defaultValue: 'general',
         }),
+        targetReader: fields.text({
+          label: 'Target Reader (describe who reads this)',
+          description: 'E.g. "Nam 25-35 tuổi, developer Việt Nam, thích đọc Hacker News" or "Female office workers interested in productivity"',
+          multiline: true,
+        }),
         pronoun: fields.text({ label: 'First Person Pronoun (e.g. "tôi", "I", "we")' }),
         language: fields.select({
           label: 'Primary Language',

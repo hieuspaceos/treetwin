@@ -164,6 +164,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       ],
       defaultValue: 'general',
     },
+    { name: 'targetReader', type: 'textarea', label: 'Target Reader (describe who reads this)' },
     { name: 'pronoun', type: 'text', label: 'First Person Pronoun (e.g. "tôi", "I", "we")' },
     {
       name: 'language', type: 'select', label: 'Primary Language',

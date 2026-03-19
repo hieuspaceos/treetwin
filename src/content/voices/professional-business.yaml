@@ -3,6 +3,10 @@ description: Business communication for non-technical audience. Clear, authorita
 tone: professional
 industry: business
 audience: business
+targetReader: >-
+  Business managers and decision-makers, 30-50. Non-technical but tech-savvy.
+  Read LinkedIn, industry newsletters. Want ROI numbers, case studies,
+  clear recommendations. Short attention span — get to the point fast.
 pronoun: we
 language: en
 samples:
