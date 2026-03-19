@@ -22,7 +22,9 @@ function flatten(obj: Record<string, unknown>, prefix = ''): Record<string, stri
 
 /** Subgroup within a section */
 interface SubGroup {
+  key: string // raw key segment (e.g. "tone")
   label: string
+  sectionKey: string // parent section key (e.g. "voice")
   entries: [string, string][] // [flatKey, value]
 }
 
@@ -70,15 +72,15 @@ function buildSections(flat: Record<string, string>): Record<string, Section> {
       // Skip _label keys (used as subgroup headers below)
       if (parts[2] === '_label') {
         // Find or create subgroup, set its label
-        let sg = section.subgroups.find((g) => g.label === subKey)
-        if (!sg) { sg = { label: subKey, entries: [] }; section.subgroups.push(sg) }
+        let sg = section.subgroups.find((g) => g.key === subKey)
+        if (!sg) { sg = { key: subKey, label: subKey, sectionKey, entries: [] }; section.subgroups.push(sg) }
         sg.label = value // overwrite with human label
         continue
       }
-      let sg = section.subgroups.find((g) => g.label === subKey || g.label === humanize(subKey))
+      let sg = section.subgroups.find((g) => g.key === subKey)
       if (!sg) {
         // _label not yet seen — use humanized key as label, will be overwritten if _label exists
-        sg = { label: subKey, entries: [] }
+        sg = { key: subKey, label: subKey, sectionKey, entries: [] }
         section.subgroups.push(sg)
       }
       sg.entries.push([key, value])
@@ -132,6 +134,32 @@ function TranslationRow({ flatKey, value, enRef, isChanged, onChange }: {
   )
 }
 
+/** Inline add-key row for subgroups */
+function AddKeyRow({ onAdd }: { onAdd: (key: string) => void }) {
+  const [draft, setDraft] = useState('')
+  function submit() {
+    if (!draft.trim()) return
+    onAdd(draft)
+    setDraft('')
+  }
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', padding: '0.3rem 0.6rem', opacity: 0.7 }}>
+      <input
+        type="text"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), submit())}
+        className="glass-input"
+        placeholder="Add new option..."
+        style={{ flex: 1, fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px dashed rgba(148,163,184,0.3)' }}
+      />
+      <button type="button" onClick={submit} className="admin-btn admin-btn-ghost" style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}>
+        + Add
+      </button>
+    </div>
+  )
+}
+
 export function AdminTranslationsPage() {
   const toast = useToast()
   const locales = getAvailableLocales()
@@ -164,6 +192,15 @@ export function AdminTranslationsPage() {
 
   function handleChange(key: string, value: string) {
     setTranslations((prev) => ({ ...prev, [key]: value }))
+  }
+
+  /** Add a new translation key to a subgroup (e.g. voice.tone.witty = "Witty") */
+  function handleAddKey(sectionKey: string, subgroupKey: string, newKey: string) {
+    const slug = newKey.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    if (!slug) return
+    const flatKey = `${sectionKey}.${subgroupKey}.${slug}`
+    if (translations[flatKey]) return // already exists
+    setTranslations((prev) => ({ ...prev, [flatKey]: humanize(slug) }))
   }
 
   const hasChanges = JSON.stringify(translations) !== JSON.stringify(original)
@@ -290,9 +327,9 @@ export function AdminTranslationsPage() {
               {/* Subgroups */}
               {section.subgroups.map((sg) => {
                 const filtered = sg.entries.filter(([k, v]) => matchesSearch(k, v))
-                if (filtered.length === 0) return null
+                if (filtered.length === 0 && !search) return null
                 return (
-                  <div key={sg.label} style={{ marginTop: '0.25rem' }}>
+                  <div key={sg.key} style={{ marginTop: '0.25rem' }}>
                     <h3 style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 0.375rem 0.25rem' }}>
                       {sg.label}
                     </h3>
@@ -300,6 +337,7 @@ export function AdminTranslationsPage() {
                       {filtered.map(([key, value]) => (
                         <TranslationRow key={key} flatKey={key} value={value} enRef={isTranslating ? enRef[key] : undefined} isChanged={value !== original[key]} onChange={handleChange} />
                       ))}
+                      <AddKeyRow onAdd={(newKey) => handleAddKey(sg.sectionKey, sg.key, newKey)} />
                     </div>
                   </div>
                 )

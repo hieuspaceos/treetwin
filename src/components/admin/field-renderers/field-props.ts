@@ -13,4 +13,5 @@ export interface FieldProps {
   disabled?: boolean
   options?: FieldOption[]
   mediaBrowse?: boolean
+  i18nPrefix?: string // translation key prefix for chip-select labels
 }

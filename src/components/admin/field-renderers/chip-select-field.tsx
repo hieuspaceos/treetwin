@@ -5,13 +5,34 @@
  */
 import { useState } from 'react'
 import type { FieldProps } from './field-props'
+import { t, getSection } from '@/lib/i18n'
 
-export function ChipSelectField({ name, label, value, onChange, disabled, options }: FieldProps) {
+export function ChipSelectField({ name, label, value, onChange, disabled, options, i18nPrefix }: FieldProps) {
   const selected = (value as string[]) || []
   const [customDraft, setCustomDraft] = useState('')
 
+  /** Build preset options: from translations (if i18nPrefix set) merged with schema options */
+  const resolvedOptions = (() => {
+    if (!i18nPrefix) return options || []
+    // Get all keys from translation section (e.g. voice.tone → { casual: "Casual", ... })
+    const translated = getSection(i18nPrefix)
+    const schemaValues = new Set(options?.map((o) => o.value) || [])
+    // Start with schema options (preserves order), use translated labels
+    const result = (options || []).map((o) => ({
+      value: o.value,
+      label: translated[o.value] || o.label,
+    }))
+    // Add translation-only keys (added via translations page, not in schema)
+    for (const [key, translatedLabel] of Object.entries(translated)) {
+      if (!schemaValues.has(key)) {
+        result.push({ value: key, label: translatedLabel })
+      }
+    }
+    return result
+  })()
+
   /** Preset option values for quick lookup */
-  const presetValues = new Set(options?.map((o) => o.value) || [])
+  const presetValues = new Set(resolvedOptions.map((o) => o.value))
 
   /** Custom values = selected items not in presets */
   const customValues = selected.filter((v) => !presetValues.has(v))
@@ -42,7 +63,7 @@ export function ChipSelectField({ name, label, value, onChange, disabled, option
 
       {/* Preset chips grid */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '0.5rem' }}>
-        {options?.map((opt) => {
+        {resolvedOptions.map((opt) => {
           const isActive = selected.includes(opt.value)
           return (
             <button

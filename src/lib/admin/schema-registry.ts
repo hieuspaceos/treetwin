@@ -18,6 +18,7 @@ export interface FieldSchema {
   defaultValue?: unknown
   mediaBrowse?: boolean // show "Browse Media" button for URL fields
   apiEndpoint?: string // for dynamic-select: fetch options from this API
+  i18nPrefix?: string // for chip-select: prefix for translation lookup (e.g. "voice.tone")
 }
 
 /** Shared seed fields (mirrors baseSeedFields in keystatic.config.ts) */
@@ -126,7 +127,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
     { name: 'name', type: 'text', label: 'Voice Name', required: true },
     { name: 'description', type: 'textarea', label: 'Description (when to use this voice)' },
     {
-      name: 'tone', type: 'chip-select', label: 'Tone',
+      name: 'tone', type: 'chip-select', label: 'Tone', i18nPrefix: 'voice.tone',
       options: [
         { label: 'Casual (blog, personal)', value: 'casual' },
         { label: 'Professional (business)', value: 'professional' },
@@ -138,7 +139,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'casual',
     },
     {
-      name: 'industry', type: 'chip-select', label: 'Industry / Topic',
+      name: 'industry', type: 'chip-select', label: 'Industry / Topic', i18nPrefix: 'voice.industry',
       options: [
         { label: 'Technology', value: 'technology' },
         { label: 'Business', value: 'business' },
@@ -153,7 +154,7 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'technology',
     },
     {
-      name: 'audience', type: 'chip-select', label: 'Target Audience',
+      name: 'audience', type: 'chip-select', label: 'Target Audience', i18nPrefix: 'voice.audience',
       options: [
         { label: 'Junior Developer', value: 'junior-dev' },
         { label: 'Senior Developer', value: 'senior-dev' },

@@ -55,7 +55,7 @@ export function renderField(
     case 'color':
       return <ColorField key={key} {...baseProps} />
     case 'chip-select':
-      return <ChipSelectField key={key} {...baseProps} options={schema.options} />
+      return <ChipSelectField key={key} {...baseProps} options={schema.options} i18nPrefix={schema.i18nPrefix} />
     case 'object':
       return (
         <ObjectField
