@@ -6,6 +6,109 @@ sections:
     data:
       brandName: ''
       links: []
+  - type: layout
+    order: 11
+    enabled: true
+    data:
+      columns:
+        - 1
+        - 1
+        - 1
+        - 1
+      gap: 1rem
+      children:
+        - column: 0
+          sections:
+            - type: features
+              order: 0
+              enabled: true
+              data:
+                heading: Features
+                items:
+                  - title: Feature
+                    description: ''
+        - column: 1
+          sections:
+            - type: faq
+              order: 0
+              enabled: true
+              data:
+                heading: ''
+                items: []
+            - type: cta
+              order: 1
+              enabled: true
+              data:
+                headline: Call to action
+                cta:
+                  text: Get Started
+                  url: '#'
+            - type: divider
+              order: 2
+              enabled: true
+              data:
+                style: line
+                height: 40
+        - column: 2
+          sections:
+            - type: cta
+              order: 0
+              enabled: true
+              data:
+                headline: Call to action
+                cta:
+                  text: Get Started
+                  url: '#'
+            - type: stats
+              order: 1
+              enabled: true
+              data:
+                items:
+                  - value: ''
+                    label: ''
+            - type: divider
+              order: 2
+              enabled: true
+              data:
+                style: line
+                height: 40
+        - column: 3
+          sections:
+            - type: cta
+              order: 0
+              enabled: true
+              data:
+                headline: Call to action
+                cta:
+                  text: Get Started
+                  url: '#'
+            - type: countdown
+              order: 1
+              enabled: true
+              data:
+                targetDate: ''
+                heading: ''
+            - type: rich-text
+              order: 2
+              enabled: true
+              data:
+                content: <p></p>
+  - type: map
+    order: 10
+    enabled: true
+    data:
+      address: Image Travel Events
+      embedUrl: >-
+        <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.0630724579814!2d106.66011671103304!3d10.806481358593322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175298f58e5a93b%3A0xb3cebe3348ef22ce!2sAucoeurVietnam%20-%20IMAGE%20Travel%20HCM!5e0!3m2!1sen!2s!4v1774543565363!5m2!1sen!2s"
+        width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+  - type: video
+    order: 11
+    enabled: true
+    data:
+      url: https://www.youtube.com/watch?v=KAlM2horUeU
+      caption: aaaaa
   - type: features
     order: 3
     enabled: true

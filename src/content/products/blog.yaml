@@ -1,10 +1,11 @@
 name: blog
 slug: blog
 description: ''
-landingPage: ''
+landingPage: blog
 icon: sparkles
-features: []
+features:
+  - media
+  - email
 coreCollections:
   - articles
-  - voices
   - categories

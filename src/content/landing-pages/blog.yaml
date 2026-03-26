@@ -1,0 +1,39 @@
+title: blog
+sections:
+  - type: nav
+    order: -1
+    enabled: true
+    data:
+      brandName: blog
+      links: []
+  - type: hero
+    order: 0
+    enabled: true
+    data:
+      headline: blog
+      subheadline: Welcome
+      cta:
+        text: Get Started
+        url: '#'
+  - type: features
+    order: 1
+    enabled: true
+    data:
+      heading: Features
+      items:
+        - title: Feature 1
+          description: Description
+  - type: cta
+    order: 2
+    enabled: true
+    data:
+      headline: Ready to start?
+      cta:
+        text: Get Started
+        url: '#'
+  - type: footer
+    order: 999
+    enabled: true
+    data:
+      text: © 2026 blog
+      links: []
