@@ -1,5 +1,14 @@
 /* Landing page section styles — spacing, responsive grids, section-specific tweaks */
 
+/* Smooth scroll for anchor navigation + offset for sticky nav */
+html:has(.landing-nav) {
+  scroll-behavior: smooth;
+}
+
+.landing-sections [id^="section-"] {
+  scroll-margin-top: 4rem;
+}
+
 .landing-sections {
   display: flex;
   flex-direction: column;
