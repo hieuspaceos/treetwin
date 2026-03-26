@@ -232,7 +232,7 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
           )}
 
           {/* Settings — always on */}
-          <Route path="/settings"><SettingsEditor /></Route>
+          <Route path="/settings"><SettingsEditor productConfig={productConfig} /></Route>
 
           {/* 404 */}
           <Route>
