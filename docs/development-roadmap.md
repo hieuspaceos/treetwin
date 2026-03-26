@@ -2,12 +2,12 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-25)
+## Current Status (2026-03-26)
 
-**Phase:** v2.1.0 complete + GoClaw Phase 1 (API adapter for external agents)
-**Completion:** Phases 1-4.5 complete. GoClaw API Phase 1 complete. Ready for external AI integration.
+**Phase:** v2.3.0 complete — Landing Page Builder System deployed
+**Completion:** Phases 1-7 complete. Landing builder fully implemented with 9 sub-phases. Ready for product builder use cases.
 **Active Team:** Solo (HieuSpace)
-**Key Features Added:** Voice profiles + effectiveness scoring, i18n module, CSS modularization, AI voice analysis/preview, GoClaw API adapter
+**Key Features Added:** 10 section components, entity system, AI setup wizard, 5 product templates, GoClaw landing API integration
 
 ---
 
@@ -177,11 +177,43 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 6 — GoClaw API Adapter ✓ COMPLETE (Phase 1)
+## Phase 7 — Landing Page Builder System ✓ COMPLETE
+
+**Timeline:** 2026-03-26
+**Status:** Complete (9 sub-phases)
+**Effort:** 18 hours
+
+### Phase 7 Deliverables
+- [x] **Phase 7.1:** 10 Astro section components (hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall)
+- [x] **Phase 7.2:** Landing config renderer (YAML-to-static-HTML pipeline)
+- [x] **Phase 7.3:** 5 product templates (saas, agency, course, ecommerce, portfolio)
+- [x] **Phase 7.4:** Admin landing editor (React CRUD + inline section editors)
+- [x] **Phase 7.5:** Custom entity system (dynamic YAML-schema entities + auto-generated admin CRUD)
+- [x] **Phase 7.6:** AI setup wizard (Gemini Flash → product description → landing config)
+- [x] **Phase 7.7:** GoClaw landing API (9 REST endpoints for external AI integration)
+- [x] **Phase 7.8:** Feature registry (3 new toggleable modules: landing, entities, setup-wizard)
+- [x] **Phase 7.9:** GoClaw Hub skill (tree-id-manager for agent orchestration)
+
+**Architecture:**
+- 10 section components: props-driven Astro (zero JS)
+- YAML-first config system: type-safe Zod validation
+- Entity system: extensible custom data types (testimonials, team, portfolio items, etc.)
+- Build-time rendering: all landings pre-rendered to static HTML
+- AI generation: Gemini produces landing configs from product descriptions
+- GoClaw integration: external agents create/update landings (force draft for approval)
+
+**Key Insights:**
+- Section components are reusable, composable building blocks
+- Entity system enables DRY data: testimonials, team members, case studies all use same entity system
+- YAML config in git = full version history + easy merge/review
+- AI setup wizard reduces landing creation time from hours to seconds
+- GoClaw integration enables "AI as content initiator" workflows
+
+### Phase 6 — GoClaw API Adapter ✓ COMPLETE (Phase 1)
 
 **Timeline:** 2026-03-25
-**Status:** Phase 1 Complete (Health + Webhook)
-**Effort:** 3 hours
+**Status:** Phase 1 Complete (Health + Webhook) — Extended in Phase 7
+**Effort:** 3 hours (+ 6 hours in Phase 7.7)
 
 ### Phase 1 Deliverables
 - [x] GoClaw API authentication: Bearer token verification via `GOCLAW_API_KEY` env var
@@ -191,27 +223,40 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - [x] Write policy: All writes force `status: draft` (human approval required)
 - [x] Documentation: System architecture + API reference
 
-**Architecture:**
-- External AI agents (GoClaw orchestration) authenticate via Bearer token
-- All writes forbidden from publishing directly — must go through admin approval
-- Webhook verification optional (graceful degradation if secret not set)
-- Versioned API: `/api/goclaw/health` returns version string
+**Phase 7.7 Extensions (Landing Integration):**
+- [x] 9 GoClaw landing endpoints (`GET /api/goclaw/landing`, `POST /api/goclaw/landing`, etc.)
+- [x] Entity endpoints for GoClaw agents
+- [x] Template endpoints for agent discovery
+- [x] AI setup endpoint for external orchestration
+- [x] Draft-forcing security policy for all GoClaw writes
 
-**Key Insights:**
-- GoClaw acts as content initiator, Tree Identity as decision layer
-- Draft forcing is security-critical: prevents AI from publishing unreviewed content
-- HMAC verification optional but recommended for production GoClaw instances
-
-### Phase 2-4 (Backlog)
-- Phase 2: Content CRUD endpoints (`/api/goclaw/content/{slug}`)
+### Phase 2-4 (Backlog - Future)
+- Phase 2: Extended content CRUD endpoints (`/api/goclaw/content/{slug}`)
 - Phase 3: Voice profiles reader (`/api/goclaw/voices`)
 - Phase 4: SEO analysis trigger (`/api/goclaw/seo-analyze`)
 
 ---
 
-## Phase 6 — Future Enhancements (Backlog)
+## Phase 8 — Future Enhancements (Backlog)
 
-### 6A — Analytics Dashboard (Proposed)
+### 8A — Landing Page Advanced Features (Proposed)
+**Effort:** 12 hours
+**Priority:** P2
+
+- Custom CSS per landing (inline styles + class editor)
+- A/B testing framework (multiple versions of sections)
+- Landing analytics (page views, conversion tracking via Vercel Analytics)
+- Email capture widget (integrated with subscriber system)
+- Redirect rules after form submission
+- SEO customization per landing (meta tags, structured data)
+
+**Dependencies:**
+- Vercel Analytics API
+- Email service integration (already have Resend)
+
+---
+
+### 8B — Analytics Dashboard (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -227,7 +272,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6B — Advanced Media Features (Proposed)
+### 8C — Advanced Media Features (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -243,7 +288,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6C — Collaborative Editing (Proposed)
+### 8D — Collaborative Editing (Proposed)
 **Effort:** 20 hours
 **Priority:** P4
 
@@ -258,7 +303,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6D — Content Versioning & History (Proposed)
+### 8E — Content Versioning & History (Proposed)
 **Effort:** 6 hours
 **Priority:** P2
 
@@ -273,7 +318,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6E — Internationalization (i18n) Extended (Proposed)
+### 8F — Internationalization (i18n) Extended (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -290,7 +335,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6F — Plugin System (Proposed)
+### 8G — Plugin System (Proposed)
 **Effort:** 16 hours
 **Priority:** P5
 
@@ -305,7 +350,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6G — Monetization Features (Proposed)
+### 8H — Monetization Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P4
 
@@ -321,7 +366,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 6H — Search Enhancements (Proposed)
+### 8I — Search Enhancements (Proposed)
 **Effort:** 6 hours
 **Priority:** P3
 
@@ -371,9 +416,14 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 2 — AI Optimization | 2026-03-10..03-11 | 8h | HieuSpace | ✓ Complete |
 | 3 — Admin Dashboard | 2026-03-10..03-11 | 32h | HieuSpace | ✓ Complete |
 | 4 — Distribution | 2026-03-11 | 4h | HieuSpace | ✓ Complete |
-| 5A — Analytics | TBD | 12h | — | Proposed |
-| 5B — Media+ | TBD | 8h | — | Proposed |
-| 5C — Collaboration | TBD | 20h | — | Proposed |
+| 4.5 — Voice Management | 2026-03-19 | 8h | HieuSpace | ✓ Complete |
+| 5.5 — Feature Modules | 2026-03-26 | 8h | HieuSpace | ✓ Complete |
+| 6 — GoClaw Phase 1 | 2026-03-25 | 3h | HieuSpace | ✓ Complete |
+| 7 — Landing Builder | 2026-03-26 | 18h | HieuSpace | ✓ Complete |
+| 8A — Landing Advanced | TBD | 12h | — | Proposed |
+| 8B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 8C — Media+ | TBD | 8h | — | Proposed |
+| 8D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -381,10 +431,10 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.1.0 | 2026-03-19 | Voice Profiles + i18n + Admin UI Redesign | Complete |
-| Planned | v2.2.0 | 2026-Q2 | Analytics + Media Features | Backlog |
-| Planned | v2.3.0 | 2026-Q2 | Versioning + Search Enhancements | Backlog |
-| Planned | v3.0.0 | 2026-Q3 | Extended i18n + Plugin System | Backlog |
+| Current | v2.3.0 | 2026-03-26 | Landing Page Builder + AI Setup Wizard | Complete |
+| Planned | v2.4.0 | 2026-Q2 | Landing Advanced Features (A/B testing, analytics) | Backlog |
+| Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Media Features | Backlog |
+| Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
 ---
 
@@ -398,5 +448,5 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-**Last updated:** 2026-03-19
-**Next review:** 2026-04-01
+**Last updated:** 2026-03-26
+**Next review:** 2026-04-15

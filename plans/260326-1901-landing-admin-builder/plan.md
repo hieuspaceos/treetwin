@@ -1,7 +1,7 @@
 ---
 title: "Landing Page + Admin Builder"
 description: "AI-powered landing page system with modular sections, templates, custom entities, and GoClaw Hub skill integration"
-status: pending
+status: complete
 priority: P1
 effort: 35h
 branch: kai/feat/landing-admin-builder
@@ -45,15 +45,15 @@ GoClaw Hub
 
 | # | Phase | Effort | Status | Depends On |
 |---|-------|--------|--------|------------|
-| 1 | [Landing Section Components](./phase-01-landing-section-components.md) | 5h | pending | -- |
-| 2 | [Landing Config & Renderer](./phase-02-landing-config-renderer.md) | 3h | pending | Phase 1 |
-| 3 | [Product Templates](./phase-03-product-templates.md) | 2h | pending | Phase 1 |
-| 4 | [Admin Landing Editor](./phase-04-admin-landing-editor.md) | 5h | pending | Phase 2 |
-| 5 | [Custom Entities](./phase-05-custom-entities.md) | 5h | pending | Phase 2 |
-| 6 | [AI Setup Wizard](./phase-06-ai-setup-wizard.md) | 4h | pending | Phase 3, 4 |
-| 7 | [GoClaw Landing API](./phase-07-goclaw-landing-api.md) | 4h | pending | Phase 2, 5 |
-| 8 | [Feature Registry Integration](./phase-08-feature-registry-integration.md) | 4h | pending | Phase 1-7 |
-| 9 | [GoClaw Hub Skill](./phase-09-goclaw-hub-skill.md) | 3h | pending | Phase 7 |
+| 1 | [Landing Section Components](./phase-01-landing-section-components.md) | 5h | complete | -- |
+| 2 | [Landing Config & Renderer](./phase-02-landing-config-renderer.md) | 3h | complete | Phase 1 |
+| 3 | [Product Templates](./phase-03-product-templates.md) | 2h | complete | Phase 1 |
+| 4 | [Admin Landing Editor](./phase-04-admin-landing-editor.md) | 5h | complete | Phase 2 |
+| 5 | [Custom Entities](./phase-05-custom-entities.md) | 5h | complete | Phase 2 |
+| 6 | [AI Setup Wizard](./phase-06-ai-setup-wizard.md) | 4h | complete | Phase 3, 4 |
+| 7 | [GoClaw Landing API](./phase-07-goclaw-landing-api.md) | 4h | complete | Phase 2, 5 |
+| 8 | [Feature Registry Integration](./phase-08-feature-registry-integration.md) | 4h | complete | Phase 1-7 |
+| 9 | [GoClaw Hub Skill](./phase-09-goclaw-hub-skill.md) | 3h | complete | Phase 7 |
 
 ## Key Dependencies
 - `src/lib/admin/feature-registry.ts` -- register all new modules

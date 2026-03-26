@@ -1,13 +1,13 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v2.1.0 — Voice Profiles + i18n + Admin UI Redesign
-**Last Updated:** 2026-03-19
+**Status:** v2.3.0 — Landing Page Builder System
+**Last Updated:** 2026-03-26
 **Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
 ## Overview
 
-Tree Identity is a personal content engine — zero database, git-tracked content, zero JS by default. Built with Astro 5 (SSG), Keystatic (git-based CMS), Pagefind (static search), and Vercel.
+Tree Identity is a personal content engine with optional landing page builder — zero database, git-tracked content, zero JS by default. Built with Astro 5 (SSG), Keystatic (git-based CMS), Pagefind (static search), and Vercel.
 
 **Why Astro + Keystatic:**
 - No database overhead (was: PostgreSQL + Supabase)
@@ -37,7 +37,7 @@ Tree Identity is a personal content engine — zero database, git-tracked conten
 - **Admin local-only** — Keystatic UI at `/keystatic` in dev, not deployed
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
 - **Island architecture** — Astro by default, React only for ToC + search (client components)
-- **No component library** — Plain Tailwind CSS 4, no shadcn/ui
+- **Landing page system** — YAML-driven modular section components with optional admin UI
 
 ## Directory Structure
 
@@ -52,90 +52,214 @@ tree-id/
 │   │   │   └── my-note.yaml
 │   │   ├── records/                # Structured YAML records
 │   │   │   └── my-record.yaml
+│   │   ├── landing-pages/          # NEW: Landing page configs (YAML)
+│   │   │   └── my-landing/
+│   │   │       └── index.yaml      # Landing page YAML config
+│   │   ├── templates/              # NEW: Product landing templates
+│   │   │   ├── saas.yaml
+│   │   │   ├── agency.yaml
+│   │   │   ├── course.yaml
+│   │   │   ├── ecommerce.yaml
+│   │   │   └── portfolio.yaml
+│   │   ├── entity-definitions/     # NEW: Custom entity schemas
+│   │   │   └── my-entity.yaml
+│   │   ├── entities/               # NEW: Entity instances
+│   │   │   └── my-entity-instance.yaml
 │   │   └── site-settings/
 │   │       └── index.yaml          # Global settings (theme, etc.)
 │   ├── pages/                       # Astro page routes
-│   │   ├── index.astro             # Home page (lists all seeds)
-│   │   ├── seeds/
-│   │   │   └── [slug].astro        # Seed detail page (articles/notes)
-│   │   ├── search.astro            # Pagefind search results
-│   │   ├── 404.astro               # 404 page
-│   │   ├── robots.txt.ts           # robots.txt generation
-│   │   ├── rss.xml.ts              # RSS feed (Bing/ChatGPT freshness)
-│   │   ├── llms.txt.ts             # AI/LLM site overview (llmstxt.org)
-│   │   ├── llms-full.txt.ts        # Extended AI/LLM context
-│   │   ├── og.ts                   # Dynamic OG image generation
-│   │   └── api/
-│   │       ├── manifests/[slug].ts # Video manifest HTTP API
-│   │       └── goclaw/
-│   │           ├── health.ts       # Health check endpoint
-│   │           └── webhook.ts      # GoClaw webhook receiver
+│   │   ├── index.astro             # Home page
+│   │   ├── [landing-slug].astro    # NEW: Dynamic landing page renderer
+│   │   ├── admin/
+│   │   │   ├── index.astro         # Admin dashboard home
+│   │   │   ├── landing/            # NEW: Landing page admin pages
+│   │   │   │   ├── index.astro
+│   │   │   │   ├── [slug].astro
+│   │   │   │   └── create.astro
+│   │   │   ├── entities/           # NEW: Entity admin pages
+│   │   │   │   ├── index.astro
+│   │   │   │   └── [...path].astro
+│   │   │   ├── templates/          # NEW: Template gallery
+│   │   │   └── setup/              # NEW: AI setup wizard
+│   │   ├── api/
+│   │   │   ├── admin/
+│   │   │   │   ├── landing/        # NEW: Landing CRUD endpoints
+│   │   │   │   │   ├── index.ts    # GET/POST/DELETE
+│   │   │   │   │   ├── [slug].ts   # PUT update
+│   │   │   │   │   └── sections.ts # Section CRUD
+│   │   │   │   ├── entities/       # NEW: Entity CRUD endpoints
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── [slug].ts
+│   │   │   │   │   └── definitions.ts
+│   │   │   │   ├── templates/      # NEW: Template endpoints
+│   │   │   │   └── setup/          # NEW: Setup wizard endpoints
+│   │   │   └── goclaw/
+│   │   │       ├── landing/        # NEW: GoClaw landing endpoints
+│   │   │       ├── entities/       # NEW: GoClaw entity endpoints
+│   │   │       ├── templates/      # NEW: GoClaw template endpoints
+│   │   │       └── setup            # NEW: GoClaw setup endpoint
+│   │   └── ...
 │   ├── layouts/
 │   │   └── base-layout.astro       # Root layout with nav + footer
-│   ├── components/                  # Astro + React components
-│   │   ├── nav.astro               # Header navigation
-│   │   ├── footer.astro            # Footer
-│   │   ├── seed-card.astro         # Content card
-│   │   ├── breadcrumb.astro        # Breadcrumb nav
-│   │   ├── search-pagefind.astro   # Pagefind UI (client island)
-│   │   └── islands/
-│   │       └── toc.tsx             # Table of contents (React island)
+│   ├── components/
+│   │   ├── landing/                # NEW: Landing page sections
+│   │   │   ├── hero.astro
+│   │   │   ├── features.astro
+│   │   │   ├── pricing.astro
+│   │   │   ├── testimonials.astro
+│   │   │   ├── faq.astro
+│   │   │   ├── cta.astro
+│   │   │   ├── stats.astro
+│   │   │   ├── how-it-works.astro
+│   │   │   ├── team.astro
+│   │   │   └── logo-wall.astro
+│   │   ├── admin/
+│   │   │   ├── landing/            # NEW: Landing admin components
+│   │   │   │   ├── landing-config-editor.tsx
+│   │   │   │   ├── section-editor.tsx
+│   │   │   │   ├── landing-preview.tsx
+│   │   │   │   └── landing-list.tsx
+│   │   │   ├── entities/           # NEW: Entity admin components
+│   │   │   │   ├── entity-crud.tsx
+│   │   │   │   ├── entity-schema-editor.tsx
+│   │   │   │   └── entity-list.tsx
+│   │   │   ├── templates/          # NEW: Template components
+│   │   │   │   ├── template-preview.tsx
+│   │   │   │   └── template-gallery.tsx
+│   │   │   ├── setup/              # NEW: Setup wizard components
+│   │   │   │   ├── setup-wizard.tsx
+│   │   │   │   ├── setup-form.tsx
+│   │   │   │   └── setup-preview.tsx
+│   │   │   └── ... (existing components)
+│   │   └── ...
 │   ├── lib/
-│   │   ├── content-helpers.ts      # getCollection() queries
-│   │   ├── get-active-theme-id.ts  # Theme resolver
-│   │   ├── r2/
-│   │   │   └── upload-manifest.ts  # R2 upload/read
-│   │   └── seo/
-│   │       └── json-ld.ts          # JSON-LD schema
+│   │   ├── landing/                # NEW: Landing page system
+│   │   │   ├── landing-types.ts    # TypeScript types
+│   │   │   ├── landing-config-reader.ts   # YAML read/write
+│   │   │   ├── landing-renderer.ts # YAML → HTML
+│   │   │   ├── ai-setup-generator.ts      # Gemini integration
+│   │   │   └── template-apply.ts   # Template helper
+│   │   ├── admin/
+│   │   │   ├── entity-io.ts        # NEW: Entity CRUD operations
+│   │   │   ├── feature-registry.ts # Feature modules
+│   │   │   └── ... (existing)
+│   │   └── ...
 │   ├── themes/
-│   │   ├── theme-types.ts          # TypeScript types
-│   │   ├── theme-resolver.ts       # Theme registry
-│   │   └── liquid-glass.ts         # Glass morphism theme (CSS tokens)
+│   │   ├── theme-types.ts
+│   │   ├── theme-resolver.ts
+│   │   └── liquid-glass.ts
 │   └── config/
-│       └── site-config.ts          # Site identity (name, author, social, theme)
+│       └── site-config.ts
 ├── docs/
-│   ├── project-overview.md         # Vision + architecture
+│   ├── project-overview-pdr.md
 │   ├── codebase-summary.md         # This file
-│   ├── system-architecture.md      # Astro pipeline + data flow
-│   ├── deployment-guide.md         # Dev setup + Vercel
-│   ├── code-standards.md           # Conventions + patterns
-│   ├── site-config-reference.md    # Config field reference
-│   └── video-factory-contract.md   # Video manifest schema
-├── .env.example                    # Environment variables
-├── astro.config.mjs                # Astro config + integrations
-├── keystatic.config.ts             # Keystatic collections + singleton
-├── src/content.config.ts           # Astro content collections schema
-├── tailwind.config.ts              # Tailwind + theme tokens
+│   ├── system-architecture.md
+│   ├── deployment-guide.md
+│   ├── code-standards.md
+│   └── development-roadmap.md
+├── .env.example
+├── astro.config.mjs
+├── keystatic.config.ts
+├── tailwind.config.ts
 ├── tsconfig.json
 ├── package.json
-├── vercel.json                     # Vercel config
-└── README.md                       # Quick start
+├── vercel.json
+└── README.md
 ```
 
 ## Content Collections
 
 Defined in `keystatic.config.ts` + `src/content.config.ts`. All inherit base fields from `baseSeedFields`.
 
-### Voices (New — 2026-03-19)
+### Landing Pages (New — 2026-03-26)
+
+**Path:** `src/content/landing-pages/{slug}/index.yaml`
+**Purpose:** Modular landing page configurations rendered to static HTML
+
+**Structure:**
+```yaml
+slug: my-landing
+title: My Product Landing
+description: Short description
+status: published
+publishedAt: 2026-03-26
+sections:
+  - type: hero
+    props: {...}
+  - type: features
+    props: {...}
+  - type: pricing
+    props: {...}
+entities:
+  - definition: testimonial
+    instances: [...]
+metadata:
+  theme: liquid-glass
+  locale: en
+```
+
+**Admin UI:** `/admin/landing` — YAML editor with section component picker + inline preview
+
+### Entity Definitions (New — 2026-03-26)
+
+**Path:** `src/content/entity-definitions/{id}.yaml`
+**Purpose:** Custom entity schemas for dynamic collections (testimonials, team members, portfolio items, etc.)
+
+**Structure:**
+```yaml
+id: testimonial
+name: Testimonial
+fields:
+  - name: author
+    type: text
+    required: true
+  - name: quote
+    type: textarea
+    required: true
+  - name: image
+    type: text
+    required: false
+  - name: role
+    type: text
+```
+
+**Admin UI:** `/admin/entities` — Schema builder with field type selector
+
+### Entity Instances (New — 2026-03-26)
+
+**Path:** `src/content/entities/{definition-id}/{slug}.yaml`
+**Purpose:** Data records for custom entity types (e.g., testimonials, team members)
+
+**Structure:**
+```yaml
+slug: john-doe
+definition: testimonial
+author: John Doe
+quote: "Tree ID is amazing..."
+image: /media/john.jpg
+role: Product Manager
+```
+
+**Admin UI:** `/admin/entities/{definition-id}` — CRUD interface auto-generated from schema
+
+### Templates (New — 2026-03-26)
+
+**Path:** `src/content/templates/{id}.yaml`
+**Purpose:** Pre-built landing page templates for quick setup
+
+**Includes:**
+- saas.yaml — SaaS product template
+- agency.yaml — Service agency template
+- course.yaml — Online course template
+- ecommerce.yaml — E-commerce store template
+- portfolio.yaml — Portfolio/case studies template
+
+**Admin UI:** `/admin/templates` — Gallery view with preview + apply button
+
+### Voices (2026-03-19)
 
 **Path:** `src/content/voices/{id}.yaml`
 **Purpose:** Voice profiles for AI-powered writing style generation and content analysis
-
-**Fields:**
-| Field | Type | Purpose |
-|-------|------|---------|
-| `id` | slug | Unique voice identifier |
-| `name` | text | Display name (e.g., "Tech Casual") |
-| `tone` | select | casual, professional, technical, storytelling, persuasive, academic |
-| `industry` | select | technology, business, travel, lifestyle, finance, health, education, food, general |
-| `audience` | select | junior-dev, senior-dev, non-tech, students, business, general |
-| `pronoun` | text | First-person word ("I", "we", "tôi") |
-| `language` | select | vi, en |
-| `samples[]` | array | `[{context: string, text: string}]` — example paragraphs to mimic |
-| `avoid[]` | array | Phrases never to use in this voice |
-| `status` | select | draft, published |
-
-**Admin UI:** `/admin/voices` — Create/read/update/delete with live effectiveness scoring
 
 ### Shared Fields (All Seed Types)
 
@@ -146,78 +270,6 @@ Defined in `keystatic.config.ts` + `src/content.config.ts`. All inherit base fie
 | `summary` | text (multiline, max 300) | — | Optional (AI-optimized summary, falls back to description) |
 | `status` | select | — | `draft` |
 | `publishedAt` | date | — | Optional |
-| `tags` | array | — | `[]` |
-| `category` | text | — | Optional |
-| `seo.seoTitle` | text | — | Optional |
-| `seo.ogImage` | text | — | Optional |
-| `seo.noindex` | checkbox | — | `false` |
-| `cover.url` | text | — | Optional |
-| `cover.alt` | text | — | Optional |
-| `video.enabled` | checkbox | — | `false` |
-| `video.style` | select | — | Optional |
-| `links.outbound` | array | — | `[]` |
-
-### Articles (Markdoc)
-
-**Path:** `src/content/articles/{title}/index.mdoc`
-**Format:** Markdoc + YAML frontmatter
-
-Additional field: `content: Markdoc`
-
-Features: auto-generated ToC from headings, video manifest support, published articles indexed for search.
-
-### Notes (YAML)
-
-**Path:** `src/content/notes/{title}.yaml`
-**Format:** Pure YAML
-
-Additional field: `content: text` (short-form)
-
-Features: quick capture, searchable like articles.
-
-### Records (YAML)
-
-**Path:** `src/content/records/{title}.yaml`
-**Format:** Pure YAML
-
-Additional fields:
-- `recordType: select` — `project` | `product` | `experiment`
-- `recordData: JSON text` — Freeform structured data
-
-Features: flexible portfolio/catalog/research items.
-
-### Site Settings (Singleton)
-
-**Path:** `src/content/site-settings/index.yaml`
-**Schema:** Global config (theme ID)
-
-Accessible via Keystatic UI, editable in dev.
-
-## Content Workflow
-
-### Build Pipeline
-
-1. **Edit content** via Keystatic UI at `/keystatic` (dev-only)
-2. **Save to disk** as Markdown/YAML files in `src/content/`
-3. **Commit to git** (manual or auto via Keystatic webhook)
-4. **Build triggers** on Vercel (astro build)
-5. **Astro parses** content via `getCollection()` (type-safe)
-6. **Output:** Static HTML at `dist/`
-
-### Runtime (No Database)
-
-- **Frontend:** SSG HTML served at build time
-- **Search:** Pagefind index generated at build time
-- **SSR endpoints:** `/api/manifests/[slug]`, `/og`, `/robots.txt` (use `prerender: false`)
-
-### No Hooks
-
-Keystatic doesn't support afterChange hooks. Video manifest generation is manual:
-1. Edit/create article with `video.enabled = true`
-2. Manually run: `npm run upload-manifest <slug>` (or manual curl to `/api/manifests/[slug]`)
-3. Manifest stored in R2 at `manifests/{slug}.json`
-
-**Note:** Future integration with GitHub Actions could auto-trigger manifest generation on push to main.
 
 ## Pages & Routes
 
@@ -228,6 +280,13 @@ Keystatic doesn't support afterChange hooks. Video manifest generation is manual
 - Seed cards with cover, title, description, date
 - Sorted by `publishedAt` descending
 
+### Landing Page (`src/pages/[landing-slug].astro`) — NEW
+
+- Dynamic routing for landing pages via `src/content/landing-pages/`
+- YAML config → section components → static HTML
+- No runtime rendering — fully static at build time
+- Template support: can apply pre-built templates to landing configs
+
 ### Seed Detail Page (`src/pages/seeds/[slug].astro`)
 
 - Dynamic routing via Astro `getStaticPaths()`
@@ -235,245 +294,218 @@ Keystatic doesn't support afterChange hooks. Video manifest generation is manual
 - Renders Markdoc via Astro markdown integration
 - Auto-generated ToC from headings (React island: `<Toc />`)
 - JSON-LD schema injection
-- OG image via `/og?title=...&desc=...`
 
-### Search Page (`src/pages/search.astro`)
+### Admin Pages (New — 2026-03-26)
 
-- Pagefind full-text search UI
-- Client-side search (Pagefind index)
-- Real-time results as user types
-- Min 2-char query guard
+- `/admin/landing` — Landing page list + editor
+- `/admin/landing/create` — New landing page wizard
+- `/admin/entities` — Entity type list
+- `/admin/entities/{definition}` — CRUD for entity instances
+- `/admin/templates` — Template gallery with previews
+- `/admin/setup` — AI setup wizard (Gemini-powered)
 
-### OG Image Route (`src/pages/og.ts`)
+## API Routes
 
-- SSR endpoint (dynamic OG generation)
-- Params: `title`, `desc`, `style`
-- Fallback image if generation fails
+### Admin API Routes (New — 2026-03-26)
 
-### AI/LLM Endpoints (GEO)
+**Landing CRUD:**
+- `GET /api/admin/landing` — List landing pages
+- `POST /api/admin/landing` — Create landing page
+- `PUT /api/admin/landing/[slug]` — Update landing page
+- `DELETE /api/admin/landing/[slug]` — Delete landing page
+- `GET /api/admin/landing/[slug]/sections` — Get page sections
+- `POST /api/admin/landing/[slug]/sections` — Add section
+- `PUT /api/admin/landing/[slug]/sections/[id]` — Update section
+- `DELETE /api/admin/landing/[slug]/sections/[id]` — Remove section
 
-- **`/rss.xml`** — RSS feed via `@astrojs/rss` (Bing/ChatGPT search freshness signal)
-- **`/llms.txt`** — Lightweight site overview for AI models (llmstxt.org spec, speculative)
-- **`/llms-full.txt`** — Extended context with categories, tags, per-article metadata
-- All prerendered at build time
+**Entity CRUD:**
+- `GET /api/admin/entities` — List all entity types
+- `GET /api/admin/entities/definitions` — List entity definitions
+- `POST /api/admin/entities/definitions` — Create entity definition
+- `GET /api/admin/entities/[definition-id]` — List instances of entity type
+- `POST /api/admin/entities/[definition-id]` — Create entity instance
+- `PUT /api/admin/entities/[definition-id]/[slug]` — Update entity
+- `DELETE /api/admin/entities/[definition-id]/[slug]` — Delete entity
 
-### API Routes
+**Template API:**
+- `GET /api/admin/templates` — List all templates
+- `GET /api/admin/templates/[id]` — Get template config
+- `POST /api/admin/landing` with `templateId` — Apply template to new landing
 
-- **`/api/manifests/[slug]`** — Video manifest HTTP endpoint (return JSON)
-- **`/robots.txt`** — Per-agent AI crawler policy (allow search bots, block training bots)
+**Setup Wizard:**
+- `POST /api/admin/setup/generate` — AI generates landing from product description
+- `POST /api/admin/setup/preview` — Preview generated landing before saving
 
-## Admin Components (2026-03-19)
+### GoClaw API Routes (New — 2026-03-26)
 
-### Voice Management
+**Landing Endpoints:**
+- `GET /api/goclaw/landing` — List landing pages (AI read-only)
+- `GET /api/goclaw/landing/[slug]` — Get landing config
+- `POST /api/goclaw/landing` — Create landing (force draft)
+- `PUT /api/goclaw/landing/[slug]` — Update landing (draft only)
+
+**Entity Endpoints:**
+- `GET /api/goclaw/entities` — List entity definitions
+- `GET /api/goclaw/entities/[definition-id]` — List entity instances
+- `POST /api/goclaw/entities/[definition-id]` — Create entity instance
+
+**Template Endpoints:**
+- `GET /api/goclaw/templates` — List available templates
+
+**Setup Endpoint:**
+- `POST /api/goclaw/setup/generate` — AI generates landing config (with authentication)
+
+## Admin Components (2026-03-26)
+
+### Landing Management
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `voice-score-panel.tsx` | React | 6-dimension effectiveness score (emotional, clarity, audience, tone, engagement, authenticity) with AI suggestions |
-| `voice-preview-modal.tsx` | React | AI-generated sample paragraphs in voice style (200+ words, language-aware) |
+| `landing-list.tsx` | React | Landing page table with status, publish date, actions |
+| `landing-config-editor.tsx` | React | YAML editor for landing page config with syntax highlighting |
+| `section-editor.tsx` | React | Component picker + inline props editor for sections |
+| `landing-preview.tsx` | React | Live preview of landing page (iframe with draft content) |
 
-### Architecture
-- Voice analysis via `/api/admin/voice-analyze` (Gemini API)
-- Voice preview via `/api/admin/voice-preview` (Gemini with system instructions)
-- ArrayField enhanced to handle nested objects (`{context, text}` samples)
-- i18n module for translations (languages, sub-sections, dynamic key creation)
-
-### Styling (Modularized)
-Split `src/styles/admin.css` (1247 LOC → 7 modules):
-- `tokens.css` — CSS variables (glass layers, semantic colors)
-- `layout.css` — Shell layout (sidebar, topbar, main area)
-- `components.css` — UI components (buttons, forms, panels, modals)
-- `editor.css` — CodeMirror editor styles
-- `table.css` — Content list tables
-- `media.css` — Media browser
-- `responsive.css` — Mobile breakpoints
-
-## Public Components
-
+### Entity Management
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `nav.astro` | Astro | Header, logo, social links, search bar |
-| `footer.astro` | Astro | Footer with site info |
-| `seed-card.astro` | Astro | Reusable content card |
-| `breadcrumb.astro` | Astro | Navigation breadcrumbs |
-| `search-pagefind.astro` | Astro | Pagefind search UI wrapper |
-| `toc.tsx` | React | Table of contents (client island) |
+| `entity-list.tsx` | React | List entities by type, filter, search |
+| `entity-crud.tsx` | React | Auto-generated form from entity schema |
+| `entity-schema-editor.tsx` | React | Field type picker + field property editor |
 
-## Utilities & Helpers
+### Template & Setup
+| Component | Type | Purpose |
+|-----------|------|---------|
+| `template-gallery.tsx` | React | Grid of 5 template cards with preview modal |
+| `template-preview.tsx` | React | Side-by-side template config + rendered preview |
+| `setup-wizard.tsx` | React | Multi-step form: product description → AI generation → preview → save |
+| `setup-form.tsx` | React | Textarea for product description input |
+| `setup-preview.tsx` | React | Shows AI-generated landing before applying |
 
-### Content Helpers (`lib/content-helpers.ts`)
+## Key Utilities
 
-**Functions:**
-- `getPublishedSeeds(collection)` — Query published articles or notes
-- `getAllPublishedSeeds()` — Merge all published articles + notes, sorted by `publishedAt`
+### Landing System (`lib/landing/`)
 
-All queries filter `status === 'published'` (security-critical to prevent draft leaks).
+**landing-types.ts** — TypeScript types
+```typescript
+interface LandingConfig {
+  slug: string
+  title: string
+  sections: LandingSection[]
+  entities: EntityReference[]
+  metadata: LandingMetadata
+}
 
-### Theme Resolver (`lib/get-active-theme-id.ts`)
+interface LandingSection {
+  id: string
+  type: SectionComponentName
+  props: Record<string, unknown>
+}
 
-- Reads theme ID from `site-settings` singleton
-- Resolves theme object from `themes/theme-resolver.ts`
-- Injects CSS variables into root `<html>` tag
+interface EntityReference {
+  definition: string
+  instances: string[]  // instance slugs
+}
+```
 
-### R2 Utilities (`lib/r2/upload-manifest.ts`)
+**landing-config-reader.ts** — File I/O
+- `readLandingConfig(slug)` — Parse YAML
+- `writeLandingConfig(slug, config)` — Serialize to YAML
+- `deleteLandingConfig(slug)` — Remove file
 
-**Functions:**
-- `uploadManifest(slug, manifest)` — Upload JSON to R2 at `manifests/{slug}.json`
-- `getManifest(slug)` — Read manifest from R2
+**landing-renderer.ts** — Dynamic component rendering
+- `renderLandingPage(config)` — Load section components dynamically
+- `applyTemplate(config, templateId)` — Merge template sections
 
-Requires `R2_*` env vars (optional for MVP).
+**ai-setup-generator.ts** — Gemini integration
+- `generateLandingFromDescription(description)` — AI → landing config
+- Uses Gemini Flash with system prompt for landing page generation
+- Supports multi-language output
 
-### SEO & GEO Generation (`lib/seo/json-ld.ts`)
+**template-apply.ts** — Template utilities
+- `getTemplate(id)` — Load template config
+- `mergeTemplate(userConfig, template)` — Smart merge preserving user sections
 
-- `articleJsonLd()` — Article schema with abstract, image, keywords, articleSection, inLanguage
-- `websiteJsonLd()` — WebSite schema for homepage
-- `breadcrumbJsonLd()` — BreadcrumbList for article pages
-- `personJsonLd()` — Person schema for author (renders only when author.name set)
-- `safeJsonLd()` — XSS-safe serializer (escapes `</script>`)
-- AI meta tags: Dublin Core (DC.title, DC.creator, DC.date), citation_* tags
-- robots max-snippet/-1 for full AI extraction
+### Entity System (`lib/admin/entity-io.ts`)
 
-### Site Configuration (`config/site-config.ts`)
-
-Single source of truth for site identity:
-- `name`, `description`, `url`
-- `author` (name, email, url)
-- `socialLinks` (twitter, github, linkedin)
-- `theme.id` (active theme)
-- `features` (videoFactory, search toggles)
-- `r2` (publicUrl)
-
-## Environment Variables
-
-### Required
-
-| Variable | Description |
-|----------|-------------|
-| `PUBLIC_SITE_URL` | Public URL (e.g., `https://my-site.vercel.app`) |
-
-### Optional (R2 Video Manifests)
-
-| Variable | Description |
-|----------|-------------|
-| `R2_ACCESS_KEY_ID` | S3 access key ID |
-| `R2_SECRET_ACCESS_KEY` | S3 secret key |
-| `R2_ENDPOINT` | Account endpoint (no `https://`) |
-| `R2_BUCKET` | Bucket name |
-| `R2_REGION` | Always `auto` |
-| `R2_PUBLIC_URL` | Public CDN URL for serving media |
-
-See `.env.example` for full details.
-
-## Naming Conventions
-
-- **Files:** kebab-case (e.g., `site-config.ts`)
-- **Components:** kebab-case.astro or PascalCase.tsx (React)
-- **Descriptive names** — file name should indicate purpose at a glance
-
-## Deployment
-
-### Vercel
-
-- Build command: `npm run build` (Astro)
-- Output directory: `dist/`
-- One env var required: `PUBLIC_SITE_URL`
-- Keystatic admin (`/keystatic`) locked to dev via environment checks
-- SSR endpoints use Vercel Functions
-
-See `vercel.json` and README for deploy button.
-
-## Search
-
-- **Pagefind** static index generated at build time
-- Zero runtime cost
-- Client-side search on `/search` page
-- Min 2-char query guard
-
-## Video Manifests
-
-When `video.enabled = true`:
-1. Edit article in Keystatic
-2. Manually trigger manifest upload: `npm run upload-manifest <slug>`
-3. Manifest stored in R2 at `manifests/{slug}.json`
-4. `/api/manifests/[slug]` endpoint returns JSON
-
-**Schema:** See [Video-Factory Contract](./video-factory-contract.md)
-
-## Environment Variables (Updated 2026-03-19)
-
-### New in v2.1.0
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GEMINI_API_KEY` | No | Google Gemini API for voice analysis + preview generation |
-
-Voice analysis and preview features disabled if not set (graceful degradation).
-
-### GoClaw API Adapter (Phase 1, 2026-03-25)
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GOCLAW_API_KEY` | No | Bearer token for external AI agent authentication |
-| `GOCLAW_WEBHOOK_SECRET` | No | HMAC-SHA256 secret for webhook signature verification |
-
-GoClaw integration disabled (returns 503) if `GOCLAW_API_KEY` not set.
+- `readEntityDefinition(id)` — Load schema
+- `writeEntityDefinition(id, schema)` — Save schema
+- `createEntityInstance(definition, data)` — Create instance
+- `readEntityInstance(definition, slug)` — Load instance
+- `updateEntityInstance(definition, slug, data)` — Update instance
+- `listEntityInstances(definition)` — List all instances
+- `deleteEntityInstance(definition, slug)` — Delete instance
+- `validateEntityData(definition, data)` — Zod validation against schema
 
 ## Feature Module System (2026-03-26)
 
-Optional features managed via a registry-based toggle system. Features can be enabled/disabled in admin settings without code changes.
+Optional features managed via registry:
+- `email` — Email newsletter capture
+- `goclaw` — External AI agent integration
+- `distribution` — Social media post generation
+- `analytics` — GA4 tracking
+- `media` — Cloudflare R2 file upload
+- `voices` — Voice profile management
+- `translations` — i18n translations
+- **`landing`** — NEW: Landing page builder (toggleable)
+- **`entities`** — NEW: Custom entity definitions (toggleable)
+- **`setup-wizard`** — NEW: AI landing setup wizard (toggleable)
 
-**Files:**
-- `src/lib/admin/feature-registry.ts` — Feature definitions (7 modules: email, goclaw, distribution, analytics, media, voices, translations)
-- `src/lib/admin/feature-guard.ts` — Server-side feature guard with caching
-- `src/components/admin/feature-toggles-panel.tsx` — Admin UI for feature toggles
+**Registry:** `src/lib/admin/feature-registry.ts`
+**Guard:** `src/lib/admin/feature-guard.ts`
+**Settings UI:** `src/components/admin/feature-toggles-panel.tsx`
 
-**How it works:**
-1. **Registry** defines feature metadata (id, label, icon, routes, section)
-2. **Settings** (`site-settings.yaml`) stores `enabledFeatures` toggles
-3. **UI Layer** — sidebar nav and routes rendered conditionally from `getFeaturesBySection()`
-4. **API Layer** — all 20 feature endpoints guarded with `checkFeatureEnabled()` returning 403 when disabled
-5. **Public Layer** — email subscribe form and GA4 script hidden when features disabled
+## Content Workflow
 
-**Backward Compatibility:**
-- Missing `enabledFeatures` in settings defaults all to enabled (no breaking change)
-- Pure functions in registry — easy to test
+### Build Pipeline
 
----
+1. **Edit content** via Keystatic UI at `/keystatic` (dev-only) or admin at `/admin`
+2. **Save to disk** as Markdown/YAML files in `src/content/`
+3. **Commit to git** (manual or auto via Keystatic webhook)
+4. **Build triggers** on Vercel (astro build)
+5. **Astro parses** content via `getCollection()` (type-safe)
+6. **Output:** Static HTML at `dist/`
 
-## GoClaw API Adapter Architecture (Phase 1)
+### Landing Page Build Flow
 
-External AI agents (orchestration systems like GoClaw) integrate via authenticated REST API:
+1. YAML config in `src/content/landing-pages/{slug}/index.yaml`
+2. Build-time Astro renders landing via dynamic `[landing-slug].astro` page
+3. Section components load via dynamic imports from `src/components/landing/`
+4. Entity data loaded from `src/content/entities/{definition}/`
+5. Static HTML generated at build time
+6. Deployed to Vercel (cached, instant load)
 
-**Endpoints:**
-- `GET /api/goclaw/health` — Service health + version (requires API key)
-- `POST /api/goclaw/webhook` — Receive event callbacks (HMAC verified)
+## Environment Variables
 
-**Authentication:**
-- Bearer token via `Authorization: Bearer <GOCLAW_API_KEY>` header
-- Returns 401 if token invalid, 503 if not configured
-- Webhook signature verified via HMAC-SHA256 if `GOCLAW_WEBHOOK_SECRET` set
+### New in v2.3.0
 
-**Write Policy:**
-- All AI agent writes force `status: draft` (human approval required)
-- Draft content never public — security-critical
+| Variable | Required | Description |
+|----------|----------|-------------|
+| (No new env vars) | — | Landing system uses file-based config + settings toggles |
 
-**Files:**
-- `src/lib/goclaw/api-auth.ts` — Bearer token verification helper
-- `src/lib/goclaw/types.ts` — Shared TypeScript types (WebhookPayload, GoclawApiResponse)
-- `src/pages/api/goclaw/health.ts` — Health check endpoint
-- `src/pages/api/goclaw/webhook.ts` — Event callback receiver + HMAC verification
+**Feature flags:** Toggled via `enabledFeatures` in site settings (no env vars needed).
 
-**Future Phases:**
-- Phase 2: Content CRUD endpoints (`/api/goclaw/content`)
-- Phase 3: Voice profile reader (`/api/goclaw/voices`)
-- Phase 4: SEO analysis trigger (`/api/goclaw/seo-analyze`)
+### All Optional Features
+
+| Variable | Feature | Description |
+|----------|---------|-------------|
+| `RESEND_API_KEY` | email | Email newsletter via Resend |
+| `GA_MEASUREMENT_ID` | analytics | Google Analytics 4 |
+| `GOCLAW_API_KEY` | goclaw | GoClaw API adapter |
+| `GEMINI_API_KEY` | all | AI features (voice, setup wizard, content distribution) |
+| `R2_*` variables | media | Cloudflare R2 for media storage |
+
+See `.env.example` for full details.
 
 ## Code Standards
 
-- **Astro components:** Default, zero JS
-- **React islands:** Only for interactive ToC + search + admin
+- **Astro components:** Default, zero JS (except landing sections may use React for interactivity)
+- **React islands:** Interactive components only (landing sections with state, admin pages, search, ToC)
 - **Error handling:** Try-catch with graceful fallbacks
 - **File size:** Keep under 200 LOC (modularized CSS as example)
 - **Comments:** For complex logic only
 - **Styling:** Modular CSS partials, CSS variables for theming
+- **Landing components:** Astro by default, props-driven via YAML config
 
 ---
 
-**Last updated:** 2026-03-19
+**Last updated:** 2026-03-26

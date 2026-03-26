@@ -4,6 +4,64 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.3.0 — Landing Page Builder System (2026-03-26)
+
+**Status:** Complete
+
+Modular landing page builder with AI setup wizard, custom entity system, and 5 product templates.
+
+#### 9 Phases Complete
+1. **10 Astro Section Components** — hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall
+2. **Landing Config Renderer** — YAML-to-static-HTML pipeline via content collections
+3. **5 Product Templates** — saas, agency, course, ecommerce, portfolio at `src/content/templates/`
+4. **Admin Landing Editor** — React pages for landing CRUD with per-section inline editors
+5. **Custom Entity System** — Dynamic YAML-schema entities with auto-generated admin CRUD
+6. **AI Setup Wizard** — Gemini Flash generates landing configs from product descriptions
+7. **GoClaw Landing API** — 9 REST endpoints for external AI agent integration
+8. **Feature Registry** — 3 new toggleable modules (landing, entities, setup-wizard)
+9. **GoClaw Hub Skill** — tree-id-manager skill for agent orchestration
+
+#### Key Deliverables
+- **10 section components** fully implemented (all in `src/components/landing/`)
+- **YAML config system** with type-safe schema (`src/lib/landing/landing-types.ts`)
+- **Entity system** with schema definitions + instance CRUD (`src/lib/admin/entity-io.ts`)
+- **Template library** with 5 pre-built product templates
+- **Admin UI** for landing pages, entities, templates, and setup wizard
+- **AI generation** — Gemini Flash converts product description → landing config
+- **Dynamic rendering** — Build-time static HTML generation from YAML configs
+- **GoClaw integration** — 9 REST endpoints with draft-forcing security policy
+- **Feature toggles** — Landing builder can be toggled on/off in settings
+
+#### Files Added
+- `src/lib/landing/landing-types.ts` — Shared TypeScript types (LandingConfig, LandingSection, EntityReference)
+- `src/lib/landing/landing-config-reader.ts` — YAML read/write operations
+- `src/lib/landing/landing-renderer.ts` — Dynamic component rendering
+- `src/lib/landing/ai-setup-generator.ts` — Gemini Flash integration
+- `src/lib/landing/template-apply.ts` — Template merge helper
+- `src/lib/admin/entity-io.ts` — Entity CRUD + schema validation
+- 10 section components in `src/components/landing/`
+- Admin React components in `src/components/admin/landing/` and `src/components/admin/entities/`
+- Admin API routes: `/api/admin/landing/*`, `/api/admin/entities/*`, `/api/admin/templates/*`, `/api/admin/setup/*`
+- GoClaw API routes: `/api/goclaw/landing/*`, `/api/goclaw/entities/*`, `/api/goclaw/templates/*`, `/api/goclaw/setup`
+- Admin pages: `/admin/landing`, `/admin/entities`, `/admin/templates`, `/admin/setup`
+- Dynamic landing route: `/[landing-slug].astro`
+
+#### Architecture Highlights
+- **Section Components**: Props-driven Astro components, no React needed (zero JS)
+- **YAML-first**: Landing configs live in git, fully type-safe via Zod schemas
+- **Entity System**: Extensible custom data types (testimonials, team members, portfolio items, etc.)
+- **Build-time Rendering**: All landings pre-rendered to static HTML at build time
+- **AI-Powered**: Gemini generates landing configs from product descriptions in EN/VI
+- **GoClaw Integration**: External AI agents can create/update landings via authenticated API
+- **Feature Toggles**: Landing, entities, and setup-wizard can be toggled on/off independently
+
+#### Security
+- All GoClaw writes force `status: draft` (human approval required)
+- Entity schema validation via Zod before save
+- HMAC signature verification on webhook callbacks
+
+---
+
 ### v2.2.0 — Feature Module System (2026-03-26)
 
 **Status:** Complete

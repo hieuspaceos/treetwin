@@ -829,4 +829,344 @@ export const POST: APIRoute = async ({ request }) => {
 
 ---
 
-**Last updated:** 2026-03-25
+## Landing Page Builder System (2026-03-26)
+
+### Overview
+
+Modular landing page system with YAML-driven configuration, 10 reusable section components, custom entity system, 5 product templates, and AI-powered setup wizard.
+
+```
+Admin creates landing page
+  ↓
+Choose template (optional)
+  ↓
+YAML config in src/content/landing-pages/{slug}/
+  ├─ sections: [hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall]
+  └─ entities: references to custom data (testimonials, team members, etc.)
+  ↓
+Build-time rendering
+  ├─ Astro loads LandingPage config
+  ├─ Dynamically imports section components
+  ├─ Loads entity data from src/content/entities/
+  └─ Generates static HTML
+  ↓
+Deployed as /[landing-slug] route
+
+External AI agents (GoClaw)
+  ↓
+POST /api/goclaw/landing (create with status: draft)
+  ↓
+AI setup wizard (optional)
+  ├─ POST /api/admin/setup/generate (product description → AI → landing config)
+  └─ Human reviews + edits
+  ↓
+Admin publishes (status: published)
+  ↓
+Public at /{landing-slug}
+```
+
+### Landing Page Architecture
+
+**10 Section Components** (`src/components/landing/`):
+1. `hero.astro` — Main value prop with CTA
+2. `features.astro` — Product features grid
+3. `pricing.astro` — Pricing tiers/plans
+4. `testimonials.astro` — Social proof carousel
+5. `faq.astro` — Accordion-style FAQ
+6. `cta.astro` — Call-to-action section
+7. `stats.astro` — Key metrics/achievements
+8. `how-it-works.astro` — Step-by-step process
+9. `team.astro` — Team members grid (from entity data)
+10. `logo-wall.astro` — Client/partner logos
+
+**Configuration Schema** (`src/lib/landing/landing-types.ts`):
+```typescript
+interface LandingConfig {
+  slug: string
+  title: string
+  description: string
+  status: 'draft' | 'published'
+  publishedAt?: string
+  sections: LandingSection[]
+  entities: EntityReference[]
+  metadata: {
+    theme: string
+    locale: 'en' | 'vi'
+  }
+}
+
+interface LandingSection {
+  id: string
+  type: SectionComponentName  // hero | features | pricing | ...
+  props: Record<string, unknown>  // component-specific config
+}
+
+interface EntityReference {
+  definition: string  // 'testimonial' | 'team-member' | ...
+  instances: string[]  // instance slugs to load
+}
+```
+
+### YAML Configuration Example
+
+```yaml
+slug: my-saas-landing
+title: My SaaS Product
+description: Modern B2B SaaS platform
+status: published
+publishedAt: 2026-03-26
+sections:
+  - id: hero-1
+    type: hero
+    props:
+      headline: "Build faster with MyProduct"
+      subheadline: "Ship to market in days, not months"
+      ctaText: "Start Free Trial"
+      ctaUrl: "#pricing"
+      heroImage: "/landing/hero.png"
+
+  - id: features-1
+    type: features
+    props:
+      title: "Why teams choose us"
+      features:
+        - icon: zap
+          title: "Lightning fast"
+          description: "Sub-second response times"
+        - icon: lock
+          title: "Enterprise security"
+          description: "SOC 2 Type II certified"
+
+  - id: testimonials-1
+    type: testimonials
+    props:
+      title: "Loved by our customers"
+      autoRotate: true
+      interval: 5000
+
+  - id: pricing-1
+    type: pricing
+    props:
+      title: "Simple, transparent pricing"
+      currency: "$"
+      plans:
+        - name: Starter
+          price: 29
+          features: ["Feature A", "Feature B"]
+        - name: Pro
+          price: 99
+          featured: true
+          features: ["All Starter", "Feature C"]
+
+entities:
+  - definition: testimonial
+    instances: [customer-1, customer-2, customer-3]
+  - definition: team-member
+    instances: [founder-1, founder-2]
+
+metadata:
+  theme: liquid-glass
+  locale: en
+```
+
+### Custom Entity System
+
+**Entity Definitions** (`src/content/entity-definitions/`):
+- Define custom data types via YAML schema
+- Field types: text, textarea, number, select, checkbox, date
+- Generated admin CRUD interface
+
+**Entity Instances** (`src/content/entities/{definition-id}/`):
+- Data records for custom types
+- Auto-validated against definition schema
+- Accessible in landing sections via entity references
+
+**Example: Testimonial Definition**
+```yaml
+id: testimonial
+name: Testimonial
+description: Customer testimonial for landing pages
+fields:
+  - name: author
+    label: Author Name
+    type: text
+    required: true
+  - name: quote
+    label: Quote
+    type: textarea
+    required: true
+  - name: image
+    label: Profile Image URL
+    type: text
+  - name: role
+    label: Job Title
+    type: text
+  - name: company
+    label: Company Name
+    type: text
+```
+
+**Example: Testimonial Instance**
+```yaml
+slug: customer-1
+definition: testimonial
+author: John Doe
+quote: "MyProduct saved us 20 hours per week on deployment overhead."
+image: /media/john-doe.jpg
+role: CTO
+company: TechStartup Inc
+```
+
+### Product Templates
+
+**5 Pre-built Templates** (`src/content/templates/`):
+- `saas.yaml` — SaaS product landing
+- `agency.yaml` — Service agency landing
+- `course.yaml` — Online course landing
+- `ecommerce.yaml` — E-commerce shop landing
+- `portfolio.yaml` — Portfolio/case studies landing
+
+Each template includes:
+- Pre-configured sections (hero, features, CTA, etc.)
+- Recommended entity types (testimonials, portfolio items, etc.)
+- Sample content + placeholder images
+- Design guidelines per section
+
+**Apply Template Flow:**
+1. User creates new landing page
+2. Selects template (or creates blank)
+3. Template sections merged with user config
+4. User can override/customize sections
+5. Entities pre-populated from template examples
+
+### Admin Landing Editor
+
+**Routes:**
+- `GET /admin/landing` — List all landing pages (table view)
+- `GET /admin/landing/create` — New landing wizard (template selector → blank/template)
+- `GET /admin/landing/[slug]` — Edit landing page (YAML editor + preview)
+- `DELETE /admin/landing/[slug]` — Delete landing page
+
+**Features:**
+- YAML editor with syntax highlighting
+- Section component picker (dropdown of 10 components)
+- Inline section props editor (form builder from component schema)
+- Live iframe preview (shows draft content)
+- Section reorder (drag-drop in preview panel)
+- Entity picker (select instances to include)
+- Status toggle (draft ↔ published)
+
+### Admin Entity Manager
+
+**Routes:**
+- `GET /admin/entities` — List all entity types (with instance counts)
+- `GET /admin/entities/{definition-id}` — List instances of type
+- `POST /admin/entities/{definition-id}` — Create new instance
+- `PUT /admin/entities/{definition-id}/{slug}` — Edit instance
+- `DELETE /admin/entities/{definition-id}/{slug}` — Delete instance
+
+**Features:**
+- Auto-generated form from entity definition
+- Type validation (text, textarea, number, select, etc.)
+- Bulk import (paste CSV → create instances)
+- Bulk delete (checkbox select)
+- Search/filter by entity type
+
+### AI Setup Wizard
+
+**Endpoint:** `POST /api/admin/setup/generate`
+
+**Flow:**
+1. User enters product description (2-3 paragraphs)
+2. AI (Gemini Flash) analyzes description
+3. Generates landing page config (all sections pre-filled)
+4. Shows preview of generated landing
+5. User can edit/approve before saving
+6. Saves to `src/content/landing-pages/{auto-slug}/`
+
+**Prompt Engineering:**
+- Gemini system prompt includes:
+  - All 10 section component specs
+  - Example configs for each section
+  - Markdown formatting guidelines
+  - JSON output schema for landing config
+
+**Supported Languages:**
+- Input: English or Vietnamese
+- Output: Matched to input language
+- Multi-language landing pages via metadata.locale
+
+### Dynamic Landing Page Rendering
+
+**Build-time Route** (`src/pages/[landing-slug].astro`):
+```typescript
+export async function getStaticPaths() {
+  const landings = await getCollection('landing-pages')
+  return landings
+    .filter(l => l.data.status === 'published')
+    .map(l => ({ params: { 'landing-slug': l.data.slug } }))
+}
+
+export default async function LandingPage({ params }) {
+  const config = await readLandingConfig(params['landing-slug'])
+  const entityData = await resolveEntities(config.entities)
+
+  return <LandingPageRenderer config={config} entities={entityData} />
+}
+```
+
+**Section Rendering:**
+- Dynamic component loading: `await import(`src/components/landing/${section.type}.astro`)`
+- Props passed directly from config: `<SectionComponent {...section.props} />`
+- Entity data injected: `<Testimonials instances={entityData.testimonials} />`
+- Fully static output at build time
+
+### GoClaw Landing Integration (Phase 2 Future)
+
+**AI Agent Endpoints:**
+- `GET /api/goclaw/landing` — List published landings (read-only)
+- `GET /api/goclaw/landing/[slug]` — Get landing config
+- `POST /api/goclaw/landing` — Create landing (force draft)
+- `PUT /api/goclaw/landing/[slug]` — Update landing (draft only)
+- `GET /api/goclaw/templates` — List available templates
+- `POST /api/goclaw/setup/generate` — AI-generated landing
+
+**Write Policy:**
+- All writes forced to `status: draft`
+- Human approval required before publishing
+- Webhook callback on publish (for GoClaw feedback loop)
+
+### Files & Dependencies
+
+**New Directories:**
+- `src/components/landing/` — 10 section components
+- `src/lib/landing/` — Config reader, renderer, template helpers, AI generator
+- `src/lib/admin/entity-io.ts` — Entity CRUD operations
+- `src/content/landing-pages/` — Landing page configs (YAML)
+- `src/content/templates/` — 5 product templates (YAML)
+- `src/content/entity-definitions/` — Custom entity schemas (YAML)
+- `src/content/entities/` — Entity instances (YAML, organized by type)
+
+**Modified Files:**
+- `keystatic.config.ts` — Added landing-pages, templates, entity-definitions, entities collections
+- `src/content.config.ts` — Added Zod schemas for new collections
+- `src/pages/[landing-slug].astro` — New dynamic landing route
+- `src/pages/admin/landing/[...path].astro` — Landing admin pages
+- `src/pages/admin/entities/[...path].astro` — Entity admin pages
+- `src/pages/api/admin/landing/[...].ts` — Landing CRUD endpoints
+- `src/pages/api/admin/entities/[...].ts` — Entity CRUD endpoints
+- `src/pages/api/admin/templates/[...].ts` — Template endpoints
+- `src/pages/api/admin/setup/[...].ts` — Setup wizard endpoint
+- `src/pages/api/goclaw/landing/[...].ts` — GoClaw landing endpoints
+- `src/pages/api/goclaw/entities/[...].ts` — GoClaw entity endpoints
+- `src/pages/api/goclaw/templates.ts` — GoClaw template endpoint
+- `src/pages/api/goclaw/setup.ts` — GoClaw setup endpoint
+- `src/lib/admin/feature-registry.ts` — Added landing, entities, setup-wizard features
+- `src/components/admin/feature-toggles-panel.tsx` — Updated to show 3 new features
+
+**New NPM Packages:**
+- None required (uses existing: Astro, Zod, Gemini API)
+
+---
+
+**Last updated:** 2026-03-26
