@@ -135,6 +135,37 @@ export function LandingPageEditor({ slug }: Props) {
     setConfig((c) => ({ ...c, sections: [...c.sections, section] }))
   }
 
+  /** Move a section into a layout column — removes from top-level, adds to layout's children */
+  function moveToLayout(sectionIndex: number, layoutIndex: number, columnIndex: number) {
+    setConfig((c) => {
+      const sections = [...c.sections]
+      const section = sections[sectionIndex]
+      const layout = sections[layoutIndex]
+      if (!layout || layout.type !== 'layout') return c
+      // Remove from top-level
+      sections.splice(sectionIndex, 1)
+      // Add to layout column children
+      const layoutData = { ...(layout.data as any) }
+      const children = [...(layoutData.children || [])]
+      const existing = children.find((ch: any) => ch.column === columnIndex)
+      if (existing) {
+        existing.sections = [...existing.sections, { ...section, order: existing.sections.length }]
+      } else {
+        children.push({ column: columnIndex, sections: [{ ...section, order: 0 }] })
+      }
+      layoutData.children = children
+      // Update layout in array (adjust index if section was before layout)
+      const newLayoutIdx = sectionIndex < layoutIndex ? layoutIndex - 1 : layoutIndex
+      sections[newLayoutIdx] = { ...sections[newLayoutIdx], data: layoutData }
+      return { ...c, sections }
+    })
+  }
+
+  // Collect layout sections for "Move to Column" options
+  const layoutOptions = config.sections
+    .map((s, i) => ({ index: i, section: s }))
+    .filter(({ section }) => section.type === 'layout')
+
   // Drag-and-drop reordering
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
   const sectionIds = config.sections.map((s, i) => `${s.type}-${i}`)
@@ -260,7 +291,13 @@ export function LandingPageEditor({ slug }: Props) {
                 onChange={(data) => updateSection(i, data)}
                 onMove={(dir) => moveSection(i, dir)}
                 onRemove={() => removeSection(i)}
-                onToggle={(enabled) => toggleSection(i, enabled)} />
+                onToggle={(enabled) => toggleSection(i, enabled)}
+                layoutTargets={layoutOptions.map(lo => ({
+                  layoutIndex: lo.index,
+                  layoutLabel: `Layout #${lo.index + 1}`,
+                  columns: (lo.section.data as any).columns || [1, 1],
+                }))}
+                onMoveToLayout={(layoutIdx, colIdx) => moveToLayout(i, layoutIdx, colIdx)} />
             ))}
           </SortableContext>
         </DndContext>

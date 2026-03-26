@@ -20,6 +20,9 @@ interface Props {
   onMove: (direction: 'up' | 'down') => void
   onRemove: () => void
   onToggle: (enabled: boolean) => void
+  /** Available layout columns to move this section into */
+  layoutTargets?: Array<{ layoutIndex: number; layoutLabel: string; columns: number[] }>
+  onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -48,7 +51,7 @@ const TYPE_LABELS: Record<string, string> = {
   layout: 'Layout',
 }
 
-export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle }: Props) {
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, layoutTargets, onMoveToLayout }: Props) {
   const [expanded, setExpanded] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
@@ -127,6 +130,30 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
           onClick={(e) => { e.stopPropagation(); onMove('down') }}
           style={{ padding: '2px 6px', fontSize: '0.7rem', background: '#f1f5f9', border: 'none', borderRadius: '4px', cursor: index === total - 1 ? 'not-allowed' : 'pointer', opacity: index === total - 1 ? 0.4 : 1 }}
         >↓</button>
+
+        {/* Move to layout column */}
+        {layoutTargets && layoutTargets.length > 0 && section.type !== 'layout' && section.type !== 'nav' && section.type !== 'footer' && onMoveToLayout && (
+          <select
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              const [li, ci] = e.target.value.split('-').map(Number)
+              onMoveToLayout(li, ci)
+              e.target.value = ''
+            }}
+            defaultValue=""
+            style={{ padding: '2px 4px', fontSize: '0.65rem', border: '1px solid #e2e8f0', borderRadius: '4px', background: '#f0f9ff', color: '#1d4ed8', cursor: 'pointer', maxWidth: '80px' }}
+            title="Move into a layout column"
+          >
+            <option value="" disabled>→ Col</option>
+            {layoutTargets.map((lt) =>
+              lt.columns.map((_, ci) => (
+                <option key={`${lt.layoutIndex}-${ci}`} value={`${lt.layoutIndex}-${ci}`}>
+                  {lt.layoutLabel} Col {ci + 1}
+                </option>
+              ))
+            )}
+          </select>
+        )}
 
         {/* Remove */}
         <button
