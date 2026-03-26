@@ -1,0 +1,103 @@
+title: saas
+description: Software-as-a-Service landing page with hero, features, pricing, testimonials, and FAQ
+template: saas
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: Your Product Headline
+      subheadline: One sentence that explains your value proposition clearly
+      cta:
+        text: Start Free Trial
+        url: /signup
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: Everything you need
+      columns: 3
+      items:
+        - icon: ⚡
+          title: Lightning Fast
+          description: Optimized for speed and performance
+        - icon: 🛡️
+          title: Secure by Default
+          description: Enterprise-grade security built-in
+        - icon: 🧩
+          title: Easy Integration
+          description: Works with your existing tools
+  - type: pricing
+    order: 3
+    enabled: true
+    data:
+      heading: Simple, transparent pricing
+      plans:
+        - name: Starter
+          price: $29
+          period: /month
+          features:
+            - 1,000 requests/mo
+            - Email support
+            - 1 project
+          cta:
+            text: Get Started
+            url: /signup?plan=starter
+        - name: Pro
+          price: $99
+          period: /month
+          highlighted: true
+          features:
+            - 50,000 requests/mo
+            - Priority support
+            - 10 projects
+            - API access
+          cta:
+            text: Go Pro
+            url: /signup?plan=pro
+        - name: Enterprise
+          price: Custom
+          features:
+            - Unlimited requests
+            - Dedicated support
+            - Custom SLA
+            - On-premise option
+          cta:
+            text: Contact Sales
+            url: /contact
+  - type: testimonials
+    order: 4
+    enabled: true
+    data:
+      heading: Trusted by teams worldwide
+      items:
+        - quote: This product transformed how we work. Setup took 5 minutes.
+          name: Jane Smith
+          role: CTO
+          company: TechCorp
+        - quote: Best ROI on any tool we've purchased this year.
+          name: John Doe
+          role: VP Engineering
+          company: StartupXYZ
+  - type: faq
+    order: 5
+    enabled: true
+    data:
+      heading: Frequently asked questions
+      items:
+        - question: How do I get started?
+          answer: Sign up for a free trial. No credit card required.
+        - question: Can I cancel anytime?
+          answer: Yes, cancel anytime from your dashboard. No lock-in.
+        - question: Do you offer a free plan?
+          answer: We offer a 14-day free trial on all plans.
+  - type: cta
+    order: 6
+    enabled: true
+    data:
+      headline: Ready to get started?
+      subheadline: Join thousands of teams already using our product
+      cta:
+        text: Start Free Trial
+        url: /signup
+      variant: accent
