@@ -9,6 +9,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import { api } from '@/lib/admin/api-client'
 import type { LandingPageConfig, LandingSection, SectionType, SectionData } from '@/lib/landing/landing-types'
 import { LandingSectionCard } from './landing-section-card'
+import { LandingLivePreview } from './landing-live-preview'
 
 interface Props { slug?: string }
 
@@ -148,8 +149,8 @@ export function LandingPageEditor({ slug }: Props) {
           >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         )}
         {!isNew && !splitView && <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="admin-btn" style={{ fontSize: '0.8rem' }}>Preview</a>}
-        <button className="admin-btn admin-btn-primary" onClick={splitView ? handleSaveAndPreview : handleSave} disabled={saving}>
-          {saving ? 'Saving…' : splitView ? 'Save & Refresh' : 'Save'}
+        <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving…' : 'Save'}
         </button>
       </div>
 
@@ -210,23 +211,18 @@ export function LandingPageEditor({ slug }: Props) {
     </div>
   )
 
-  // Split view: editor left + iframe preview right
-  if (splitView && !isNew) {
+  // Split view: editor left + live React preview right (real-time, no save needed)
+  if (splitView) {
     return (
       <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 80px)' }}>
         <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
           {editorContent}
         </div>
         <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid #e2e8f0', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, background: '#fef3c7', color: '#92400e', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px' }}>
+          <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, background: '#dcfce7', color: '#166534', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px' }}>
             Live Preview
           </div>
-          <iframe
-            key={previewKey}
-            src={`/${slug}`}
-            style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
-            title="Landing page preview"
-          />
+          <LandingLivePreview sections={config.sections} pageTitle={config.title} />
         </div>
       </div>
     )
