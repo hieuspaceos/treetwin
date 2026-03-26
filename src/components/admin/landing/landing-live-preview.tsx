@@ -79,14 +79,29 @@ function PreviewPricing({ data }: { data: PricingData }) {
   )
 }
 
-function PreviewText({ heading, items }: { heading?: string; items?: Array<{ question?: string; quote?: string; name?: string; [k: string]: unknown }> }) {
+function PreviewText({ heading, items }: { heading?: string; items?: Array<Record<string, unknown>> }) {
+  /** Extract display text from any item shape */
+  function itemText(item: Record<string, unknown>): string {
+    return (item.question || item.quote || item.title || item.description || item.value || '') as string
+  }
+  function itemSub(item: Record<string, unknown>): string {
+    if (item.answer) return item.answer as string
+    if (item.role && item.name) return `${item.role}`
+    if (item.company) return `${item.role || ''}, ${item.company}`
+    if (item.label) return item.label as string
+    return ''
+  }
+  function itemName(item: Record<string, unknown>): string {
+    return (item.name || '') as string
+  }
   return (
     <div style={{ padding: '2rem 1rem' }}>
       {heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>{heading}</h2>}
       {items?.map((item, i) => (
         <div key={i} style={{ background: 'rgba(255,255,255,0.4)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.5rem' }}>
-          <p style={{ fontSize: '0.85rem', color: '#1e293b' }}>{item.question || item.quote || item.title || JSON.stringify(item)}</p>
-          {item.name && <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>— {item.name as string}</p>}
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{itemText(item) || itemName(item)}</p>
+          {itemSub(item) && <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{itemSub(item)}</p>}
+          {itemName(item) && itemText(item) && <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>— {itemName(item)}</p>}
         </div>
       ))}
     </div>
