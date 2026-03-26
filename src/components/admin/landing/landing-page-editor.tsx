@@ -1,9 +1,11 @@
 /**
- * Landing page editor — metadata form + section list with add/reorder/remove.
+ * Landing page editor — metadata form + sortable section list with drag-and-drop.
  * New mode when no slug provided. Loads config from API when slug given.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLocation } from 'wouter'
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { api } from '@/lib/admin/api-client'
 import type { LandingPageConfig, LandingSection, SectionType, SectionData } from '@/lib/landing/landing-types'
 import { LandingSectionCard } from './landing-section-card'
@@ -90,6 +92,19 @@ export function LandingPageEditor({ slug }: Props) {
     setConfig((c) => ({ ...c, sections: [...c.sections, section] }))
   }
 
+  // Drag-and-drop reordering
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const sectionIds = config.sections.map((s, i) => `${s.type}-${i}`)
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = sectionIds.indexOf(active.id as string)
+    const newIndex = sectionIds.indexOf(over.id as string)
+    if (oldIndex === -1 || newIndex === -1) return
+    setConfig((c) => ({ ...c, sections: arrayMove(c.sections, oldIndex, newIndex) }))
+  }, [sectionIds])
+
   async function handleSave() {
     setSaving(true); setError(''); setSuccess('')
     const res = isNew
@@ -148,18 +163,22 @@ export function LandingPageEditor({ slug }: Props) {
         </div>
       </div>
 
-      {/* Sections */}
+      {/* Sections — drag-and-drop sortable */}
       <div style={{ marginBottom: '1rem' }}>
         <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem' }}>
           Sections ({config.sections.length})
         </h2>
-        {config.sections.map((section, i) => (
-          <LandingSectionCard key={`${section.type}-${i}`} section={section} index={i} total={config.sections.length}
-            onChange={(data) => updateSection(i, data)}
-            onMove={(dir) => moveSection(i, dir)}
-            onRemove={() => removeSection(i)}
-            onToggle={(enabled) => toggleSection(i, enabled)} />
-        ))}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
+            {config.sections.map((section, i) => (
+              <LandingSectionCard key={sectionIds[i]} id={sectionIds[i]} section={section} index={i} total={config.sections.length}
+                onChange={(data) => updateSection(i, data)}
+                onMove={(dir) => moveSection(i, dir)}
+                onRemove={() => removeSection(i)}
+                onToggle={(enabled) => toggleSection(i, enabled)} />
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
 
       {/* Add section */}

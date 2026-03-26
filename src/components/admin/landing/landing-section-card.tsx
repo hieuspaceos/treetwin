@@ -1,9 +1,12 @@
 /**
  * Collapsible section card for landing page editor.
- * Collapsed: type label + enabled toggle + move buttons.
+ * Supports drag-and-drop reordering via @dnd-kit/sortable.
+ * Collapsed: drag handle + type label + enabled toggle + remove.
  * Expanded: inline form fields based on section type.
  */
 import { useState } from 'react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import type { LandingSection, SectionData } from '@/lib/landing/landing-types'
 import { sectionFormMap } from './landing-section-forms'
 
@@ -11,6 +14,8 @@ interface Props {
   section: LandingSection
   index: number
   total: number
+  /** Unique ID for dnd-kit sortable — typically `${type}-${index}` */
+  id: string
   onChange: (data: SectionData) => void
   onMove: (direction: 'up' | 'down') => void
   onRemove: () => void
@@ -18,6 +23,7 @@ interface Props {
 }
 
 const TYPE_LABELS: Record<string, string> = {
+  nav: 'Navigation',
   hero: 'Hero',
   features: 'Features',
   pricing: 'Pricing',
@@ -28,25 +34,37 @@ const TYPE_LABELS: Record<string, string> = {
   'how-it-works': 'How It Works',
   team: 'Team',
   'logo-wall': 'Logo Wall',
+  footer: 'Footer',
 }
 
-export function LandingSectionCard({ section, index, total, onChange, onMove, onRemove, onToggle }: Props) {
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle }: Props) {
   const [expanded, setExpanded] = useState(false)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const FormComponent = sectionFormMap[section.type]
   const label = TYPE_LABELS[section.type] || section.type
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : section.enabled ? 1 : 0.6,
+  }
+
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className="glass-card"
-      style={{
-        borderRadius: '10px',
-        marginBottom: '0.75rem',
-        overflow: 'hidden',
-        opacity: section.enabled ? 1 : 0.6,
-        border: expanded ? '1px solid #3b82f6' : '1px solid transparent',
-      }}
+      {...attributes}
     >
+      <div
+        style={{
+          borderRadius: '10px',
+          marginBottom: '0.75rem',
+          overflow: 'hidden',
+          border: expanded ? '1px solid #3b82f6' : '1px solid transparent',
+        }}
+      >
       {/* Collapsed header — always visible */}
       <div
         style={{
@@ -59,12 +77,20 @@ export function LandingSectionCard({ section, index, total, onChange, onMove, on
         }}
         onClick={() => setExpanded((e) => !e)}
       >
+        {/* Drag handle */}
+        <span
+          {...listeners}
+          style={{ cursor: 'grab', color: '#94a3b8', fontSize: '1rem', touchAction: 'none' }}
+          onClick={(e) => e.stopPropagation()}
+          title="Drag to reorder"
+        >⠿</span>
+
         {/* Expand/collapse chevron */}
         <span style={{ color: '#94a3b8', fontSize: '0.8rem', transition: 'transform 0.15s', transform: expanded ? 'rotate(90deg)' : 'none' }}>▶</span>
 
         <span style={{ flex: 1, fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>{label}</span>
 
-        {/* Enabled toggle — stop propagation so click doesn't expand card */}
+        {/* Enabled toggle */}
         <label
           style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.75rem', color: '#64748b' }}
           onClick={(e) => e.stopPropagation()}
@@ -77,7 +103,7 @@ export function LandingSectionCard({ section, index, total, onChange, onMove, on
           Enabled
         </label>
 
-        {/* Move buttons */}
+        {/* Move buttons (kept as fallback) */}
         <button
           type="button"
           disabled={index === 0}
@@ -111,6 +137,7 @@ export function LandingSectionCard({ section, index, total, onChange, onMove, on
           No editor available for this section type.
         </div>
       )}
+      </div>
     </div>
   )
 }
