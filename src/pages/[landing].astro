@@ -23,8 +23,10 @@ export async function getStaticPaths() {
 
 const { page, product } = Astro.props
 const sections = page.data.sections as unknown as LandingSection[]
-const hasNav = sections.some(s => s.type === 'nav' && s.enabled !== false)
-const hasFooter = sections.some(s => s.type === 'footer' && s.enabled !== false)
+// If nav/footer section exists (even disabled), hide layout's nav/footer
+// User controls visibility via section enabled toggle — layout never overrides
+const hasNav = sections.some(s => s.type === 'nav')
+const hasFooter = sections.some(s => s.type === 'footer')
 ---
 
 <LandingLayout
