@@ -35,6 +35,16 @@ const TYPE_LABELS: Record<string, string> = {
   team: 'Team',
   'logo-wall': 'Logo Wall',
   footer: 'Footer',
+  video: 'Video',
+  image: 'Image',
+  'image-text': 'Image + Text',
+  gallery: 'Gallery',
+  map: 'Map',
+  'rich-text': 'Rich Text',
+  divider: 'Divider',
+  countdown: 'Countdown',
+  'contact-form': 'Contact Form',
+  banner: 'Banner',
 }
 
 export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle }: Props) {
