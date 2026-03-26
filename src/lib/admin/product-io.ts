@@ -41,8 +41,8 @@ export function readProduct(slug: string, basePath = process.cwd()): ProductConf
 export function writeProduct(slug: string, config: ProductConfig, basePath = process.cwd()): void {
   const dir = path.join(basePath, PRODUCTS_DIR)
   fs.mkdirSync(dir, { recursive: true })
-  const { slug: _, ...rest } = config
-  fs.writeFileSync(path.join(dir, `${slug}.yaml`), yaml.dump(rest, { lineWidth: 120 }))
+  const data = { ...config, slug }
+  fs.writeFileSync(path.join(dir, `${slug}.yaml`), yaml.dump(data, { lineWidth: 120 }))
 }
 
 /** Delete a product config YAML file */
