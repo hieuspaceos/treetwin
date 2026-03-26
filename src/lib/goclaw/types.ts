@@ -1,6 +1,7 @@
 /**
  * Shared types for GoClaw API adapter layer
  */
+import type { ProductConfig } from '@/lib/admin/product-types'
 
 /** Webhook payload received from GoClaw callbacks */
 export interface WebhookPayload {
@@ -17,3 +18,8 @@ export interface GoclawApiResponse<T = unknown> {
   data?: T
   error?: string
 }
+
+/** Result types for product-scoped GoClaw auth */
+export type ProductScopeSuccess = { ok: true; product: ProductConfig }
+export type ProductScopeFailure = { ok: false; response: Response }
+export type ProductScopeResult = ProductScopeSuccess | ProductScopeFailure

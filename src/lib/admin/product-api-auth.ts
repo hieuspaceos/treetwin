@@ -20,7 +20,7 @@ export interface ProductAuthResult {
 }
 
 /** Read product YAML from disk by slug */
-function readProductConfig(slug: string): ProductConfig | null {
+export function readProductConfig(slug: string): ProductConfig | null {
   const filePath = path.join(process.cwd(), PRODUCTS_DIR, `${slug}.yaml`)
   if (!fs.existsSync(filePath)) return null
   try {
