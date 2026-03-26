@@ -1,10 +1,11 @@
 /**
- * Entity definitions page — list entity types, create new definition
+ * Entity definitions page — list entity types, create new, edit fields, delete
  */
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { api } from '@/lib/admin/api-client'
-import type { EntityDefinition } from '@/lib/admin/entity-io'
+import type { EntityDefinition, EntityFieldDef } from '@/lib/admin/entity-io'
+import { EntityFieldEditor } from './entity-field-editor'
 
 export function EntityDefinitionsPage() {
   const [, navigate] = useLocation()
@@ -15,6 +16,8 @@ export function EntityDefinitionsPage() {
   const [newLabel, setNewLabel] = useState('')
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [editingFields, setEditingFields] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     api.entities.listDefinitions().then((res) => {
@@ -31,8 +34,20 @@ export function EntityDefinitionsPage() {
     if (res.ok) {
       setDefs((prev) => [...prev, { name: newName, label: newLabel, fields: [] }])
       setShowForm(false); setNewName(''); setNewLabel('')
+      setEditingFields(newName) // auto-open field editor for new entity
     } else {
       setError(res.error || 'Failed to create')
+    }
+  }
+
+  async function handleSaveFields(name: string, fields: EntityFieldDef[]) {
+    setSaving(true)
+    const def = defs.find(d => d.name === name)
+    if (!def) return
+    const res = await api.entities.updateDefinition(name, { ...def, fields })
+    setSaving(false)
+    if (res.ok) {
+      setDefs(prev => prev.map(d => d.name === name ? { ...d, fields } : d))
     }
   }
 
@@ -78,16 +93,35 @@ export function EntityDefinitionsPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
         {defs.map((def) => (
           <div key={def.name} className="glass-card" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <h3 style={{ fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>{def.label}</h3>
             <p style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '0.5rem' }}>{def.name}</p>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '1rem' }}>{def.fields?.length || 0} fields</p>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.75rem' }}>{def.fields?.length || 0} fields</p>
+
+            {/* Field editor — toggleable */}
+            {editingFields === def.name && (
+              <div style={{ marginBottom: '0.75rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '8px' }}>
+                <EntityFieldEditor
+                  fields={def.fields || []}
+                  onChange={(fields) => handleSaveFields(def.name, fields)}
+                />
+                {saving && <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.5rem' }}>Saving...</p>}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button className="admin-btn admin-btn-primary" style={{ flex: 1, fontSize: '0.8rem' }}
                 onClick={() => navigate(`/entities/${def.name}`)}>
                 View Entries
+              </button>
+              <button
+                className="admin-btn"
+                style={{ fontSize: '0.8rem' }}
+                onClick={() => setEditingFields(editingFields === def.name ? null : def.name)}
+              >
+                {editingFields === def.name ? 'Close Fields' : 'Edit Fields'}
               </button>
               <button
                 className="admin-btn"

@@ -184,6 +184,8 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    updateDefinition: (name: string, data: Record<string, unknown>) =>
+      adminFetch(`/api/admin/entity-definitions/${name}`, { method: 'PUT', body: JSON.stringify(data) }),
     deleteDefinition: (name: string) =>
       adminFetch(`/api/admin/entity-definitions/${name}`, { method: 'DELETE' }),
     listInstances: (name: string) =>
