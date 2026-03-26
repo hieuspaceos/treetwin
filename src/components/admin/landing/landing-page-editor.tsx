@@ -48,6 +48,9 @@ export function LandingPageEditor({ slug }: Props) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [newType, setNewType] = useState<SectionType>('hero')
+  const [splitView, setSplitView] = useState(false)
+  const [previewKey, setPreviewKey] = useState(0)
+  const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
 
   useEffect(() => {
     if (!slug) return
@@ -118,16 +121,6 @@ export function LandingPageEditor({ slug }: Props) {
     } else {
       setError(res.error || 'Save failed')
     }
-  }
-
-  // Split view: editor left, iframe preview right
-  const [splitView, setSplitView] = useState(false)
-  const [previewKey, setPreviewKey] = useState(0)
-
-  // Refresh preview iframe after save
-  async function handleSaveAndPreview() {
-    await handleSave()
-    setPreviewKey((k) => k + 1)
   }
 
   if (loading) return <p style={{ color: '#94a3b8' }}>Loading...</p>
@@ -217,7 +210,6 @@ export function LandingPageEditor({ slug }: Props) {
     { label: '📱', width: 768, title: 'Tablet (768px)' },
     { label: '🖥', width: '100%', title: 'Desktop (full)' },
   ] as const
-  const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
 
   // Split view: editor left + live React preview right (real-time, no save needed)
   if (splitView) {
