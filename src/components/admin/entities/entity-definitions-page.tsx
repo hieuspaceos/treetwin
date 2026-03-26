@@ -100,15 +100,14 @@ export function EntityDefinitionsPage() {
             <p style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '0.5rem' }}>{def.name}</p>
             <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.75rem' }}>{def.fields?.length || 0} fields</p>
 
-            {/* Field editor — toggleable */}
+            {/* Field editor — toggleable, batch save */}
             {editingFields === def.name && (
-              <div style={{ marginBottom: '0.75rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '8px' }}>
-                <EntityFieldEditor
-                  fields={def.fields || []}
-                  onChange={(fields) => handleSaveFields(def.name, fields)}
-                />
-                {saving && <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.5rem' }}>Saving...</p>}
-              </div>
+              <EntityFieldEditorPanel
+                name={def.name}
+                initialFields={def.fields || []}
+                saving={saving}
+                onSave={(fields) => handleSaveFields(def.name, fields)}
+              />
             )}
 
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -137,6 +136,34 @@ export function EntityDefinitionsPage() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+/** Wrapper for field editor — local state with explicit Save button */
+function EntityFieldEditorPanel({ name, initialFields, saving, onSave }: {
+  name: string
+  initialFields: EntityFieldDef[]
+  saving: boolean
+  onSave: (fields: EntityFieldDef[]) => void
+}) {
+  const [fields, setFields] = useState<EntityFieldDef[]>(initialFields)
+  const dirty = JSON.stringify(fields) !== JSON.stringify(initialFields)
+
+  return (
+    <div style={{ marginBottom: '0.75rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '8px' }}>
+      <EntityFieldEditor fields={fields} onChange={setFields} />
+      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', alignItems: 'center' }}>
+        <button
+          className="admin-btn admin-btn-primary"
+          style={{ fontSize: '0.8rem' }}
+          onClick={() => onSave(fields)}
+          disabled={!dirty || saving}
+        >
+          {saving ? 'Saving...' : 'Save Fields'}
+        </button>
+        {dirty && <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>Unsaved changes</span>}
       </div>
     </div>
   )
