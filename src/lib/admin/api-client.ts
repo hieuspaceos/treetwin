@@ -184,6 +184,8 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    deleteDefinition: (name: string) =>
+      adminFetch(`/api/admin/entity-definitions/${name}`, { method: 'DELETE' }),
     listInstances: (name: string) =>
       adminFetch<unknown>(`/api/admin/entities/${name}`),
     readInstance: (name: string, slug: string) =>

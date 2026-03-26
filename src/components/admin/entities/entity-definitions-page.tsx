@@ -84,10 +84,23 @@ export function EntityDefinitionsPage() {
             <h3 style={{ fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>{def.label}</h3>
             <p style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '0.5rem' }}>{def.name}</p>
             <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '1rem' }}>{def.fields?.length || 0} fields</p>
-            <button className="admin-btn admin-btn-primary" style={{ width: '100%', fontSize: '0.8rem' }}
-              onClick={() => navigate(`/entities/${def.name}`)}>
-              View Entries
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="admin-btn admin-btn-primary" style={{ flex: 1, fontSize: '0.8rem' }}
+                onClick={() => navigate(`/entities/${def.name}`)}>
+                View Entries
+              </button>
+              <button
+                className="admin-btn"
+                style={{ fontSize: '0.8rem', color: '#dc2626' }}
+                onClick={async () => {
+                  if (!confirm(`Delete entity type "${def.label}"? This will also delete all its instances.`)) return
+                  const res = await api.entities.deleteDefinition(def.name)
+                  if (res.ok) setDefs((prev) => prev.filter((d) => d.name !== def.name))
+                }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
