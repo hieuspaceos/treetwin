@@ -129,6 +129,7 @@ describe('validateSingleton', () => {
   it('rejects non-string themeId', () => {
     const result = validateSingleton('site-settings', { themeId: 123 })
     expect(result.valid).toBe(false)
-    expect(result.errors).toContain('themeId must be a string')
+    expect(result.errors.length).toBeGreaterThan(0)
+    expect(result.errors[0]).toContain('themeId')
   })
 })

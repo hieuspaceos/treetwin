@@ -3,6 +3,7 @@
  */
 import type { APIRoute } from 'astro'
 import { getContentIO } from '@/lib/admin/content-io'
+import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 import { isValidCollection, isValidSlug, validateEntry } from '@/lib/admin/validation'
 
 export const prerender = false
@@ -46,7 +47,33 @@ export const PUT: APIRoute = async ({ params, request }) => {
     }
 
     await io.writeEntry(collection, slug, merged as any)
-    return json({ ok: true, data: { slug } })
+
+    // Run SEO check for articles (non-blocking — returns warnings in response)
+    let seoWarnings: string[] | undefined
+    if (collection === 'articles') {
+      try {
+        const m = merged as Record<string, unknown>
+        const seo = (m.seo as Record<string, string>) || {}
+        const cover = (m.cover as Record<string, string>) || {}
+        const links = (m.links as Record<string, unknown>) || {}
+        const result = analyzeSeo({
+          title: (m.title as string) || '',
+          description: (m.description as string) || '',
+          slug,
+          content: (m.content as string) || '',
+          seo, cover,
+          tags: (m.tags as string[]) || [],
+          links: { outbound: (links.outbound as string[]) || [] },
+        })
+        if (result.score < 50) {
+          seoWarnings = result.checks
+            .filter((c) => !c.pass)
+            .map((c) => c.message)
+        }
+      } catch { /* SEO check failure is non-blocking */ }
+    }
+
+    return json({ ok: true, data: { slug, seoWarnings } })
   } catch (err) {
     return json({ ok: false, error: 'Failed to update entry' }, 500)
   }

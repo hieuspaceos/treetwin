@@ -103,7 +103,31 @@ export const POST: APIRoute = async ({ params, request }) => {
 
     await io.writeEntry(collection, slug, { slug, ...body } as any)
 
-    return json({ ok: true, data: { slug } }, 201)
+    // Run SEO check for articles (non-blocking — returns warnings in response)
+    let seoWarnings: string[] | undefined
+    if (collection === 'articles') {
+      try {
+        const seo = (body.seo as Record<string, string>) || {}
+        const cover = (body.cover as Record<string, string>) || {}
+        const links = (body.links as Record<string, unknown>) || {}
+        const result = analyzeSeo({
+          title: (body.title as string) || '',
+          description: (body.description as string) || '',
+          slug,
+          content: (body.content as string) || '',
+          seo, cover,
+          tags: (body.tags as string[]) || [],
+          links: { outbound: (links.outbound as string[]) || [] },
+        })
+        if (result.score < 50) {
+          seoWarnings = result.checks
+            .filter((c) => !c.pass)
+            .map((c) => c.message)
+        }
+      } catch { /* SEO check failure is non-blocking */ }
+    }
+
+    return json({ ok: true, data: { slug, seoWarnings } }, 201)
   } catch (err) {
     return json({ ok: false, error: 'Failed to create entry' }, 500)
   }

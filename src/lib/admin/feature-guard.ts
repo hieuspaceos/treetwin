@@ -6,6 +6,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
+import { siteSettingsSchema } from './validation'
 
 interface CacheEntry {
   data: Record<string, boolean> | undefined
@@ -25,7 +26,10 @@ function readEnabledFeatures(): Record<string, boolean> | undefined {
     const settingsPath = path.join(process.cwd(), 'src/content/site-settings.yaml')
     const raw = fs.readFileSync(settingsPath, 'utf-8')
     const parsed = yaml.load(raw) as Record<string, unknown> | null
-    const features = parsed?.enabledFeatures as Record<string, boolean> | undefined
+    const validated = siteSettingsSchema.safeParse(parsed)
+    const features = validated.success
+      ? validated.data.enabledFeatures
+      : undefined
 
     cache = { data: features, timestamp: Date.now() }
     return features

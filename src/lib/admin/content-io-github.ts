@@ -2,8 +2,6 @@
  * GitHubContentIO — reads/writes content via GitHub API (production, Vercel serverless)
  * Uses GitHub Contents API for CRUD on content files stored in the repository
  */
-import matter from 'gray-matter'
-import yaml from 'js-yaml'
 import type { CollectionName } from './validation'
 import {
   CONTENT_BASE,
@@ -14,6 +12,12 @@ import {
   pickMeta,
 } from './content-io-types'
 import type { ContentIO, EntryMeta, EntryData } from './content-io-types'
+import {
+  parseMarkdocContent,
+  serializeMarkdocContent,
+  parseYamlContent,
+  serializeYamlContent,
+} from './content-io-shared'
 
 export class GitHubContentIO implements ContentIO {
   private owner: string
@@ -113,10 +117,10 @@ export class GitHubContentIO implements ContentIO {
     if (!file) return null
 
     if (isArticle(collection)) {
-      const { data, content } = matter(file.content)
-      return { slug, ...data, content } as EntryData
+      const { frontmatter, content } = parseMarkdocContent(file.content)
+      return { slug, ...frontmatter, content } as EntryData
     } else {
-      const data = yaml.load(file.content) as Record<string, unknown>
+      const data = parseYamlContent(file.content)
       return { slug, ...data } as EntryData
     }
   }
@@ -126,10 +130,10 @@ export class GitHubContentIO implements ContentIO {
 
     if (isArticle(collection)) {
       const { content, ...frontmatter } = fields
-      const output = matter.stringify(content as string || '', frontmatter)
+      const output = serializeMarkdocContent(frontmatter, content as string)
       await this.putFile(articlePath(slug), output, `admin: update ${collection}/${slug}`)
     } else {
-      const output = yaml.dump(fields, { lineWidth: -1, noRefs: true })
+      const output = serializeYamlContent(fields)
       await this.putFile(yamlPath(collection, slug), output, `admin: update ${collection}/${slug}`)
     }
   }
@@ -145,12 +149,11 @@ export class GitHubContentIO implements ContentIO {
   async readSingleton(name: string): Promise<Record<string, unknown> | null> {
     const file = await this.getFile(singletonPath(name))
     if (!file) return null
-    return yaml.load(file.content) as Record<string, unknown>
+    return parseYamlContent(file.content)
   }
 
   async writeSingleton(name: string, data: Record<string, unknown>): Promise<void> {
-    const output = yaml.dump(data, { lineWidth: -1, noRefs: true })
-    await this.putFile(singletonPath(name), output, `admin: update singleton ${name}`)
+    await this.putFile(singletonPath(name), serializeYamlContent(data), `admin: update singleton ${name}`)
   }
 
   async listSlugs(collection: CollectionName): Promise<string[]> {

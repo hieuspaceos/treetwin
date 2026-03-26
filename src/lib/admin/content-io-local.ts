@@ -2,11 +2,15 @@
  * LocalContentIO — reads/writes content files via Node.js fs (dev mode)
  * Uses lazy imports for fs/path to avoid issues in non-Node environments
  */
-import matter from 'gray-matter'
-import yaml from 'js-yaml'
 import type { CollectionName } from './validation'
 import { CONTENT_BASE, isArticle, pickMeta } from './content-io-types'
 import type { ContentIO, EntryMeta, EntryData } from './content-io-types'
+import {
+  parseMarkdocContent,
+  serializeMarkdocContent,
+  parseYamlContent,
+  serializeYamlContent,
+} from './content-io-shared'
 
 export class LocalContentIO implements ContentIO {
   private fs: typeof import('node:fs/promises') | null = null
@@ -74,14 +78,12 @@ export class LocalContentIO implements ContentIO {
 
     try {
       if (isArticle(collection)) {
-        const filePath = this.articlePath(slug)
-        const raw = await fs.readFile(filePath, 'utf-8')
-        const { data, content } = matter(raw)
-        return { slug, ...data, content } as EntryData
+        const raw = await fs.readFile(this.articlePath(slug), 'utf-8')
+        const { frontmatter, content } = parseMarkdocContent(raw)
+        return { slug, ...frontmatter, content } as EntryData
       } else {
-        const filePath = this.yamlPath(collection, slug)
-        const raw = await fs.readFile(filePath, 'utf-8')
-        const data = yaml.load(raw) as Record<string, unknown>
+        const raw = await fs.readFile(this.yamlPath(collection, slug), 'utf-8')
+        const data = parseYamlContent(raw)
         return { slug, ...data } as EntryData
       }
     } catch {
@@ -95,12 +97,11 @@ export class LocalContentIO implements ContentIO {
 
     if (isArticle(collection)) {
       const { content, ...frontmatter } = fields
-      const dir = this.articleDir(slug)
-      await fs.mkdir(dir, { recursive: true })
-      const output = matter.stringify(content as string || '', frontmatter)
+      await fs.mkdir(this.articleDir(slug), { recursive: true })
+      const output = serializeMarkdocContent(frontmatter, content as string)
       await fs.writeFile(this.articlePath(slug), output, 'utf-8')
     } else {
-      const output = yaml.dump(fields, { lineWidth: -1, noRefs: true })
+      const output = serializeYamlContent(fields)
       await fs.writeFile(this.yamlPath(collection, slug), output, 'utf-8')
     }
   }
@@ -119,7 +120,7 @@ export class LocalContentIO implements ContentIO {
     const { fs } = await this.getFs()
     try {
       const raw = await fs.readFile(this.singletonPath(name), 'utf-8')
-      return yaml.load(raw) as Record<string, unknown>
+      return parseYamlContent(raw)
     } catch {
       return null
     }
@@ -127,8 +128,7 @@ export class LocalContentIO implements ContentIO {
 
   async writeSingleton(name: string, data: Record<string, unknown>): Promise<void> {
     const { fs } = await this.getFs()
-    const output = yaml.dump(data, { lineWidth: -1, noRefs: true })
-    await fs.writeFile(this.singletonPath(name), output, 'utf-8')
+    await fs.writeFile(this.singletonPath(name), serializeYamlContent(data), 'utf-8')
   }
 
   async listSlugs(collection: CollectionName): Promise<string[]> {

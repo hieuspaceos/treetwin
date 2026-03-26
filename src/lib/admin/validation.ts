@@ -2,6 +2,7 @@
  * Input validation for admin CRUD operations
  * Validates required fields per collection type
  */
+import { z } from 'zod'
 
 /** Allowed collection names (prevents path traversal) */
 export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories', 'voices'] as const
@@ -72,12 +73,24 @@ export function validateEntry(collection: string, data: Record<string, unknown>)
 }
 
 /** Validate singleton data */
+/** Zod schema for site-settings.yaml — validates structure on read/write */
+export const siteSettingsSchema = z.object({
+  themeId: z.string().default('liquid-glass'),
+  activeVoice: z.string().optional(),
+  enabledFeatures: z
+    .record(z.string(), z.boolean())
+    .optional(),
+}).passthrough()
+
 export function validateSingleton(name: string, data: Record<string, unknown>): ValidationResult {
   const errors: string[] = []
 
   if (name === 'site-settings') {
-    if (data.themeId && typeof data.themeId !== 'string') {
-      errors.push('themeId must be a string')
+    const result = siteSettingsSchema.safeParse(data)
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        errors.push(`${issue.path.join('.')}: ${issue.message}`)
+      }
     }
   }
 

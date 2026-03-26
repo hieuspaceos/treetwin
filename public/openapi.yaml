@@ -1,0 +1,957 @@
+openapi: 3.0.3
+info:
+  title: Tree Identity API
+  version: 1.0.0
+  description: |
+    GoClaw adapter API for the Tree Identity site. Enables external agents to read and write
+    content, retrieve voice profiles, and run SEO analysis.
+
+    All endpoints require Bearer token authentication via the `GOCLAW_API_KEY` environment variable.
+    The GoClaw integration must be enabled in site settings (`enabledFeatures.goclaw: true`).
+
+    **Note:** All write operations (POST, PUT) force content to `status: "draft"`.
+    A human must review and publish through the admin UI.
+
+servers:
+  - url: https://tree-id.dev
+    description: Production
+  - url: http://localhost:4321
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: API key from GOCLAW_API_KEY environment variable
+
+  schemas:
+    # ── Generic response envelope ──────────────────────────────────────────
+    ApiResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+          description: Whether the request succeeded
+        data:
+          description: Response payload (present on success)
+        error:
+          type: string
+          description: Error message (present on failure)
+
+    ErrorResponse:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Invalid API key
+
+    # ── Health ─────────────────────────────────────────────────────────────
+    HealthData:
+      type: object
+      required: [ok, version]
+      properties:
+        ok:
+          type: boolean
+          example: true
+        version:
+          type: string
+          example: "2.1.0"
+
+    # ── Content entry (generic) ────────────────────────────────────────────
+    ContentEntry:
+      type: object
+      description: A content collection entry (article, note, record, etc.)
+      properties:
+        slug:
+          type: string
+          example: my-first-post
+        title:
+          type: string
+          example: My First Post
+        description:
+          type: string
+          example: A brief description of the article
+        status:
+          type: string
+          enum: [draft, published]
+          example: draft
+        publishedAt:
+          type: string
+          format: date
+          example: "2026-03-26"
+        summary:
+          type: string
+          maxLength: 300
+          description: Short AI-readable summary (GEO optimization)
+          example: A quick overview of the main points covered in this article.
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["javascript", "astro"]
+        content:
+          type: string
+          description: Markdown / Markdoc body (articles and notes)
+
+    ContentListData:
+      type: object
+      required: [entries, total]
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentEntry'
+        total:
+          type: integer
+          example: 5
+
+    CreateEntryRequest:
+      type: object
+      required: [title, description]
+      description: |
+        Fields required vary by collection. `title` + `description` are required for all collections
+        except `categories` (which needs `name`). `status` is ignored — always forced to `"draft"`.
+      properties:
+        title:
+          type: string
+          example: How I Migrated to Astro
+        description:
+          type: string
+          example: A walkthrough of moving from Next.js to Astro
+        content:
+          type: string
+          example: "## Introduction\n\nI spent three days..."
+        summary:
+          type: string
+          maxLength: 300
+          example: Moving from Next.js to Astro cut build time by 70%.
+        publishedAt:
+          type: string
+          format: date
+          example: "2026-03-26"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["astro", "migration"]
+        recordType:
+          type: string
+          enum: [project, product, experiment]
+          description: Only for `records` collection
+          example: project
+
+    UpdateEntryRequest:
+      type: object
+      description: |
+        Partial merge — only fields provided are updated. `slug` and `status` are
+        always preserved as-is (slug) and forced to `"draft"` (status).
+      properties:
+        title:
+          type: string
+          example: Updated Title
+        description:
+          type: string
+          example: Updated description
+        content:
+          type: string
+          example: "## Updated\n\nNew content here..."
+        summary:
+          type: string
+          maxLength: 300
+        tags:
+          type: array
+          items:
+            type: string
+
+    CreateEntryResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required: [slug]
+          properties:
+            slug:
+              type: string
+              example: how-i-migrated-to-astro
+
+    # ── Voice profile ──────────────────────────────────────────────────────
+    VoiceSample:
+      type: object
+      required: [context, text]
+      properties:
+        context:
+          type: string
+          example: tech migration
+        text:
+          type: string
+          example: "I spent 3 days migrating from Next.js to Astro..."
+
+    VoiceProfile:
+      type: object
+      required: [slug, name, language]
+      properties:
+        slug:
+          type: string
+          example: tech-casual-en
+        name:
+          type: string
+          example: Tech Casual (English)
+        description:
+          type: string
+          example: Developer sharing real experience. Direct, concise, data-driven.
+        tone:
+          type: array
+          items:
+            type: string
+          example: ["casual"]
+        industry:
+          type: array
+          items:
+            type: string
+          example: ["technology"]
+        audience:
+          type: array
+          items:
+            type: string
+          example: ["senior-dev"]
+        targetReader:
+          type: string
+          example: "Senior developers 28-45, read Hacker News and technical blogs daily."
+        pronoun:
+          type: string
+          example: I
+        language:
+          type: string
+          enum: [vi, en]
+          example: en
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoiceSample'
+        avoid:
+          type: array
+          items:
+            type: string
+          example: ["in this article we will explore", "let's dive in"]
+
+    VoicesListData:
+      type: object
+      required: [voices, total]
+      properties:
+        voices:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoiceProfile'
+        total:
+          type: integer
+          example: 4
+
+    # ── SEO analysis ───────────────────────────────────────────────────────
+    SeoAnalyzeRequest:
+      type: object
+      required: [title, description, slug, content]
+      properties:
+        title:
+          type: string
+          example: How I Migrated to Astro
+        description:
+          type: string
+          example: A walkthrough of moving from Next.js to Astro in 3 days
+        slug:
+          type: string
+          example: how-i-migrated-to-astro
+        content:
+          type: string
+          description: Full Markdown body of the article
+          example: "## Introduction\n\nI spent three days..."
+        seo:
+          type: object
+          properties:
+            focusKeyword:
+              type: string
+              example: astro migration
+            seoTitle:
+              type: string
+              example: Migrating to Astro — A Real-World Guide
+            ogImage:
+              type: string
+              example: https://example.com/og.png
+            noindex:
+              type: boolean
+              example: false
+        cover:
+          type: object
+          properties:
+            url:
+              type: string
+              example: https://example.com/cover.jpg
+            alt:
+              type: string
+              example: Screenshot of build time comparison
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["astro", "migration", "performance"]
+        links:
+          type: object
+          properties:
+            outbound:
+              type: array
+              items:
+                type: string
+              example: ["/articles/astro-basics", "/notes/static-sites"]
+
+    SeoCheck:
+      type: object
+      required: [id, category, pass, score, maxScore, message]
+      properties:
+        id:
+          type: string
+          example: kw-title
+        category:
+          type: string
+          example: Basic SEO
+        pass:
+          type: boolean
+          example: true
+        score:
+          type: integer
+          example: 5
+        maxScore:
+          type: integer
+          example: 5
+        message:
+          type: string
+          example: Keyword found in title
+
+    SeoResult:
+      type: object
+      required: [score, checks]
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 72
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeoCheck'
+
+    # ── Webhook ────────────────────────────────────────────────────────────
+    WebhookPayload:
+      type: object
+      required: [event, timestamp]
+      properties:
+        event:
+          type: string
+          example: task.completed
+        agentId:
+          type: string
+          example: agent-abc123
+        taskId:
+          type: string
+          example: task-xyz789
+        result:
+          type: object
+          additionalProperties: true
+          description: Arbitrary result data attached to the event
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-03-26T10:00:00.000Z"
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            ok: false
+            error: Invalid API key
+
+    ServiceUnavailable:
+      description: GoClaw integration not configured (GOCLAW_API_KEY env var missing or feature disabled)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            ok: false
+            error: GoClaw integration not configured
+
+    NotFound:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            ok: false
+            error: Entry not found
+
+    BadRequest:
+      description: Invalid request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            ok: false
+            error: title is required
+
+paths:
+  # ── Health ───────────────────────────────────────────────────────────────
+  /api/goclaw/health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      description: Returns service status and API version. Use to verify connectivity and authentication.
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthData'
+              example:
+                ok: true
+                version: "2.1.0"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ── Webhook ──────────────────────────────────────────────────────────────
+  /api/goclaw/webhook:
+    post:
+      summary: Receive webhook event
+      operationId: postWebhook
+      description: |
+        Receive event callbacks from GoClaw. Supports optional HMAC-SHA256 signature
+        verification when `GOCLAW_WEBHOOK_SECRET` is configured.
+
+        If the secret is set, the request must include an `X-GoClaw-Signature` header
+        containing either a raw hex digest or a `sha256=<hex>` prefixed value.
+      tags: [System]
+      parameters:
+        - in: header
+          name: X-GoClaw-Signature
+          required: false
+          schema:
+            type: string
+          description: |
+            HMAC-SHA256 signature of the raw request body. Required when
+            `GOCLAW_WEBHOOK_SECRET` is configured on the server.
+          example: "sha256=abc123def456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookPayload'
+            example:
+              event: task.completed
+              agentId: agent-abc123
+              taskId: task-xyz789
+              result:
+                articlesCreated: 1
+                slug: how-i-migrated-to-astro
+              timestamp: "2026-03-26T10:00:00.000Z"
+      responses:
+        '200':
+          description: Event received and acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      received:
+                        type: boolean
+                        example: true
+                      event:
+                        type: string
+                        example: task.completed
+        '400':
+          description: Invalid JSON payload or bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Invalid JSON payload
+        '401':
+          description: Missing or invalid API key, or invalid webhook signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidKey:
+                  summary: Invalid API key
+                  value:
+                    ok: false
+                    error: Invalid API key
+                missingSignature:
+                  summary: Missing webhook signature
+                  value:
+                    ok: false
+                    error: Missing webhook signature
+                invalidSignature:
+                  summary: Invalid webhook signature
+                  value:
+                    ok: false
+                    error: Invalid webhook signature
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ── Content collection ───────────────────────────────────────────────────
+  /api/goclaw/content/{collection}:
+    parameters:
+      - in: path
+        name: collection
+        required: true
+        schema:
+          type: string
+          enum: [articles, notes, records, categories, voices]
+        description: Content collection name
+        example: articles
+
+    get:
+      summary: List collection entries
+      operationId: listCollection
+      description: Returns all entries in the specified collection.
+      tags: [Content]
+      responses:
+        '200':
+          description: List of entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ContentListData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    post:
+      summary: Create entry (draft)
+      operationId: createEntry
+      description: |
+        Create a new entry in the collection. The entry is always created with
+        `status: "draft"` regardless of what is sent — GoClaw cannot publish directly.
+        The slug is auto-generated from `title` (or `name` for categories).
+      tags: [Content]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEntryRequest'
+            examples:
+              article:
+                summary: Create an article
+                value:
+                  title: How I Migrated to Astro
+                  description: A walkthrough of moving from Next.js to Astro in 3 days
+                  content: "## Introduction\n\nI spent three days migrating..."
+                  summary: Moving from Next.js to Astro cut my build time by 70%.
+                  tags: ["astro", "migration"]
+                  publishedAt: "2026-03-26"
+              category:
+                summary: Create a category
+                value:
+                  name: JavaScript
+      responses:
+        '201':
+          description: Entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEntryResponse'
+              example:
+                ok: true
+                data:
+                  slug: how-i-migrated-to-astro
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          description: Internal error during entry creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Failed to create entry
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/goclaw/content/{collection}/{slug}:
+    parameters:
+      - in: path
+        name: collection
+        required: true
+        schema:
+          type: string
+          enum: [articles, notes, records, categories, voices]
+        description: Content collection name
+        example: articles
+      - in: path
+        name: slug
+        required: true
+        schema:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$'
+          maxLength: 200
+        description: Entry slug (lowercase alphanumeric + hyphens)
+        example: how-i-migrated-to-astro
+
+    get:
+      summary: Read entry
+      operationId: getEntry
+      description: Read a single content entry by collection and slug.
+      tags: [Content]
+      responses:
+        '200':
+          description: Entry data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ContentEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    put:
+      summary: Update entry (partial merge, force draft)
+      operationId: updateEntry
+      description: |
+        Partially update an entry. Only fields provided in the request body are updated;
+        existing fields are preserved. The `status` is always forced to `"draft"`.
+        The `slug` cannot be changed via this endpoint.
+      tags: [Content]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntryRequest'
+            example:
+              title: Updated Title
+              description: Updated description after review
+              tags: ["astro", "performance", "migration"]
+      responses:
+        '200':
+          description: Entry updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      slug:
+                        type: string
+                        example: how-i-migrated-to-astro
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal error during update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Failed to update entry
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    delete:
+      summary: Delete entry
+      operationId: deleteEntry
+      description: Permanently delete a content entry. This action cannot be undone.
+      tags: [Content]
+      responses:
+        '200':
+          description: Entry deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          description: Internal error during deletion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Failed to delete entry
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ── Voices ───────────────────────────────────────────────────────────────
+  /api/goclaw/voices:
+    get:
+      summary: List voice profiles
+      operationId: listVoices
+      description: |
+        Returns all writing voice profiles defined in `src/content/voices/`.
+        Voice profiles control tone, style, and language for content generation.
+      tags: [Voices]
+      responses:
+        '200':
+          description: List of voice profiles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VoicesListData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          description: Failed to load voices from disk
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Failed to load voices
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/goclaw/voices/{slug}:
+    parameters:
+      - in: path
+        name: slug
+        required: true
+        schema:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$'
+          maxLength: 200
+        description: Voice profile slug (filename without .yaml extension)
+        example: tech-casual-en
+
+    get:
+      summary: Read voice profile
+      operationId: getVoice
+      description: Read a single voice profile by slug. Returns the parsed YAML as JSON.
+      tags: [Voices]
+      responses:
+        '200':
+          description: Voice profile data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VoiceProfile'
+              example:
+                ok: true
+                data:
+                  slug: tech-casual-en
+                  name: Tech Casual (English)
+                  description: Developer sharing real experience. Direct, concise, data-driven.
+                  tone: [casual]
+                  industry: [technology]
+                  audience: [senior-dev]
+                  pronoun: I
+                  language: en
+                  samples:
+                    - context: tech migration
+                      text: "I spent 3 days migrating from Next.js to Astro..."
+                  avoid:
+                    - "in this article we will explore"
+                    - "let's dive in"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Voice profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Voice not found
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ── SEO Analysis ─────────────────────────────────────────────────────────
+  /api/goclaw/seo-analyze:
+    post:
+      summary: Run SEO analysis
+      operationId: analyzeSeo
+      description: |
+        Analyze content and return a RankMath-style SEO score with detailed per-check results.
+        Evaluates title, description, keyword usage, content length, headings, images, and more.
+
+        **Score breakdown (100 points total):**
+        - Basic SEO: 40 pts (keyword placement in title, description, slug, intro, headings; density; description length)
+        - Title Readability: 15 pts (length, keyword position, custom SEO title)
+        - Content: 30 pts (word count ≥600, internal links, images, headings, ToC worthiness)
+        - Additional: 15 pts (cover image set, cover alt text, tags)
+      tags: [SEO]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeoAnalyzeRequest'
+            example:
+              title: How I Migrated to Astro in 3 Days
+              description: A detailed walkthrough of migrating from Next.js to Astro — build times, gotchas, and final results
+              slug: how-i-migrated-to-astro
+              content: "## Introduction\n\nI spent three days on the Astro migration...\n\n## Results\n\nBuild time dropped from 45s to 12s."
+              seo:
+                focusKeyword: astro migration
+                seoTitle: Migrating to Astro — A Real-World Guide
+              cover:
+                url: https://example.com/cover.jpg
+                alt: Side-by-side build time comparison
+              tags: ["astro", "migration", "performance"]
+              links:
+                outbound: ["/articles/astro-basics"]
+      responses:
+        '200':
+          description: SEO analysis result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SeoResult'
+              example:
+                ok: true
+                data:
+                  score: 72
+                  checks:
+                    - id: kw-set
+                      category: Basic SEO
+                      pass: true
+                      score: 5
+                      maxScore: 5
+                      message: Focus keyword is set
+                    - id: kw-title
+                      category: Basic SEO
+                      pass: true
+                      score: 5
+                      maxScore: 5
+                      message: Keyword found in title
+                    - id: content-len
+                      category: Content
+                      pass: false
+                      score: 0
+                      maxScore: 10
+                      message: "150 words (aim for 600+)"
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: title, description, slug, and content are required
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          description: Internal analysis error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                ok: false
+                error: Failed to analyze SEO
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+tags:
+  - name: System
+    description: Health check and webhook receiver
+  - name: Content
+    description: CRUD operations for content collections (articles, notes, records, categories, voices)
+  - name: Voices
+    description: Read writing voice profiles
+  - name: SEO
+    description: SEO scoring and analysis
