@@ -1,0 +1,102 @@
+---
+/**
+ * Landing page layout — standalone layout without core site nav/footer.
+ * Used by product landing pages that need their own branding, not the blog nav.
+ * Includes theme, analytics, fonts — but no Nav or Footer components.
+ */
+import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
+import { getActiveThemeId } from '@/lib/get-active-theme-id'
+import { siteConfig } from '@/config/site-config'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import Analytics from '@vercel/analytics/astro'
+import SpeedInsights from '@vercel/speed-insights/astro'
+import '@/styles/globals.css'
+
+interface Props {
+  title?: string
+  description?: string
+  /** Optional link for the top-left logo/brand */
+  homeHref?: string
+  /** Optional brand name override */
+  brandName?: string
+  /** Optional CTA button in navbar */
+  ctaText?: string
+  ctaHref?: string
+}
+
+const {
+  title = siteConfig.name,
+  description = siteConfig.description,
+  homeHref = '/',
+  brandName,
+  ctaText,
+  ctaHref,
+} = Astro.props
+
+const themeId = getActiveThemeId()
+const theme = getTheme(themeId)
+const themeVars = themeToStyleVars(theme)
+const styleString = Object.entries(themeVars)
+  .map(([k, v]) => `${k}:${v}`)
+  .join(';')
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    {siteConfig.analytics.measurementId && checkFeatureEnabled('analytics').enabled && (
+      <>
+        <script is:inline src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.analytics.measurementId}`} async></script>
+        <script is:inline define:vars={{ gaMeasurementId: siteConfig.analytics.measurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaMeasurementId);
+        </script>
+      </>
+    )}
+    <slot name="head" />
+  </head>
+  <body>
+    <div style={`${styleString};font-family:${theme.fontFamily}`}>
+      <!-- Minimal landing nav — brand + optional CTA -->
+      <nav class="glass-nav sticky top-0 z-50">
+        <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <a href={homeHref} class="text-lg font-semibold tracking-tight text-slate-900 transition-opacity hover:opacity-70">
+            {brandName || title}
+          </a>
+          {ctaText && ctaHref && (
+            <a
+              href={ctaHref}
+              class="rounded-xl bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+            >
+              {ctaText}
+            </a>
+          )}
+        </div>
+      </nav>
+
+      <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <slot />
+      </main>
+
+      <!-- Minimal footer -->
+      <footer class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-slate-400">
+        <p>&copy; {new Date().getFullYear()} {brandName || siteConfig.name}</p>
+      </footer>
+    </div>
+    <Analytics />
+    <SpeedInsights />
+  </body>
+</html>
