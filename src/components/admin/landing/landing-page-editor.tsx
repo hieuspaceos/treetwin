@@ -37,6 +37,7 @@ const DEFAULT_NEW_SECTIONS: LandingSection[] = [
 ]
 
 export function LandingPageEditor({ slug }: Props) {
+  const isNew = !slug
   const [, navigate] = useLocation()
   const [config, setConfig] = useState<LandingPageConfig>({ slug: '', title: '', sections: isNew ? [...DEFAULT_NEW_SECTIONS] : [] })
   const [loading, setLoading] = useState(!!slug)
@@ -44,7 +45,6 @@ export function LandingPageEditor({ slug }: Props) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [newType, setNewType] = useState<SectionType>('hero')
-  const isNew = !slug
 
   useEffect(() => {
     if (!slug) return
