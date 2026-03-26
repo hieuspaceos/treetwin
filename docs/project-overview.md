@@ -64,4 +64,7 @@ Standards applied so LLMs (Claude, GPT, Gemini) can crawl and accurately "recogn
 - **Static by default** — `output: 'static'`, per-page `prerender = false` for SSR endpoints
 - **Config-driven identity** — `site-config.ts` as single source of truth for site metadata
 - **AI-first content structure** — Markdown seeds, JSON-LD, semantic HTML
-- **Keystatic local mode** — admin UI only available in dev, not on production
+- **Custom admin dashboard** — full-featured at `/admin` (not Keystatic UI)
+- **Multi-tenant support** — Per-product admin, API scoping, feature toggles per product
+- **Self-hosted fonts** — Removed Google Fonts CDN, fonts in `public/fonts/`
+- **Shared head component** — `base-head.astro` for OG/Twitter meta, aria-labels, form labels, section IDs

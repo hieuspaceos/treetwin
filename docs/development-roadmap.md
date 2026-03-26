@@ -2,16 +2,22 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-26)
+## Current Status (2026-03-27)
 
-**Phase:** v2.4.0 complete — Product Module Architecture + Landing Builder v2
-**Completion:** Phases 1-7 complete + product modules + landing builder enhancements. Multi-tenant support with per-product admin/API scoping. 23 landing section types, D&D editor, live preview, multi-device support.
+**Phase:** v2.4.1 — Accessibility/SEO + Landing Builder v2 Phase 2
+**Completion:** v2.4.0 complete + accessibility enhancements + product admin improvements + landing builder phase 2 + entity system fixes
 **Active Team:** Solo (HieuSpace)
 **Key Features Added:**
-- Product module system (multi-tenant, per-product admin, product-scoped API)
-- Landing builder v2: 23 section types, D&D reordering, live preview, device toggles
-- Navigation/footer as toggleable sections with anchor generation
-- Visual section picker toolbar, page settings panel
+- Shared head component (`base-head.astro`) for OG/Twitter/accessibility metadata
+- Self-hosted Inter font (removed Google Fonts CDN)
+- Product admin improvements: separate settings, no dashboard, auto-landing-page, back-to-site links
+- Features Hub: marketplace-style page with search/filters
+- Sidebar redesign: simplified core admin, expanded features submenu, product scoping
+- Landing builder v2 phase 2: layout/grid sections with column presets, nested sections, quick-add
+- Entity system: field editor, batch save, delete entity type API
+- Records removed: entirely replaced by Entities system
+- Breadcrumb polish: hidden on single-segment pages
+- Topbar polish: role badge only when username != role
 
 ---
 
@@ -300,9 +306,54 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 10 — Future Enhancements (Backlog)
+## Phase 10 — Feature Builder System (In Progress)
 
-### 8A — Landing Page Advanced Features (Proposed)
+**Timeline:** 2026-03-27 onwards
+**Status:** Planning Phase (4 phases defined)
+**Plan Location:** `plans/260327-0215-feature-builder/`
+**Effort:** ~16 hours (estimated)
+
+### Overview
+
+AI-assisted feature module generator. Enables non-technical users to create custom features without code via:
+1. Natural language prompt describing feature
+2. AI generates module scaffold (schema, API, UI components)
+3. User reviews + edits in visual builder
+4. Deploy to feature registry
+
+### Phase Breakdown
+
+**Phase 1 — Prompt Capture & AI Generation**
+- Natural language input form
+- Gemini API integration to generate feature scaffold
+- Output: TypeScript module structure + Zod schema
+
+**Phase 2 — Visual Schema Builder**
+- Drag-drop field type selector
+- Property editor for field validation rules
+- Live preview of generated form
+
+**Phase 3 — Component Generator**
+- Auto-generate React/Astro components from schema
+- API route scaffolds
+- Admin page templates
+
+**Phase 4 — Integration & Testing**
+- Module installation into feature registry
+- Feature toggle UI wiring
+- End-to-end testing in admin
+
+### Success Criteria
+- Generate functional feature module from text prompt in <30 seconds
+- Generated code is 100% editable + deletable
+- Feature toggle immediately functional
+- No production code breakage
+
+---
+
+## Phase 11 — Future Enhancements (Backlog)
+
+### 11A — Landing Page Advanced Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -319,7 +370,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8B — Analytics Dashboard (Proposed)
+### 11B — Analytics Dashboard (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -335,7 +386,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8C — Advanced Media Features (Proposed)
+### 11C — Advanced Media Features (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -351,7 +402,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8D — Collaborative Editing (Proposed)
+### 11D — Collaborative Editing (Proposed)
 **Effort:** 20 hours
 **Priority:** P4
 
@@ -366,7 +417,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8E — Content Versioning & History (Proposed)
+### 11E — Content Versioning & History (Proposed)
 **Effort:** 6 hours
 **Priority:** P2
 
@@ -381,7 +432,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8F — Internationalization (i18n) Extended (Proposed)
+### 11F — Internationalization (i18n) Extended (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -398,7 +449,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8G — Plugin System (Proposed)
+### 11G — Plugin System (Proposed)
 **Effort:** 16 hours
 **Priority:** P5
 
@@ -413,7 +464,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8H — Monetization Features (Proposed)
+### 11H — Monetization Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P4
 
@@ -429,7 +480,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 8I — Search Enhancements (Proposed)
+### 11I — Search Enhancements (Proposed)
 **Effort:** 6 hours
 **Priority:** P3
 
@@ -485,10 +536,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 7 — Landing Builder | 2026-03-26 | 18h | HieuSpace | ✓ Complete |
 | 8 — Product Modules | 2026-03-26 | 6h | HieuSpace | ✓ Complete |
 | 9 — Landing Builder v2 | 2026-03-26 | 10h | HieuSpace | ✓ Complete |
-| 10A — Landing Analytics | TBD | 12h | — | Proposed |
-| 10B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 10C — Media+ | TBD | 8h | — | Proposed |
-| 10D — Collaboration | TBD | 20h | — | Proposed |
+| 9.5 — v2.4.1 Enhancements | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
+| 10 — Feature Builder | 2026-03-27+ | 16h | — | Planning |
+| 11A — Landing Analytics | TBD | 12h | — | Proposed |
+| 11B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 11C — Media+ | TBD | 8h | — | Proposed |
+| 11D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -496,8 +549,9 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.4.0 | 2026-03-26 | Product Modules + Landing Builder v2 | Complete |
-| Planned | v2.5.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
+| Current | v2.4.1 | 2026-03-27 | Accessibility/SEO + Product Admin + Landing v2 Phase 2 + Entity Fixes | Complete |
+| In Progress | v2.5.0 | 2026-Q2 | Feature Builder System (AI-assisted feature generation) | Planning |
+| Planned | v2.6.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
 | Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Media Features | Backlog |
 | Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
@@ -513,5 +567,5 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-**Last updated:** 2026-03-26
+**Last updated:** 2026-03-27
 **Next review:** 2026-04-15

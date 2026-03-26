@@ -297,6 +297,101 @@ Themes are **CSS variable tokens** injected at build time.
 
 **Custom admin at `/admin`** — Premium React SPA replacing Keystatic's default UI. Fully config-driven, exportable as npm package.
 
+### Multi-Tenant Product System (v2.4+)
+
+**Per-Product Admin:** `/[product-slug]/admin` — Isolated dashboard for each product
+
+**Architecture:**
+- Products defined as YAML in `src/content/products/{slug}.yaml`
+- Per-product JWT auth with product claim for authorization
+- Feature toggles per product (landing, entities, setup-wizard, etc.)
+- Per-product API routes at `/api/products/{slug}/...`
+- Core admin (superadmin only) at `/admin/products` for product CRUD
+- Auto-create landing page when product is created
+- Back-to-site link in product admin navbar
+
+### Features Hub (v2.4+)
+
+**Page:** `/admin/features` — Marketplace-style feature discovery
+
+**Features:**
+- Search by name/description
+- Filter by category (content, media, integration, distribution, analytics)
+- Filter by status (enabled/disabled)
+- Live status toggle with persistence
+- Each feature links to its dedicated admin page
+
+### Sidebar Redesign (v2.4+)
+
+**Core Admin Navigation:**
+1. Dashboard (home)
+2. Features (expandable, shows enabled features with submenu)
+3. Products (superadmin only)
+4. Settings (global + feature toggles)
+
+**Product Admin Navigation:**
+1. Dashboard (links back to product landing page)
+2. Features (product-scoped, expandable)
+3. Settings (product settings only)
+
+### Accessibility & SEO Improvements (v2.4+)
+
+**Shared Head Component:** `base-head.astro`
+- OG/Twitter meta tags
+- Canonical links
+- Aria-labels on all interactive elements
+- Form labels on all inputs
+- Unique section IDs for anchor linking
+- Iframe title attributes
+
+**Self-Hosted Assets:**
+- Fonts moved to `public/fonts/` (removed Google Fonts CDN)
+- No external font CDN dependencies
+- Improved privacy + performance
+
+### Landing Builder v2 Phase 2 (v2.4+)
+
+**23 Section Types:** nav, footer, hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall, video, image, image-text, gallery, map, rich-text, divider, countdown, contact-form, banner, layout
+
+**Layout/Grid Section:** New feature
+- Column presets: 50/50, 33/67, 25/75 split layouts
+- Nested sections: Add sections inside columns
+- Quick-add buttons: Empty state with CTA to add content
+- Drag-and-drop: Move existing sections into columns via dropdown
+
+**Editor Improvements:**
+- D&D reordering via @dnd-kit library
+- Real-time live preview (no save needed)
+- Multi-device preview (mobile/tablet/desktop)
+- Collapsible page settings panel
+- Visual section picker toolbar (sticky)
+
+### Entity System Enhancements (v2.4+)
+
+**Schema Management:**
+- Field editor with inline add/remove/reorder
+- Batch save multiple field changes at once
+- Delete entity type API endpoint
+- Update definition API endpoint
+- Fixed route ordering via wouter Switch
+
+**Admin UI:**
+- Enhanced field editor with property controls
+- Type selector for each field (text, textarea, number, date, select, etc.)
+- Reorder fields via drag-and-drop
+- Delete fields with confirmation
+- Visual feedback for unsaved changes
+
+### Records Removed (v2.4+)
+
+**Migration:** Records collection removed and replaced entirely by Entities system
+
+**Why:** Entities system provides:
+- Custom schema definitions
+- Type-safe field validation
+- More flexible admin UI generation
+- Better scaling for multiple entity types
+
 ### Admin Stack
 - **Frontend:** React islands in Astro (client-side routing)
 - **Editor:** CodeMirror 6 with Live Preview, vim mode, typewriter mode (11 modules)

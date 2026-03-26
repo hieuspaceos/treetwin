@@ -4,6 +4,59 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.4.1 — Accessibility, SEO & Landing Builder Enhancements (2026-03-27)
+
+**Status:** Complete
+
+Focused on accessibility improvements, SEO enhancements, product admin refinements, and landing builder phase 2 features.
+
+#### Accessibility & SEO (New)
+- **Shared head component:** `base-head.astro` centralizes OG/Twitter meta, aria-labels, form labels, unique section IDs
+- **Self-hosted fonts:** Inter font moved to `public/fonts/`, removed Google Fonts CDN
+- **Iframe titles:** All iframes require title attributes for accessibility
+- **Form labels:** All form inputs require associated labels
+- **Section IDs:** Unique IDs on major sections for anchor linking
+
+#### Product Admin Improvements (Enhanced)
+- **Separate settings page:** Product settings isolated from core site settings
+- **No product dashboard:** Redirects to product settings instead
+- **Back-to-site links:** Product admin navbar links back to product landing
+- **Auto landing page:** Products auto-create landing page on creation
+- **Self-editing:** Products can edit their own landing without enabling module
+
+#### Features Hub (New)
+- **Marketplace page:** `/admin/features` with search and filters
+- **Search capability:** Filter by name/description
+- **Category filters:** Filter by integration/content/media/distribution/analytics
+- **Status filters:** Toggle feature enabled/disabled state
+
+#### Sidebar Redesign (Enhanced)
+- **Core admin simplified:** Dashboard + Features (expandable) + Products + Settings
+- **Features submenu:** Expandable/collapsible Features menu showing enabled features
+- **Product-scoped nav:** Per-product admin has product-specific navigation
+- **Back-to-site quick link:** Navigate back to product landing from product admin
+
+#### Landing Builder v2 Phase 2 (Enhanced)
+- **Layout/grid section:** Column presets (50/50, 33/67, 25/75)
+- **Nested sections:** Add sections inside layout columns
+- **Quick-add buttons:** Empty state UI with "Add section" CTA
+- **Dropdown quick-add:** Move existing sections into columns
+- **Empty states:** Clear guidance for empty layout columns
+
+#### Entity System Fixes (Enhanced)
+- **Route ordering:** Fixed via wouter Switch route precedence
+- **Field schema editor:** Inline add/remove/reorder with batch save
+- **Delete entity API:** New endpoint for deleting entity types
+- **Update definition API:** New endpoint for updating schemas
+
+#### UI Polish (Various)
+- **Breadcrumb fix:** Hidden on single-segment pages (avoid redundancy)
+- **Topbar fix:** Role badge only shown when username differs from role
+- **Records removed:** Completely replaced by Entities system
+- **Accessibility improvements:** More aria-labels, better keyboard navigation
+
+---
+
 ### v2.4.0 — Product Module Architecture + Landing Builder Enhancements (2026-03-26)
 
 **Status:** Complete
@@ -375,4 +428,4 @@ All partials imported in `admin.css` for single stylesheet generation.
 
 ---
 
-**Last updated:** 2026-03-19
+**Last updated:** 2026-03-27

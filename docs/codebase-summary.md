@@ -1,7 +1,7 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v2.4.0 — Product Module Architecture + Landing Builder v2
-**Last Updated:** 2026-03-26
+**Status:** v2.4.1 — Recent Enhancements (SEO/Accessibility, Landing Builder v2 Phase 2)
+**Last Updated:** 2026-03-27
 **Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
@@ -34,10 +34,13 @@ Tree Identity is a personal content engine with optional landing page builder �
 - **No database** — Content is git-tracked Markdown/YAML in `src/content/`
 - **Git-based CMS** — Keystatic edits save as files, no DB writes
 - **Static by default** — `output: 'static'`; SSR endpoints use `prerender: false`
-- **Admin local-only** — Keystatic UI at `/keystatic` in dev, not deployed
+- **Custom admin dashboard** — Full-featured React UI at `/admin`, not Keystatic
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
-- **Island architecture** — Astro by default, React only for ToC + search (client components)
-- **Landing page system** — YAML-driven modular section components with optional admin UI
+- **Island architecture** — Astro by default, React only for interactive components
+- **Landing page system** — YAML-driven modular sections, 23 component types, D&D editor
+- **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
+- **Self-hosted assets** — Fonts in `public/fonts/`, no external CDN dependencies
+- **Shared head component** — `base-head.astro` for OG/Twitter/accessibility metadata
 
 ## Directory Structure
 
@@ -182,6 +185,32 @@ tree-id/
 ## Content Collections
 
 Defined in `keystatic.config.ts` + `src/content.config.ts`. All inherit base fields from `baseSeedFields`.
+
+### Products (New — 2026-03-26)
+
+**Path:** `src/content/products/{slug}.yaml`
+**Purpose:** Multi-tenant product definitions with per-product admin + API scoping
+
+**Structure:**
+```yaml
+slug: my-product
+title: My Product
+description: Short description
+features: []
+metadata:
+  theme: liquid-glass
+  enabledFeatures:
+    - landing
+    - entities
+```
+
+**Admin UI:** `/admin/products` (superadmin only), per-product admin at `/{slug}/admin`
+
+**Key Behaviors:**
+- Auto-create landing page when product is created
+- Product can edit its own landing page without enabling landing module
+- Back-to-site link in product admin navbar
+- No dashboard in product admin (redirects to settings)
 
 ### Landing Pages (New — 2026-03-26)
 
@@ -517,7 +546,53 @@ See `.env.example` for full details.
 - **Comments:** For complex logic only
 - **Styling:** Modular CSS partials, CSS variables for theming
 - **Landing components:** Astro by default, props-driven via YAML config
+- **Shared head:** `base-head.astro` for all pages (OG/Twitter meta, aria-labels, form labels, unique section IDs)
+- **Accessibility:** Aria-labels on all interactive elements, form labels required, unique heading IDs
+- **SEO:** Iframe titles required, section IDs for anchor linking, JSON-LD metadata injection
+
+## Recent Changes (2026-03-27)
+
+### Accessibility & SEO Enhancements
+- **Shared head component:** `base-head.astro` centralizes OG/Twitter meta, aria-labels, form labels, unique section IDs
+- **Self-hosted Inter font:** Removed Google Fonts CDN dependency, fonts now in `public/fonts/`
+- **Iframe titles:** All iframes require titles for accessibility
+- **Form labels:** All form inputs require proper labels
+- **Section IDs:** Unique IDs on all major sections for anchor linking
+
+### Product Admin Improvements
+- **Product settings:** Separate settings page (not combined with core site settings)
+- **No product dashboard:** Redirects to product settings page instead
+- **Back-to-site links:** Product admin navbar links back to product landing page
+- **Auto landing page:** Products auto-create landing page on creation
+- **Self-editing:** Products can edit their own landing page without enabling landing module
+
+### Features Hub
+- **Marketplace-style page:** New features discovery page at `/admin/features`
+- **Search & filters:** Search by name, filter by category/status
+- **Live status:** Shows enabled/disabled per feature
+
+### Sidebar Redesign
+- **Core admin simplified:** Dashboard + Features (expand/collapse) + Products + Settings
+- **Feature submenu:** Expandable/collapsible Features menu in sidebar
+- **Back-to-site:** Quick link to product landing page in product admin
+
+### Entity System Fixes
+- **Route ordering:** Fixed via wouter Switch route ordering
+- **Field schema editor:** Inline add/remove/reorder fields, batch save
+- **Delete entity type API:** New endpoint + UI for entity type deletion
+- **Update definition API:** New endpoint for entity definition updates
+
+### Landing Builder v2 Phase 2
+- **Layout/grid section:** Column presets (50/50, 33/67, etc.) with quick-add buttons
+- **Nested sections:** Sections within layout columns
+- **Empty state:** Layout columns show "Add section" when empty
+- **Dropdown quick-add:** Sections can be moved into layout columns via dropdown
+
+### UI Polish
+- **Breadcrumb fix:** Hidden on single-segment pages
+- **Topbar fix:** Role badge only shown when username != role
+- **Records removed:** Replaced entirely by Entities system
 
 ---
 
-**Last updated:** 2026-03-26
+**Last updated:** 2026-03-27
