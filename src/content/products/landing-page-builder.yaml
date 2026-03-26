@@ -1,0 +1,14 @@
+name: "Landing Page Builder"
+slug: "landing-page-builder"
+description: "Build and manage landing pages without code"
+landingPage: "landing-page-builder"
+icon: "layout"
+features:
+  - landing
+coreCollections: []
+sidebarSections:
+  content: "Pages"
+users:
+  - username: "builder-user"
+    password: "builder123"
+    role: "editor"

@@ -1,9 +1,11 @@
 /**
  * Admin auth API — POST login, DELETE logout, GET session check
- * Supports multi-user (ADMIN_USERS env) and single-user (ADMIN_PASSWORD) modes
+ * Supports multi-user (ADMIN_USERS env) and single-user (ADMIN_PASSWORD) modes.
+ * When `product` is provided in the request body, validates against product YAML users.
  */
 import type { APIRoute } from 'astro'
 import { authenticateUser, isMultiUserMode, signToken, buildSessionCookie, buildClearCookie, COOKIE_NAME, verifyToken } from '@/lib/admin/auth'
+import { readProduct } from '@/lib/admin/product-io'
 
 export const prerender = false
 
@@ -11,17 +13,45 @@ export const prerender = false
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json()
-    const { password, username } = body as { password?: string; username?: string }
+    const { password, username, product: productSlug } = body as {
+      password?: string
+      username?: string
+      product?: string
+    }
 
     if (!password) {
       return json({ ok: false, error: 'Password is required' }, 400)
     }
 
+    // Product-scoped login: validate against product YAML users list
+    if (productSlug) {
+      const productConfig = readProduct(productSlug)
+      if (!productConfig) {
+        return json({ ok: false, error: 'Product not found' }, 404)
+      }
+      const productUsers = productConfig.users ?? []
+      if (!username) {
+        return json({ ok: false, error: 'Username is required for product login' }, 400)
+      }
+      const match = productUsers.find((u) => u.username === username && u.password === password)
+      if (!match) {
+        return json({ ok: false, error: 'Invalid credentials' }, 401)
+      }
+      // Embed product slug in JWT so API middleware can enforce product scope
+      const token = await signToken({ username: match.username, role: match.role, product: productSlug })
+      return new Response(JSON.stringify({ ok: true, data: { username: match.username, role: match.role } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Set-Cookie': buildSessionCookie(token) },
+      })
+    }
+
+    // Core admin login: ADMIN_USERS env var or ADMIN_PASSWORD fallback
     const user = await authenticateUser(password, username)
     if (!user) {
       return json({ ok: false, error: 'Invalid credentials' }, 401)
     }
 
+    // Core admin JWT has no `product` field — full access
     const token = await signToken({ username: user.username, role: user.role })
     return new Response(JSON.stringify({ ok: true, data: { username: user.username, role: user.role } }), {
       status: 200,

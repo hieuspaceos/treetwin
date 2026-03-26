@@ -10,9 +10,11 @@ import { AdminLayout } from './admin-layout'
 import { AdminErrorBoundary } from './admin-error-boundary'
 import { KeyboardShortcuts } from './keyboard-shortcuts'
 import { api } from '@/lib/admin/api-client'
+import type { ProductConfig } from '@/lib/admin/product-types'
 
 interface Props {
   siteName: string
+  productConfig?: ProductConfig
 }
 
 export interface AdminUserInfo {
@@ -20,7 +22,7 @@ export interface AdminUserInfo {
   role: string
 }
 
-function AdminAppInner({ siteName }: Props) {
+function AdminAppInner({ siteName, productConfig }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null) // null = checking
   const [user, setUser] = useState<AdminUserInfo | null>(null)
   const [enabledFeatures, setEnabledFeatures] = useState<Record<string, boolean> | undefined>(undefined)
@@ -115,6 +117,8 @@ function AdminAppInner({ siteName }: Props) {
             setUser(u)
             setAuthed(true)
           }}
+          productSlug={productConfig?.slug}
+          productName={productConfig?.name}
         />
       </div>
     )
@@ -122,19 +126,20 @@ function AdminAppInner({ siteName }: Props) {
 
   return (
     <div className="admin-root">
-      <AdminLayout siteName={siteName} onLogout={handleLogout} user={user} enabledFeatures={enabledFeatures} />
+      <AdminLayout siteName={siteName} onLogout={handleLogout} user={user} enabledFeatures={enabledFeatures} productConfig={productConfig} />
       {showShortcuts && <KeyboardShortcuts onClose={() => setShowShortcuts(false)} />}
     </div>
   )
 }
 
 /** Root component mounted by Astro — wraps with Router + Toast + ErrorBoundary */
-export default function AdminApp({ siteName }: Props) {
+export default function AdminApp({ siteName, productConfig }: Props) {
+  const routerBase = productConfig ? `/${productConfig.slug}/admin` : '/admin'
   return (
-    <Router base="/admin">
+    <Router base={routerBase}>
       <AdminErrorBoundary>
         <AdminToastProvider>
-          <AdminAppInner siteName={siteName} />
+          <AdminAppInner siteName={siteName} productConfig={productConfig} />
         </AdminToastProvider>
       </AdminErrorBoundary>
     </Router>

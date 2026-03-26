@@ -5,6 +5,7 @@
  * Features default to enabled when enabledFeatures key is missing (backward compat).
  */
 import type { ComponentType } from 'react'
+import type { ProductConfig } from './product-types'
 
 export interface FeatureNavItem {
   href: string
@@ -31,6 +32,28 @@ export interface FeatureModule {
 }
 
 export type EnabledFeaturesMap = Record<string, boolean>
+
+/** Core collection definition — registered here so product configs can filter them */
+export interface CoreCollectionDef {
+  id: string
+  label: string
+  iconKey: string
+  routes: { list: string; new: string; edit: string }
+}
+
+/** All core content collections in the system */
+export const CORE_COLLECTIONS: CoreCollectionDef[] = [
+  { id: 'articles', label: 'Articles', iconKey: 'fileText', routes: { list: '/articles', new: '/articles/new', edit: '/articles/:slug' } },
+  { id: 'notes', label: 'Notes', iconKey: 'stickyNote', routes: { list: '/notes', new: '/notes/new', edit: '/notes/:slug' } },
+  { id: 'records', label: 'Records', iconKey: 'database', routes: { list: '/records', new: '/records/new', edit: '/records/:slug' } },
+  { id: 'categories', label: 'Categories', iconKey: 'folder', routes: { list: '/categories', new: '/categories/new', edit: '/categories/:slug' } },
+]
+
+/** Get core collections available in product context — no product = all collections (core admin) */
+export function getProductCoreCollections(product?: ProductConfig): CoreCollectionDef[] {
+  if (!product) return CORE_COLLECTIONS
+  return CORE_COLLECTIONS.filter((c) => product.coreCollections.includes(c.id))
+}
 
 /** All optional features registered in the system */
 export const FEATURE_MODULES: FeatureModule[] = [
@@ -214,5 +237,41 @@ export function getFeaturesBySection(enabledFeatures?: EnabledFeaturesMap) {
     assets: enabled.filter((f) => f.section === 'assets'),
     marketing: enabled.filter((f) => f.section === 'marketing'),
     system: enabled.filter((f) => f.section === 'system'),
+  }
+}
+
+/** Filter features to those included in a product config */
+export function getProductFeatures(
+  product: ProductConfig,
+  enabledFeatures?: EnabledFeaturesMap
+): FeatureModule[] {
+  return FEATURE_MODULES.filter(
+    (f) => product.features.includes(f.id) && isFeatureEnabled(f.id, enabledFeatures)
+  )
+}
+
+/** Check if a feature is available in product context — no product = everything allowed */
+export function isFeatureInProduct(featureId: string, product?: ProductConfig): boolean {
+  if (!product) return true
+  return product.features.includes(featureId)
+}
+
+/** Check if a core collection is available in product context — no product = everything allowed */
+export function isCollectionInProduct(collection: string, product?: ProductConfig): boolean {
+  if (!product) return true
+  return product.coreCollections.includes(collection)
+}
+
+/** Get features by section, filtered by product */
+export function getProductFeaturesBySection(
+  product: ProductConfig,
+  enabledFeatures?: EnabledFeaturesMap
+) {
+  const productFeatures = getProductFeatures(product, enabledFeatures)
+  return {
+    content: productFeatures.filter((f) => f.section === 'content'),
+    assets: productFeatures.filter((f) => f.section === 'assets'),
+    marketing: productFeatures.filter((f) => f.section === 'marketing'),
+    system: productFeatures.filter((f) => f.section === 'system'),
   }
 }

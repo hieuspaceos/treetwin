@@ -3,7 +3,7 @@
  * Feature routes are gated by enabledFeatures from site-settings.
  * Optional pages lazy-loaded via React.lazy for code splitting.
  */
-import { useState, useEffect, Suspense, lazy } from 'react'
+import { useState, useEffect, Suspense, lazy, Fragment } from 'react'
 import { Route, Switch } from 'wouter'
 import type { AdminUserInfo } from './admin-app'
 import { AdminSidebar } from './admin-sidebar'
@@ -14,7 +14,8 @@ import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
 import { CategoriesList } from './categories-list'
 import { CategoryEditor } from './category-editor'
-import { isFeatureEnabled, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
+import { isFeatureEnabled, isFeatureInProduct, isCollectionInProduct, getProductCoreCollections, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
+import type { ProductConfig } from '@/lib/admin/product-types'
 
 // Lazy-loaded feature pages — only fetched when route is matched
 const LazyMediaBrowser = lazy(() => import('./media-browser').then((m) => ({ default: m.MediaBrowser })))
@@ -33,11 +34,16 @@ const LazyEntityDefs = lazy(() => import('./entities/entity-definitions-page').t
 const LazyEntityList = lazy(() => import('./entities/entity-list-page').then((m) => ({ default: m.EntityListPage })))
 const LazyEntityEditor = lazy(() => import('./entities/entity-editor-page').then((m) => ({ default: m.EntityEditorPage })))
 
+// Products — lazy, only in core admin (not product admin)
+const LazyProductList = lazy(() => import('./products/product-list-page').then((m) => ({ default: m.ProductListPage })))
+const LazyProductEditor = lazy(() => import('./products/product-editor-page').then((m) => ({ default: m.ProductEditorPage })))
+
 interface Props {
   siteName: string
   onLogout: () => void
   user: AdminUserInfo | null
   enabledFeatures?: EnabledFeaturesMap
+  productConfig?: ProductConfig
 }
 
 const SIDEBAR_KEY = 'admin-sidebar-collapsed'
@@ -51,7 +57,7 @@ function RouteLoading() {
   )
 }
 
-export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props) {
+export function AdminLayout({ siteName, onLogout, user, enabledFeatures, productConfig }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem(SIDEBAR_KEY) === 'true' } catch { return false }
@@ -73,6 +79,7 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props
         onLogout={onLogout}
         onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
         enabledFeatures={ef}
+        productConfig={productConfig}
       />
 
       <main className="admin-main">
@@ -81,45 +88,45 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props
         <Switch>
           <Route path="/" component={AdminDashboard} />
 
-          {/* Core content routes — always on */}
-          <Route path="/articles"><ContentList collection="articles" /></Route>
-          <Route path="/notes"><ContentList collection="notes" /></Route>
-          <Route path="/records"><ContentList collection="records" /></Route>
-          <Route path="/articles/new"><ContentEditor collection="articles" /></Route>
-          <Route path="/notes/new"><ContentEditor collection="notes" /></Route>
-          <Route path="/records/new"><ContentEditor collection="records" /></Route>
-          <Route path="/articles/:slug">
-            {(params) => <ContentEditor collection="articles" slug={params.slug} />}
-          </Route>
-          <Route path="/notes/:slug">
-            {(params) => <ContentEditor collection="notes" slug={params.slug} />}
-          </Route>
-          <Route path="/records/:slug">
-            {(params) => <ContentEditor collection="records" slug={params.slug} />}
-          </Route>
+          {/* Core content routes — generated from CORE_COLLECTIONS registry, gated by product */}
+          {getProductCoreCollections(productConfig)
+            .filter((col) => col.id !== 'categories')
+            .map((col) => (
+              <Fragment key={col.id}>
+                <Route path={col.routes.list}><ContentList collection={col.id} /></Route>
+                <Route path={col.routes.new}><ContentEditor collection={col.id} /></Route>
+                <Route path={col.routes.edit}>
+                  {(params) => <ContentEditor collection={col.id} slug={(params as Record<string, string | undefined>).slug} />}
+                </Route>
+              </Fragment>
+            ))}
 
-          {/* Categories — always on */}
-          <Route path="/categories"><CategoriesList /></Route>
-          <Route path="/categories/new"><CategoryEditor /></Route>
-          <Route path="/categories/:slug">
-            {(params) => <CategoryEditor slug={params.slug} />}
-          </Route>
+          {/* Categories — dedicated list/editor components, gated by product.coreCollections */}
+          {isCollectionInProduct('categories', productConfig) && (
+            <Fragment>
+              <Route path="/categories"><CategoriesList /></Route>
+              <Route path="/categories/new"><CategoryEditor /></Route>
+              <Route path="/categories/:slug">
+                {(params) => <CategoryEditor slug={params.slug} />}
+              </Route>
+            </Fragment>
+          )}
 
-          {/* Voices — collection-based, gated by feature toggle */}
-          {isFeatureEnabled('voices', ef) && (
+          {/* Voices — collection-based, gated by feature toggle + product */}
+          {isFeatureEnabled('voices', ef) && isCollectionInProduct('voices', productConfig) && (
             <Route path="/voices"><ContentList collection="voices" /></Route>
           )}
-          {isFeatureEnabled('voices', ef) && (
+          {isFeatureEnabled('voices', ef) && isCollectionInProduct('voices', productConfig) && (
             <Route path="/voices/new"><ContentEditor collection="voices" /></Route>
           )}
-          {isFeatureEnabled('voices', ef) && (
+          {isFeatureEnabled('voices', ef) && isCollectionInProduct('voices', productConfig) && (
             <Route path="/voices/:slug">
               {(params) => <ContentEditor collection="voices" slug={params.slug} />}
             </Route>
           )}
 
-          {/* Media — lazy, gated */}
-          {isFeatureEnabled('media', ef) && (
+          {/* Media — lazy, gated by feature toggle + product */}
+          {isFeatureEnabled('media', ef) && isFeatureInProduct('media', productConfig) && (
             <Route path="/media">
               <Suspense fallback={<RouteLoading />}>
                 <LazyMediaBrowser mode="page" />
@@ -128,50 +135,50 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props
           )}
 
           {/* Distribution — lazy, gated */}
-          {isFeatureEnabled('distribution', ef) && (
+          {isFeatureEnabled('distribution', ef) && isFeatureInProduct('distribution', productConfig) && (
             <Route path="/marketing">
               <Suspense fallback={<RouteLoading />}><LazyMarketingDashboard /></Suspense>
             </Route>
           )}
 
           {/* Subscribers — lazy, gated */}
-          {isFeatureEnabled('email', ef) && (
+          {isFeatureEnabled('email', ef) && isFeatureInProduct('email', productConfig) && (
             <Route path="/subscribers">
               <Suspense fallback={<RouteLoading />}><LazySubscribersPage /></Suspense>
             </Route>
           )}
 
           {/* Analytics — lazy, gated */}
-          {isFeatureEnabled('analytics', ef) && (
+          {isFeatureEnabled('analytics', ef) && isFeatureInProduct('analytics', productConfig) && (
             <Route path="/analytics">
               <Suspense fallback={<RouteLoading />}><LazyAnalyticsPage /></Suspense>
             </Route>
           )}
 
           {/* Translations — lazy, gated */}
-          {isFeatureEnabled('translations', ef) && (
+          {isFeatureEnabled('translations', ef) && isFeatureInProduct('translations', productConfig) && (
             <Route path="/translations">
               <Suspense fallback={<RouteLoading />}><LazyTranslationsPage /></Suspense>
             </Route>
           )}
 
           {/* Landing pages — lazy, gated */}
-          {isFeatureEnabled('landing', ef) && (
+          {isFeatureEnabled('landing', ef) && isFeatureInProduct('landing', productConfig) && (
             <Route path="/landing">
               <Suspense fallback={<RouteLoading />}><LazyLandingList /></Suspense>
             </Route>
           )}
-          {isFeatureEnabled('landing', ef) && (
+          {isFeatureEnabled('landing', ef) && isFeatureInProduct('landing', productConfig) && (
             <Route path="/landing/wizard">
               <Suspense fallback={<RouteLoading />}><LazySetupWizard /></Suspense>
             </Route>
           )}
-          {isFeatureEnabled('landing', ef) && (
+          {isFeatureEnabled('landing', ef) && isFeatureInProduct('landing', productConfig) && (
             <Route path="/landing/new">
               <Suspense fallback={<RouteLoading />}><LazyLandingEditor /></Suspense>
             </Route>
           )}
-          {isFeatureEnabled('landing', ef) && (
+          {isFeatureEnabled('landing', ef) && isFeatureInProduct('landing', productConfig) && (
             <Route path="/landing/:slug">
               {(params) => (
                 <Suspense fallback={<RouteLoading />}><LazyLandingEditor slug={params.slug} /></Suspense>
@@ -180,31 +187,48 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props
           )}
 
           {/* Custom entities — lazy, gated */}
-          {isFeatureEnabled('entities', ef) && (
+          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
             <Route path="/entities">
               <Suspense fallback={<RouteLoading />}><LazyEntityDefs /></Suspense>
             </Route>
           )}
-          {isFeatureEnabled('entities', ef) && (
+          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
             <Route path="/entities/:name">
               {(params) => (
                 <Suspense fallback={<RouteLoading />}><LazyEntityList name={params.name} /></Suspense>
               )}
             </Route>
           )}
-          {isFeatureEnabled('entities', ef) && (
+          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
             <Route path="/entities/:name/new">
               {(params) => (
                 <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} /></Suspense>
               )}
             </Route>
           )}
-          {isFeatureEnabled('entities', ef) && (
+          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
             <Route path="/entities/:name/:slug">
               {(params) => (
                 <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} slug={params.slug} /></Suspense>
               )}
             </Route>
+          )}
+
+          {/* Products — core admin only, not visible in product admin */}
+          {!productConfig && (
+            <Fragment>
+              <Route path="/products">
+                <Suspense fallback={<RouteLoading />}><LazyProductList /></Suspense>
+              </Route>
+              <Route path="/products/new">
+                <Suspense fallback={<RouteLoading />}><LazyProductEditor /></Suspense>
+              </Route>
+              <Route path="/products/:slug">
+                {(params) => (
+                  <Suspense fallback={<RouteLoading />}><LazyProductEditor slug={params.slug} /></Suspense>
+                )}
+              </Route>
+            </Fragment>
           )}
 
           {/* Settings — always on */}

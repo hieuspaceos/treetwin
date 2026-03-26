@@ -5,7 +5,13 @@
  */
 import type React from 'react'
 import { useLocation, Link } from 'wouter'
-import { getFeaturesBySection, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
+import {
+  getFeaturesBySection,
+  getProductFeaturesBySection,
+  getProductCoreCollections,
+  type EnabledFeaturesMap,
+} from '@/lib/admin/feature-registry'
+import type { ProductConfig } from '@/lib/admin/product-types'
 
 // Inline SVG icons (no icon library dependency)
 const icons: Record<string, React.ReactNode> = {
@@ -137,6 +143,7 @@ interface Props {
   onLogout: () => void
   onToggleCollapse: () => void
   enabledFeatures?: EnabledFeaturesMap
+  productConfig?: ProductConfig
 }
 
 function NavItem({ href, icon, label, collapsed }: { href: string; icon: React.ReactNode; label: string; collapsed: boolean }) {
@@ -184,8 +191,25 @@ function SectionHeader({ label, collapsed, show }: { label: string; collapsed: b
     : <div className="admin-nav-section">{label}</div>
 }
 
-export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onToggleCollapse, enabledFeatures }: Props) {
-  const sections = getFeaturesBySection(enabledFeatures)
+export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onToggleCollapse, enabledFeatures, productConfig }: Props) {
+  // Use product-scoped sections when product present, else full feature list
+  const sections = productConfig
+    ? getProductFeaturesBySection(productConfig, enabledFeatures)
+    : getFeaturesBySection(enabledFeatures)
+
+  // Display name: product name in product admin, site name in core admin
+  const displayName = productConfig ? productConfig.name : siteName
+
+  // "Back to site" target: product landing page or site root
+  const backHref = productConfig?.landingPage ? `/${productConfig.landingPage}` : '/'
+
+  // Section labels: allow product to override default labels
+  const sectionLabel = (key: string, defaultLabel: string) =>
+    productConfig?.sidebarSections?.[key] ?? defaultLabel
+
+  // Core collection nav items — generated from CORE_COLLECTIONS registry, filtered by product
+  const coreCollections = getProductCoreCollections(productConfig)
+  const hasCoreContent = coreCollections.length > 0 || sections.content.length > 0
 
   return (
     <>
@@ -194,7 +218,7 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
       <aside className={`admin-sidebar ${open ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-header">
           {!collapsed && (
-            <span className="admin-sidebar-title">{siteName}</span>
+            <span className="admin-sidebar-title">{displayName}</span>
           )}
           <button
             className="admin-sidebar-toggle"
@@ -209,30 +233,32 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />
 
-        {/* Content — core items always shown, feature items dynamic */}
-        <SectionHeader label="Content" collapsed={collapsed} show />
-        <NavItem href="/articles" icon={icons.fileText} label="Articles" collapsed={collapsed} />
-        <NavItem href="/notes" icon={icons.stickyNote} label="Notes" collapsed={collapsed} />
-        <NavItem href="/records" icon={icons.database} label="Records" collapsed={collapsed} />
-        <NavItem href="/categories" icon={icons.folder} label="Categories" collapsed={collapsed} />
+        {/* Content — core items from registry (filtered by product), feature items from sections */}
+        <SectionHeader label={sectionLabel('content', 'Content')} collapsed={collapsed} show={hasCoreContent} />
+        {coreCollections.map((col) => (
+          <NavItem key={col.id} href={col.routes.list} icon={icons[col.iconKey] || icons.folder} label={col.label} collapsed={collapsed} />
+        ))}
         <FeatureNavItems features={sections.content} collapsed={collapsed} />
 
         {/* Assets — only show section if features enabled */}
-        <SectionHeader label="Assets" collapsed={collapsed} show={sections.assets.length > 0} />
+        <SectionHeader label={sectionLabel('assets', 'Assets')} collapsed={collapsed} show={sections.assets.length > 0} />
         <FeatureNavItems features={sections.assets} collapsed={collapsed} />
 
         {/* Marketing — only show section if features enabled */}
-        <SectionHeader label="Marketing" collapsed={collapsed} show={sections.marketing.length > 0} />
+        <SectionHeader label={sectionLabel('marketing', 'Marketing')} collapsed={collapsed} show={sections.marketing.length > 0} />
         <FeatureNavItems features={sections.marketing} collapsed={collapsed} />
 
-        {/* System — settings always shown */}
-        <SectionHeader label="System" collapsed={collapsed} show />
+        {/* System — settings always shown, products only in core admin */}
+        <SectionHeader label={sectionLabel('system', 'System')} collapsed={collapsed} show />
+        {!productConfig && (
+          <NavItem href="/products" icon={icons.sparkles} label="Products" collapsed={collapsed} />
+        )}
         <NavItem href="/settings" icon={icons.settings} label="Settings" collapsed={collapsed} />
 
         <div style={{ flex: 1 }} />
         <div className="admin-nav-divider" />
 
-        <a href="/" target="_blank" rel="noopener noreferrer" className="admin-nav-item" title={collapsed ? 'Back to site' : undefined}>
+        <a href={backHref} target="_blank" rel="noopener noreferrer" className="admin-nav-item" title={collapsed ? 'Back to site' : undefined}>
           {icons.externalLink}
           {!collapsed && 'Back to site'}
         </a>

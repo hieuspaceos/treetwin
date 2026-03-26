@@ -1,0 +1,16 @@
+name: "Blog"
+slug: "blog"
+description: "Content publishing with articles, categories, and voice profiles"
+icon: "fileText"
+features:
+  - voices
+coreCollections:
+  - articles
+  - categories
+  - voices
+sidebarSections:
+  content: "Content"
+users:
+  - username: "blog-user"
+    password: "blog123"
+    role: "editor"

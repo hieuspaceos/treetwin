@@ -72,10 +72,10 @@ export interface MediaListResponse {
 
 export const api = {
   auth: {
-    login: (password: string, username?: string) =>
+    login: (password: string, username?: string, product?: string) =>
       adminFetch<{ username: string; role: string }>('/api/admin/auth', {
         method: 'POST',
-        body: JSON.stringify({ password, username }),
+        body: JSON.stringify({ password, username, product }),
       }),
     logout: () => adminFetch('/api/admin/auth', { method: 'DELETE' }),
     check: () => adminFetch<{ username: string; role: string }>('/api/admin/auth', { skipAuthRedirect: true }),
@@ -209,4 +209,91 @@ export const api = {
         body: JSON.stringify({ description, slug }),
       }),
   },
+
+  products: {
+    list: () => adminFetch<unknown>('/api/admin/products'),
+    read: (slug: string) => adminFetch<unknown>(`/api/admin/products/${slug}`),
+    create: (data: Record<string, unknown>) =>
+      adminFetch<{ slug: string }>('/api/admin/products', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (slug: string, data: Record<string, unknown>) =>
+      adminFetch('/api/admin/products/' + slug, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (slug: string) =>
+      adminFetch('/api/admin/products/' + slug, { method: 'DELETE' }),
+  },
+}
+
+// ── Product-scoped API client ──
+
+/** Create a product-scoped API client for the admin SPA when operating in product context */
+export function createProductApi(productSlug: string) {
+  const base = `/api/products/${productSlug}`
+
+  async function fetchJson<T>(path: string, opts: RequestInit = {}): Promise<ApiResponse<T>> {
+    try {
+      const res = await fetch(path, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      })
+      if (res.status === 401) {
+        window.location.href = '/admin'
+        return { ok: false, error: 'Unauthorized' }
+      }
+      return (await res.json()) as ApiResponse<T>
+    } catch {
+      return { ok: false, error: 'Network error' }
+    }
+  }
+
+  return {
+    collections: {
+      list: (collection: string, params?: Record<string, string>) => {
+        const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+        return fetchJson<ListResponse>(`${base}/collections/${collection}${qs}`)
+      },
+      read: (collection: string, id: string) =>
+        fetchJson<Record<string, unknown>>(`${base}/collections/${collection}/${id}`),
+      create: (collection: string, data: Record<string, unknown>) =>
+        fetchJson<{ slug: string }>(`${base}/collections/${collection}`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (collection: string, id: string, data: Record<string, unknown>) =>
+        fetchJson(`${base}/collections/${collection}/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      delete: (collection: string, id: string) =>
+        fetchJson(`${base}/collections/${collection}/${id}`, { method: 'DELETE' }),
+    },
+    landing: {
+      list: () => fetchJson<unknown>(`${base}/landing`),
+      read: (page: string) => fetchJson<unknown>(`${base}/landing/${page}`),
+      create: (data: Record<string, unknown>) =>
+        fetchJson<{ slug: string }>(`${base}/landing`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (page: string, data: Record<string, unknown>) =>
+        fetchJson(`${base}/landing/${page}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      delete: (page: string) =>
+        fetchJson(`${base}/landing/${page}`, { method: 'DELETE' }),
+    },
+    settings: {
+      read: () => fetchJson<Record<string, unknown>>(`${base}/settings`),
+      update: (data: Record<string, unknown>) =>
+        fetchJson(`${base}/settings`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+    },
+  }
 }

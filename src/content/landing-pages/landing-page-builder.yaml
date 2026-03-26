@@ -1,0 +1,99 @@
+title: "Landing Page Builder"
+description: "Build beautiful landing pages without code — pick a template, customize sections, deploy in minutes"
+template: saas
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "Build Landing Pages Without Code"
+      subheadline: "Pick a template, drag sections, edit content in admin — deploy to production in minutes. No developer needed."
+      cta:
+        text: "Start Building"
+        url: "/builder"
+
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "Everything you need to launch"
+      columns: 3
+      items:
+        - icon: "🧩"
+          title: "10 Section Types"
+          description: "Hero, Features, Pricing, Testimonials, FAQ, CTA, Stats, How It Works, Team, and Logo Wall — mix and match"
+        - icon: "📋"
+          title: "5 Ready Templates"
+          description: "SaaS, Agency, Portfolio, Course, E-commerce — pick one and customize, or start from scratch"
+        - icon: "🤖"
+          title: "AI Setup Wizard"
+          description: "Describe your business and AI generates a complete landing page config for you"
+        - icon: "✏️"
+          title: "Visual Editor"
+          description: "Edit every section directly in the admin panel — headings, descriptions, CTAs, pricing plans"
+        - icon: "📄"
+          title: "YAML-Powered"
+          description: "Each landing page is a YAML file in git — version controlled, reviewable, portable"
+        - icon: "🚀"
+          title: "Instant Deploy"
+          description: "Push to git and Vercel deploys automatically — zero config, zero downtime"
+
+  - type: how-it-works
+    order: 3
+    enabled: true
+    data:
+      heading: "Launch in 3 steps"
+      items:
+        - number: 1
+          title: "Pick a template"
+          description: "Choose from SaaS, Agency, Portfolio, Course, or E-commerce — each comes with pre-configured sections and sample content"
+        - number: 2
+          title: "Customize in admin"
+          description: "Open /builder, edit sections — change text, reorder, toggle sections on/off"
+        - number: 3
+          title: "Deploy"
+          description: "Save and push. Your landing page is live at /{page-slug} — fast, static, SEO-ready"
+
+  - type: stats
+    order: 4
+    enabled: true
+    data:
+      heading: "Built for speed"
+      items:
+        - value: "10"
+          label: "Section types"
+        - value: "5"
+          label: "Templates"
+        - value: "0"
+          label: "Lines of code needed"
+        - value: "100"
+          label: "Lighthouse score"
+          suffix: "/100"
+
+  - type: faq
+    order: 5
+    enabled: true
+    data:
+      heading: "Common questions"
+      items:
+        - question: "Do I need to write code?"
+          answer: "No. Everything is done through the admin panel. Templates provide the structure, you just edit the content."
+        - question: "Can I create multiple landing pages?"
+          answer: "Yes. Each YAML file in landing-pages/ becomes a separate page. Create as many as you need."
+        - question: "How does the AI wizard work?"
+          answer: "Describe your product or service in plain text. The AI generates a complete landing page config with sections, copy, and structure. Requires a Gemini API key."
+        - question: "Can I add custom sections?"
+          answer: "The system supports 10 built-in section types. Custom section types require adding an Astro component — a developer task."
+        - question: "What about SEO?"
+          answer: "Landing pages are statically generated — fast load times, clean HTML, proper meta tags. Each page has its own title and description."
+
+  - type: cta
+    order: 6
+    enabled: true
+    data:
+      headline: "Ready to build your landing page?"
+      subheadline: "Pick a template, customize, and launch in minutes"
+      cta:
+        text: "Open Builder"
+        url: "/builder"
+      variant: accent

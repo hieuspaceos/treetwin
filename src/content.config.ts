@@ -131,4 +131,27 @@ const templates = defineCollection({
   }),
 })
 
-export const collections = { articles, notes, records, categories, voices, landingPages, templates }
+// Products: product module configs that declare which features and collections each product exposes
+const products = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/products' }),
+  schema: z.object({
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    landingPage: z.string().optional(),
+    icon: z.string().optional(),
+    features: z.array(z.string()).default([]),
+    coreCollections: z.array(
+      z.enum(['articles', 'notes', 'records', 'categories', 'voices'])
+    ).default([]),
+    sidebarSections: z.record(z.string()).optional(),
+    // Per-product users — scoped to this product's admin only
+    users: z.array(z.object({
+      username: z.string(),
+      password: z.string(),
+      role: z.enum(['admin', 'editor']).default('editor'),
+    })).optional().default([]),
+  }),
+})
+
+export const collections = { articles, notes, records, categories, voices, landingPages, templates, products }

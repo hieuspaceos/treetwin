@@ -17,6 +17,17 @@ export interface AdminUser {
   role: AdminRole
 }
 
+/**
+ * JWT payload shape — product field is null/absent for core admin users,
+ * set to product slug for product-scoped users.
+ */
+export interface JWTPayload {
+  username: string
+  role: string
+  /** Product slug — undefined/absent means core admin (full access) */
+  product?: string
+}
+
 /** Parse ADMIN_USERS env var (JSON array) or return null for single-user mode */
 function getAdminUsers(): AdminUser[] | null {
   const raw = import.meta.env.ADMIN_USERS || process.env.ADMIN_USERS
