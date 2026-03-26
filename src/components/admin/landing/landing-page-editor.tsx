@@ -37,6 +37,7 @@ const SECTION_CATALOG: Array<{ type: SectionType; label: string; icon: string; d
   { type: 'countdown', label: 'Countdown', icon: '⏱', desc: 'Countdown timer' },
   { type: 'contact-form', label: 'Contact Form', icon: '📬', desc: 'Contact form with fields' },
   { type: 'banner', label: 'Banner', icon: '📣', desc: 'Announcement banner' },
+  { type: 'layout', label: 'Layout', icon: '⬜', desc: 'Column grid with nested sections' },
 ]
 const SECTION_TYPES: SectionType[] = SECTION_CATALOG.map(s => s.type)
 
@@ -64,6 +65,7 @@ function defaultSectionData(type: SectionType): SectionData {
     countdown: { targetDate: '', heading: 'Offer ends in' },
     'contact-form': { heading: 'Contact Us', fields: [{ label: 'Name', type: 'text' }, { label: 'Email', type: 'email' }, { label: 'Message', type: 'textarea' }], submitText: 'Send Message' },
     banner: { text: 'Announcement goes here', variant: 'info' },
+    layout: { columns: [1, 1], gap: '1rem', children: [] },
   }
   return defaults[type] || {} as SectionData
 }

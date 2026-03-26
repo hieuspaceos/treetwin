@@ -45,6 +45,7 @@ const TYPE_LABELS: Record<string, string> = {
   countdown: 'Countdown',
   'contact-form': 'Contact Form',
   banner: 'Banner',
+  layout: 'Layout',
 }
 
 export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle }: Props) {

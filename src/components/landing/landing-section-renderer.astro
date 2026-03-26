@@ -27,6 +27,7 @@ import LandingDivider from './landing-divider.astro'
 import LandingCountdown from './landing-countdown.astro'
 import LandingContactForm from './landing-contact-form.astro'
 import LandingBanner from './landing-banner.astro'
+import LandingLayout from './landing-layout.astro'
 import type { LandingSection } from '@/lib/landing/landing-types'
 
 import '@/styles/landing.css'
@@ -69,6 +70,7 @@ const componentMap: Record<string, any> = {
   countdown: LandingCountdown,
   'contact-form': LandingContactForm,
   banner: LandingBanner,
+  layout: LandingLayout,
 }
 ---
 

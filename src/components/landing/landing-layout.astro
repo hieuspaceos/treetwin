@@ -1,0 +1,77 @@
+---
+/**
+ * Layout section — splits content into columns defined by ratio array.
+ * Each column renders its nested sections independently.
+ * Does NOT import itself — no infinite recursion.
+ */
+import type { LayoutData } from '@/lib/landing/landing-types'
+import LandingHero from './landing-hero.astro'
+import LandingFeatures from './landing-features.astro'
+import LandingPricing from './landing-pricing.astro'
+import LandingTestimonials from './landing-testimonials.astro'
+import LandingFaq from './landing-faq.astro'
+import LandingCta from './landing-cta.astro'
+import LandingStats from './landing-stats.astro'
+import LandingHowItWorks from './landing-how-it-works.astro'
+import LandingTeam from './landing-team.astro'
+import LandingLogoWall from './landing-logo-wall.astro'
+import LandingVideo from './landing-video.astro'
+import LandingImage from './landing-image.astro'
+import LandingImageText from './landing-image-text.astro'
+import LandingGallery from './landing-gallery.astro'
+import LandingMap from './landing-map.astro'
+import LandingRichText from './landing-rich-text.astro'
+import LandingDivider from './landing-divider.astro'
+import LandingCountdown from './landing-countdown.astro'
+import LandingContactForm from './landing-contact-form.astro'
+import LandingBanner from './landing-banner.astro'
+
+interface Props extends LayoutData {}
+
+const { columns, gap = '1rem', children = [] } = Astro.props
+
+/** Map type to component — layout excluded to prevent infinite recursion */
+const componentMap: Record<string, any> = {
+  hero: LandingHero,
+  features: LandingFeatures,
+  pricing: LandingPricing,
+  testimonials: LandingTestimonials,
+  faq: LandingFaq,
+  cta: LandingCta,
+  stats: LandingStats,
+  'how-it-works': LandingHowItWorks,
+  team: LandingTeam,
+  'logo-wall': LandingLogoWall,
+  video: LandingVideo,
+  image: LandingImage,
+  'image-text': LandingImageText,
+  gallery: LandingGallery,
+  map: LandingMap,
+  'rich-text': LandingRichText,
+  divider: LandingDivider,
+  countdown: LandingCountdown,
+  'contact-form': LandingContactForm,
+  banner: LandingBanner,
+}
+
+const gridTemplate = columns.map(c => `${c}fr`).join(' ')
+---
+
+<section class="landing-section">
+  <div style={`display:grid;grid-template-columns:${gridTemplate};gap:${gap}`}>
+    {columns.map((_, colIdx) => {
+      const colChildren = children.find(c => c.column === colIdx)
+      const sections = (colChildren?.sections || [])
+        .filter(s => s.enabled !== false)
+        .sort((a, b) => a.order - b.order)
+      return (
+        <div>
+          {sections.map(section => {
+            const Component = componentMap[section.type]
+            return Component ? <Component {...section.data as any} /> : null
+          })}
+        </div>
+      )
+    })}
+  </div>
+</section>

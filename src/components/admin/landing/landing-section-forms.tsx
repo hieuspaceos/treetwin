@@ -3,7 +3,7 @@
  * Each form renders inputs for its typed section data.
  * Dynamic array support: items[] with add/remove.
  */
-import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField } from '@/lib/landing/landing-types'
+import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild } from '@/lib/landing/landing-types'
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -447,6 +447,145 @@ export function BannerSectionForm({ data, onChange }: FormProps<BannerData>) {
   )
 }
 
+/** Column layout presets — ratio arrays */
+const LAYOUT_PRESETS: Array<{ label: string; cols: number[] }> = [
+  { label: '1:1', cols: [1, 1] },
+  { label: '1:2', cols: [1, 2] },
+  { label: '2:1', cols: [2, 1] },
+  { label: '1:1:1', cols: [1, 1, 1] },
+  { label: '1:1:1:1', cols: [1, 1, 1, 1] },
+  { label: '1:2:1', cols: [1, 2, 1] },
+]
+
+/** Nested section types available inside a layout column (excludes nav, footer, layout) */
+const NESTED_SECTION_TYPES = [
+  'hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats',
+  'how-it-works', 'team', 'logo-wall', 'video', 'image', 'image-text',
+  'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner',
+] as const
+
+/** Minimal defaults for nested sections added via layout column */
+function nestedSectionDefault(type: string): SectionData {
+  const map: Record<string, SectionData> = {
+    hero: { headline: 'Headline', subheadline: '', cta: { text: 'Get Started', url: '#' } },
+    features: { heading: 'Features', items: [{ title: 'Feature', description: '' }] },
+    pricing: { heading: 'Pricing', plans: [] },
+    testimonials: { heading: '', items: [] },
+    faq: { heading: '', items: [] },
+    cta: { headline: 'Call to action', cta: { text: 'Get Started', url: '#' } },
+    stats: { items: [{ value: '', label: '' }] },
+    'how-it-works': { heading: '', items: [] },
+    team: { heading: '', members: [] },
+    'logo-wall': { logos: [] },
+    video: { url: '' },
+    image: { src: '', alt: '' },
+    'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
+    gallery: { images: [] },
+    map: { address: '' },
+    'rich-text': { content: '<p></p>' },
+    divider: { style: 'line', height: 40 },
+    countdown: { targetDate: '', heading: '' },
+    'contact-form': { heading: '', fields: [], submitText: 'Send' },
+    banner: { text: '', variant: 'info' },
+  }
+  return map[type] || ({} as SectionData)
+}
+
+export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
+  const columns = data.columns || [1, 1]
+  const gap = data.gap || '1rem'
+  const children: LayoutChild[] = data.children || []
+
+  function setColumns(cols: number[]) {
+    // Preserve existing column children, add empty entries for new columns
+    const newChildren: LayoutChild[] = cols.map((_, i) => {
+      const existing = children.find(c => c.column === i)
+      return existing || { column: i, sections: [] }
+    })
+    onChange({ ...data, columns: cols, children: newChildren })
+  }
+
+  function addNestedSection(colIdx: number, type: string) {
+    const newChildren = columns.map((_, i) => {
+      const col = children.find(c => c.column === i) || { column: i, sections: [] }
+      if (i !== colIdx) return col
+      const newSection = { type: type as any, order: col.sections.length, enabled: true, data: nestedSectionDefault(type) }
+      return { ...col, sections: [...col.sections, newSection] }
+    })
+    onChange({ ...data, children: newChildren })
+  }
+
+  function removeNestedSection(colIdx: number, secIdx: number) {
+    const newChildren = columns.map((_, i) => {
+      const col = children.find(c => c.column === i) || { column: i, sections: [] }
+      if (i !== colIdx) return col
+      return { ...col, sections: col.sections.filter((_, j) => j !== secIdx) }
+    })
+    onChange({ ...data, children: newChildren })
+  }
+
+  return (
+    <>
+      <Field label="Column Preset">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+          {LAYOUT_PRESETS.map(p => {
+            const active = p.cols.join(',') === columns.join(',')
+            return (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => setColumns(p.cols)}
+                style={{
+                  padding: '4px 10px', borderRadius: '6px', border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`,
+                  background: active ? '#eff6ff' : 'white', color: active ? '#1d4ed8' : '#475569',
+                  fontSize: '0.75rem', cursor: 'pointer', fontWeight: active ? 600 : 400,
+                }}
+              >{p.label}</button>
+            )
+          })}
+        </div>
+      </Field>
+      <Field label="Gap">
+        <input style={inputStyle} value={gap} onChange={(e) => onChange({ ...data, gap: e.target.value })} placeholder="1rem" />
+      </Field>
+      {columns.map((_, colIdx) => {
+        const col = children.find(c => c.column === colIdx) || { column: colIdx, sections: [] }
+        return (
+          <Field key={colIdx} label={`Column ${colIdx + 1} (${columns[colIdx]}fr)`}>
+            <div style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.5rem' }}>
+              {col.sections.map((s, si) => (
+                <div key={si} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', background: 'white', borderRadius: '6px', padding: '4px 8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1 }}>{s.type}</span>
+                  <button type="button" onClick={() => removeNestedSection(colIdx, si)}
+                    style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
+                </div>
+              ))}
+              <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
+                <select
+                  id={`layout-col-${colIdx}-select`}
+                  style={{ ...inputStyle, flex: 1, fontSize: '0.75rem' }}
+                  defaultValue=""
+                >
+                  <option value="" disabled>Add section…</option>
+                  {NESTED_SECTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sel = document.getElementById(`layout-col-${colIdx}-select`) as HTMLSelectElement
+                    if (sel?.value) addNestedSection(colIdx, sel.value)
+                  }}
+                  style={{ padding: '4px 10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem' }}
+                >+</button>
+              </div>
+            </div>
+          </Field>
+        )
+      })}
+    </>
+  )
+}
+
 /** Maps section type to its form component */
 export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>> = {
   nav: NavSectionForm,
@@ -471,4 +610,5 @@ export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>>
   countdown: CountdownSectionForm,
   'contact-form': ContactFormSectionForm,
   banner: BannerSectionForm,
+  layout: LayoutSectionForm,
 }

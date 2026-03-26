@@ -3,7 +3,7 @@
  * Renders sections from React state directly — no server round-trip needed.
  * Mirrors the Astro section components but as simple React divs.
  */
-import type { LandingSection, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData } from '@/lib/landing/landing-types'
+import type { LandingSection, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, LayoutData } from '@/lib/landing/landing-types'
 
 interface Props {
   sections: LandingSection[]
@@ -263,6 +263,34 @@ function PreviewBanner({ data }: { data: BannerData }) {
   )
 }
 
+/** Layout preview — renders columns with nested section previews recursively */
+function PreviewLayout({ data }: { data: LayoutData }) {
+  const columns = data.columns || [1, 1]
+  const gap = data.gap || '1rem'
+  const children = data.children || []
+  const gridTemplate = columns.map(c => `${c}fr`).join(' ')
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: gridTemplate, gap, padding: '0.5rem', border: '1px dashed #cbd5e1', borderRadius: '8px' }}>
+      {columns.map((_, colIdx) => {
+        const col = children.find(c => c.column === colIdx)
+        const sections = (col?.sections || []).filter(s => s.enabled !== false).sort((a, b) => a.order - b.order)
+        return (
+          <div key={colIdx} style={{ minHeight: '60px', background: 'rgba(241,245,249,0.5)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
+            {sections.length === 0 && (
+              <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.65rem', padding: '0.5rem' }}>Column {colIdx + 1} (empty)</div>
+            )}
+            {sections.map((s, i) => (
+              <div key={i} style={{ borderRadius: '6px', overflow: 'hidden', fontSize: '0.85em' }}>
+                {renderSection(s, [], undefined)}
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Render preview from section data, keyed by type */
 function renderSection(section: LandingSection, allSections: LandingSection[], pageTitle?: string) {
   const d = section.data as Record<string, unknown>
@@ -286,6 +314,7 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'countdown': return <PreviewCountdown data={d as unknown as CountdownData} />
     case 'contact-form': return <PreviewContactForm data={d as unknown as ContactFormData} />
     case 'banner': return <PreviewBanner data={d as unknown as BannerData} />
+    case 'layout': return <PreviewLayout data={d as unknown as LayoutData} />
     default: return <div style={{ padding: '1rem', color: '#94a3b8', textAlign: 'center' }}>[{section.type}]</div>
   }
 }
