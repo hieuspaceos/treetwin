@@ -86,7 +86,14 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
         <AdminTopbar onToggleSidebar={() => setSidebarOpen((s) => !s)} user={user} />
 
         <Switch>
-          <Route path="/" component={AdminDashboard} />
+          {/* Dashboard — core admin only; product admin redirects to settings */}
+          {!productConfig ? (
+            <Route path="/" component={AdminDashboard} />
+          ) : (
+            <Route path="/">
+              {() => { window.location.replace(`/${productConfig.slug}/admin/settings`); return null }}
+            </Route>
+          )}
 
           {/* Core content routes — generated from CORE_COLLECTIONS registry, gated by product */}
           {getProductCoreCollections(productConfig)

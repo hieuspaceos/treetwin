@@ -231,7 +231,7 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         <div className="admin-nav-divider" />
 
-        <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />
+        {!productConfig && <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />}
 
         {/* Content — core items from registry (filtered by product), feature items from sections */}
         <SectionHeader label={sectionLabel('content', 'Content')} collapsed={collapsed} show={hasCoreContent} />
