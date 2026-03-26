@@ -8,18 +8,21 @@ const { heading, fields = [], submitText = 'Send Message', submitUrl = '#' } = A
 <section class="landing-section glass-panel rounded-2xl">
   {heading && <h2 class="mb-6 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
   <form action={submitUrl} method="POST" class="mx-auto max-w-lg flex flex-col gap-4">
-    {fields.map((field) => (
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-slate-700">{field.label}</label>
-        {field.type === 'textarea' ? (
-          <textarea name={field.label.toLowerCase().replace(/\s+/g, '_')} rows={4}
-            class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-        ) : (
-          <input type={field.type} name={field.label.toLowerCase().replace(/\s+/g, '_')}
-            class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-        )}
-      </div>
-    ))}
+    {fields.map((field) => {
+      const fieldId = `field-${field.label.toLowerCase().replace(/\s+/g, '-')}`
+      return (
+        <div class="flex flex-col gap-1">
+          <label for={fieldId} class="text-sm font-medium text-slate-700">{field.label}</label>
+          {field.type === 'textarea' ? (
+            <textarea id={fieldId} name={field.label.toLowerCase().replace(/\s+/g, '_')} rows={4}
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          ) : (
+            <input id={fieldId} type={field.type} name={field.label.toLowerCase().replace(/\s+/g, '_')}
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          )}
+        </div>
+      )
+    })}
     <button type="submit"
       class="mt-2 rounded-xl bg-green-600 px-6 py-2.5 text-white font-semibold hover:bg-green-700 transition-colors self-start">
       {submitText}

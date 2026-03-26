@@ -37,6 +37,7 @@ const isDirectVideo = embedUrl === url
       <div style="position:relative;padding-top:56.25%">
         <iframe
           src={embedUrl}
+          title={caption || 'Embedded video'}
           class="absolute inset-0 h-full w-full rounded-xl"
           allowfullscreen
           loading="lazy"

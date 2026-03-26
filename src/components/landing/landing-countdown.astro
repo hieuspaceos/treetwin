@@ -7,7 +7,7 @@ const { targetDate, heading, expiredText = 'This offer has expired.' } = Astro.p
 
 <section class="landing-section glass-panel rounded-2xl text-center">
   {heading && <h2 class="mb-6 text-3xl font-bold text-slate-900">{heading}</h2>}
-  <div id="countdown-display" class="flex justify-center gap-6" data-target={targetDate} data-expired={expiredText}>
+  <div id="countdown-display" class="flex justify-center gap-6" role="timer" aria-live="polite" aria-atomic="true" data-target={targetDate} data-expired={expiredText}>
     {(['Days','Hours','Mins','Secs'] as const).map((label) => (
       <div class="flex flex-col items-center">
         <span class="countdown-unit text-5xl font-black text-green-600 tabular-nums" data-unit={label.toLowerCase()}>--</span>

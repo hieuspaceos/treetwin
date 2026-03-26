@@ -49,6 +49,14 @@ const bodySections = enabled
   .filter(s => s.type !== 'nav' && s.type !== 'footer')
   .sort((a, b) => a.order - b.order)
 
+// Track type counts to generate unique IDs (e.g. section-cta, section-cta-2)
+const typeCounts = new Map<string, number>()
+function uniqueSectionId(type: string): string {
+  const count = (typeCounts.get(type) || 0) + 1
+  typeCounts.set(type, count)
+  return count === 1 ? `section-${type}` : `section-${type}-${count}`
+}
+
 const componentMap: Record<string, any> = {
   hero: LandingHero,
   features: LandingFeatures,
@@ -81,7 +89,7 @@ const componentMap: Record<string, any> = {
   {bodySections.map(section => {
     const Component = componentMap[section.type]
     return Component ? (
-      <div id={`section-${section.type}`}>
+      <div id={uniqueSectionId(section.type)}>
         <Component {...section.data as any} />
       </div>
     ) : null
