@@ -214,6 +214,14 @@ export const api = {
       }),
   },
 
+  featureBuilder: {
+    clarify: (data: { description: unknown; history: unknown[] }) =>
+      adminFetch<unknown>('/api/admin/feature-builder/clarify', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+
   products: {
     list: () => adminFetch<unknown>('/api/admin/products'),
     read: (slug: string) => adminFetch<unknown>(`/api/admin/products/${slug}`),

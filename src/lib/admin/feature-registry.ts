@@ -209,6 +209,24 @@ export const FEATURE_MODULES: FeatureModule[] = [
     routes: [],
     navItems: [],
   },
+  {
+    id: 'feature-builder',
+    label: 'Feature Builder',
+    description: 'AI-assisted feature module generator',
+    section: 'system',
+    iconKey: 'sparkles',
+    envCheck: ['GEMINI_API_KEY'],
+    routes: [
+      {
+        path: '/feature-builder',
+        component: () =>
+          import('@/components/admin/feature-builder/feature-builder-wizard').then((m) => ({
+            default: m.FeatureBuilderWizard,
+          })),
+      },
+    ],
+    navItems: [{ href: '/feature-builder', label: 'Feature Builder', iconKey: 'sparkles' }],
+  },
 ]
 
 /** Check if feature enabled — defaults true when key missing (backward compat) */
