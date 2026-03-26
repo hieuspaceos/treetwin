@@ -207,32 +207,29 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
             </Route>
           )}
 
-          {/* Custom entities — lazy, gated */}
+          {/* Custom entities — lazy, gated.
+              IMPORTANT: specific sub-routes must come before :name to avoid greedy match */}
           {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
-            <Route path="/entities">
-              <Suspense fallback={<RouteLoading />}><LazyEntityDefs /></Suspense>
-            </Route>
-          )}
-          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
-            <Route path="/entities/:name">
-              {(params) => (
-                <Suspense fallback={<RouteLoading />}><LazyEntityList name={params.name} /></Suspense>
-              )}
-            </Route>
-          )}
-          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
-            <Route path="/entities/:name/new">
-              {(params) => (
-                <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} /></Suspense>
-              )}
-            </Route>
-          )}
-          {isFeatureEnabled('entities', ef) && isFeatureInProduct('entities', productConfig) && (
-            <Route path="/entities/:name/:slug">
-              {(params) => (
-                <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} slug={params.slug} /></Suspense>
-              )}
-            </Route>
+            <Fragment>
+              <Route path="/entities">
+                <Suspense fallback={<RouteLoading />}><LazyEntityDefs /></Suspense>
+              </Route>
+              <Route path="/entities/:name/new">
+                {(params) => (
+                  <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} /></Suspense>
+                )}
+              </Route>
+              <Route path="/entities/:name/:slug">
+                {(params) => (
+                  <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} slug={params.slug} /></Suspense>
+                )}
+              </Route>
+              <Route path="/entities/:name">
+                {(params) => (
+                  <Suspense fallback={<RouteLoading />}><LazyEntityList name={params.name} /></Suspense>
+                )}
+              </Route>
+            </Fragment>
           )}
 
           {/* Products — core admin only, not visible in product admin */}

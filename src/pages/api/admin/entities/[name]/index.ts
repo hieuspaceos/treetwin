@@ -33,7 +33,9 @@ export const POST: APIRoute = async ({ params, request }) => {
     const body = await request.json() as Record<string, unknown>
     const existing = listEntityInstances(name).map((i) => i.slug)
     const slugSource = (body.title || body.name || body.slug || 'entry') as string
-    const slug = uniqueSlug(slugify(slugSource), existing)
+    const baseSlug = slugify(slugSource) || 'entry'
+    const slug = uniqueSlug(baseSlug, existing)
+    if (!isValidSlug(slug)) return json({ ok: false, error: 'Could not generate a valid slug' }, 400)
     writeEntityInstance(name, slug, body)
     return json({ ok: true, data: { slug } }, 201)
   } catch { return json({ ok: false, error: 'Failed to create instance' }, 500) }
