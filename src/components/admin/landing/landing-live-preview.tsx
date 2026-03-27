@@ -4,7 +4,7 @@
  * Mirrors the Astro section components but as simple React divs.
  */
 import { useEffect } from 'react'
-import type { LandingSection, LandingDesign, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, LayoutData, SocialProofData } from '@/lib/landing/landing-types'
+import type { LandingSection, LandingDesign, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, LayoutData, SocialProofData, ComparisonData, AiSearchData } from '@/lib/landing/landing-types'
 import { designToCssVars, designFontsUrl, resolveDesign } from '@/lib/landing/landing-design-presets'
 
 interface Props {
@@ -716,6 +716,68 @@ function PreviewSocialProof({ data }: { data: SocialProofData }) {
   )
 }
 
+function PreviewLogoWall({ data }: { data: LogoWallData }) {
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem', alignItems: 'center' }}>
+        {data.logos?.map((logo, i) => (
+          <div key={i} style={{ padding: '0.5rem 1rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '8px', fontSize: '0.75rem', color: 'var(--lp-text-muted)' }}>
+            {logo.image ? <img src={logo.image} alt={logo.name} style={{ height: '28px', objectFit: 'contain' }} /> : logo.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PreviewComparison({ data }: { data: ComparisonData }) {
+  const cols = data.columns || []
+  const rows = data.rows || []
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+          <thead>
+            <tr>
+              <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid var(--lp-text-muted)', color: 'var(--lp-text)' }}></th>
+              {cols.map((c, i) => <th key={i} style={{ padding: '0.5rem', textAlign: 'center', borderBottom: '1px solid var(--lp-text-muted)', color: 'var(--lp-text)' }}>{c.label}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i} style={r.highlight ? { background: 'rgba(59,130,246,0.06)' } : {}}>
+                <td style={{ padding: '0.4rem 0.5rem', color: 'var(--lp-text)', fontWeight: 500 }}>{r.label}</td>
+                {r.values.map((v, j) => <td key={j} style={{ padding: '0.4rem 0.5rem', textAlign: 'center', color: 'var(--lp-text-muted)' }}>{v}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function PreviewAiSearch({ data }: { data: AiSearchData }) {
+  return (
+    <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: '1rem', border: '1px solid var(--lp-text-muted)' }}>
+          <p style={{ color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>{data.placeholder || 'Search...'}</p>
+        </div>
+        {data.hints && data.hints.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: '0.75rem' }}>
+            {data.hints.map((h, i) => (
+              <span key={i} style={{ padding: '0.25rem 0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '999px', fontSize: '0.7rem', color: 'var(--lp-text-muted)' }}>{h.icon} {h.label}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /** Layout preview — renders columns with nested section previews recursively */
 function PreviewLayout({ data }: { data: LayoutData }) {
   const columns = data.columns || [1, 1]
@@ -768,6 +830,9 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'contact-form': return <PreviewContactForm data={d as unknown as ContactFormData} />
     case 'banner': return <PreviewBanner data={d as unknown as BannerData} />
     case 'social-proof': return <PreviewSocialProof data={d as unknown as SocialProofData} />
+    case 'logo-wall': return <PreviewLogoWall data={d as unknown as LogoWallData} />
+    case 'comparison': return <PreviewComparison data={d as unknown as ComparisonData} />
+    case 'ai-search': return <PreviewAiSearch data={d as unknown as AiSearchData} />
     case 'layout': return <PreviewLayout data={d as unknown as LayoutData} />
     default: return <div style={{ padding: '1rem', color: 'var(--lp-text-muted)', textAlign: 'center' }}>[{section.type}]</div>
   }

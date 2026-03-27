@@ -104,11 +104,19 @@ export function FeaturesSectionForm({ data, onChange }: FormProps<FeaturesData>)
           <option value="alternating">Alternating (zigzag rows)</option>
         </select>
       </Field>
+      <Field label="Columns">
+        <select style={inputStyle} value={data.columns || 3} onChange={(e) => set('columns', Number(e.target.value))}>
+          <option value={2}>2</option>
+          <option value={3}>3 (default)</option>
+          <option value={4}>4</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
       <Field label="Feature Items">
         {items.map((item, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
+            <input placeholder="Icon (emoji or text)" style={{ ...inputStyle, marginBottom: '4px' }} value={item.icon || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], icon: e.target.value }; set('items', n) }} />
             <input placeholder="Title" style={{ ...inputStyle, marginBottom: '4px' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
             <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
             <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
@@ -135,13 +143,38 @@ export function PricingSectionForm({ data, onChange }: FormProps<PricingData>) {
         </select>
       </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
       <Field label="Plans">
         {plans.map((plan, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
+          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', border: plan.highlighted ? '1.5px solid #3b82f6' : '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <strong style={{ fontSize: '0.8rem', color: '#1e293b' }}>{plan.name || `Plan ${i + 1}`}</strong>
+              <button type="button" onClick={() => set('plans', plans.filter((_, j) => j !== i))}
+                style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+            </div>
             <input placeholder="Plan name" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.name} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], name: e.target.value }; set('plans', n) }} />
             <input placeholder="Price (e.g. $29)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.price} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], price: e.target.value }; set('plans', n) }} />
-            <button type="button" onClick={() => set('plans', plans.filter((_, j) => j !== i))}
-              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+            <input placeholder="Period (e.g. /month)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.period || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], period: e.target.value }; set('plans', n) }} />
+            <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px', marginBottom: '4px' }} value={plan.description || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], description: e.target.value }; set('plans', n) }} />
+            <input placeholder="Badge (e.g. Most Popular)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.badge || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], badge: e.target.value }; set('plans', n) }} />
+            <input placeholder="CTA Button Text" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.cta?.text || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], cta: { ...n[i].cta, text: e.target.value, url: n[i].cta?.url || '#' } }; set('plans', n) }} />
+            <input placeholder="CTA Button URL" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.cta?.url || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], cta: { ...n[i].cta, url: e.target.value, text: n[i].cta?.text || 'Get started' } }; set('plans', n) }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#475569', marginBottom: '0.5rem' }}>
+              <input type="checkbox" checked={!!plan.highlighted} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], highlighted: e.target.checked }; set('plans', n) }} />
+              Highlighted (featured plan)
+            </label>
+            <div style={{ marginTop: '0.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Features</label>
+              {(plan.features || []).map((feat, fi) => (
+                <div key={fi} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                  <input style={{ ...inputStyle, flex: 1 }} value={feat} onChange={(e) => { const n = [...plans]; const feats = [...(n[i].features || [])]; feats[fi] = e.target.value; n[i] = { ...n[i], features: feats }; set('plans', n) }} />
+                  <button type="button" onClick={() => { const n = [...plans]; n[i] = { ...n[i], features: (n[i].features || []).filter((_, fj) => fj !== fi) }; set('plans', n) }}
+                    style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => { const n = [...plans]; n[i] = { ...n[i], features: [...(n[i].features || []), ''] }; set('plans', n) }}
+                style={{ fontSize: '0.72rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Feature</button>
+            </div>
           </div>
         ))}
         <button type="button" onClick={() => set('plans', [...plans, { name: '', price: '', features: [], cta: { text: 'Get started', url: '#' } }])}
@@ -172,6 +205,7 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={item.name} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], name: e.target.value }; set('items', n) }} />
             <input placeholder="Role" style={{ ...inputStyle, marginBottom: '4px' }} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
             <input placeholder="Avatar URL (profile pic)" style={{ ...inputStyle, marginBottom: '4px' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
+            <input placeholder="Company" style={{ ...inputStyle, marginBottom: '4px' }} value={item.company || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], company: e.target.value }; set('items', n) }} />
             <input placeholder="Image URL (screenshot)" style={inputStyle} value={item.image || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], image: e.target.value }; set('items', n) }} />
             <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
@@ -251,11 +285,17 @@ export function StatsSectionForm({ data, onChange }: FormProps<StatsData>) {
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Stats">
         {items.map((item, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-            <input placeholder="Value (e.g. 10k)" style={{ ...inputStyle, flex: 1 }} value={item.value} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], value: e.target.value }; set('items', n) }} />
-            <input placeholder="Label" style={{ ...inputStyle, flex: 1 }} value={item.label} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], label: e.target.value }; set('items', n) }} />
-            <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
-              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.6rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '4px' }}>
+              <input placeholder="Prefix (e.g. $)" style={{ ...inputStyle, flex: 1 }} value={item.prefix || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], prefix: e.target.value }; set('items', n) }} />
+              <input placeholder="Value (e.g. 10k)" style={{ ...inputStyle, flex: 2 }} value={item.value} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], value: e.target.value }; set('items', n) }} />
+              <input placeholder="Suffix (e.g. +)" style={{ ...inputStyle, flex: 1 }} value={item.suffix || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], suffix: e.target.value }; set('items', n) }} />
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <input placeholder="Label" style={{ ...inputStyle, flex: 1 }} value={item.label} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], label: e.target.value }; set('items', n) }} />
+              <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
+                style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+            </div>
           </div>
         ))}
         <button type="button" onClick={() => set('items', [...items, { value: '', label: '' }])}
@@ -307,11 +347,14 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
         </select>
       </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
       <Field label="Team Members">
         {members.map((m, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={m.name} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], name: e.target.value }; set('members', n) }} />
-            <input placeholder="Role" style={inputStyle} value={m.role} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], role: e.target.value }; set('members', n) }} />
+            <input placeholder="Role" style={{ ...inputStyle, marginBottom: '4px' }} value={m.role} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], role: e.target.value }; set('members', n) }} />
+            <input placeholder="Photo URL" style={{ ...inputStyle, marginBottom: '4px' }} value={m.photo || ''} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], photo: e.target.value }; set('members', n) }} />
+            <textarea placeholder="Bio" style={{ ...textareaStyle, minHeight: '50px' }} value={m.bio || ''} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], bio: e.target.value }; set('members', n) }} />
             <button type="button" onClick={() => set('members', members.filter((_, j) => j !== i))}
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
           </div>
@@ -329,8 +372,21 @@ export function LogoWallSectionForm({ data, onChange }: FormProps<LogoWallData>)
   return (
     <>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <ArrayField label="Logo Names" items={logos.map((l) => l.name)}
-        onChange={(names) => set('logos', names.map((name, i) => ({ name, image: logos[i]?.image || '', url: logos[i]?.url })))} />
+      <Field label="Logos">
+        {logos.map((logo, i) => (
+          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.6rem', marginBottom: '0.5rem' }}>
+            <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={logo.name} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], name: e.target.value }; set('logos', n) }} />
+            <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '4px' }} value={logo.image || ''} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], image: e.target.value }; set('logos', n) }} />
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <input placeholder="Link URL" style={{ ...inputStyle, flex: 1 }} value={logo.url || ''} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], url: e.target.value }; set('logos', n) }} />
+              <button type="button" onClick={() => set('logos', logos.filter((_, j) => j !== i))}
+                style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+            </div>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('logos', [...logos, { name: '', image: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Logo</button>
+      </Field>
     </>
   )
 }
