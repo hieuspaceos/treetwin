@@ -1,12 +1,16 @@
 /**
- * Feature builder wizard — multi-step shell for defining and planning a new feature module.
- * Phase 1: define + clarify. Phase 2-3 (plan/review/generate) are placeholders.
+ * Feature builder wizard — multi-step shell for defining, planning,
+ * reviewing, and saving a portable Agent Skill specification.
  */
 import { useState } from 'react'
 import { useLocation } from 'wouter'
 import type { FeatureDescription } from '@/lib/admin/feature-builder-ai'
+import type { SkillSpec } from '@/lib/admin/feature-builder-spec-types'
+import { api } from '@/lib/admin/api-client'
 import { FeatureBuilderDefineStep } from './feature-builder-define-step'
 import { FeatureBuilderClarifyStep } from './feature-builder-clarify-step'
+import { FeatureBuilderPlanStep } from './feature-builder-plan-step'
+import { FeatureBuilderReviewStep } from './feature-builder-review-step'
 
 type Step = 'define' | 'clarify' | 'plan' | 'review' | 'generate'
 
@@ -23,6 +27,10 @@ export function FeatureBuilderWizard() {
   const [step, setStep] = useState<Step>('define')
   const [description, setDescription] = useState<FeatureDescription | null>(null)
   const [refinedDescription, setRefinedDescription] = useState<string | undefined>()
+  const [spec, setSpec] = useState<SkillSpec | null>(null)
+  const [savedPath, setSavedPath] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   function handleDefined(desc: FeatureDescription) {
     setDescription(desc)
@@ -32,6 +40,32 @@ export function FeatureBuilderWizard() {
   function handleClarified(refined?: string) {
     setRefinedDescription(refined)
     setStep('plan')
+  }
+
+  function handlePlanned(s: SkillSpec) {
+    setSpec(s)
+    setStep('review')
+  }
+
+  async function handleApproved(s: SkillSpec) {
+    setSaving(true)
+    setSaveError('')
+    const res = await api.featureBuilder.saveSpec(s)
+    setSaving(false)
+    if (res.ok && res.data) {
+      setSavedPath(res.data.path)
+      setStep('generate')
+    } else {
+      setSaveError(res.error || 'Failed to save spec')
+    }
+  }
+
+  function handleReset() {
+    setDescription(null)
+    setRefinedDescription(undefined)
+    setSpec(null)
+    setSavedPath(null)
+    setStep('define')
   }
 
   const activeIndex = STEPS.findIndex(s => s.id === step)
@@ -84,22 +118,52 @@ export function FeatureBuilderWizard() {
         />
       )}
 
-      {(step === 'plan' || step === 'review' || step === 'generate') && (
+      {step === 'plan' && description && (
+        <FeatureBuilderPlanStep
+          description={description}
+          refinedDescription={refinedDescription}
+          onNext={handlePlanned}
+          onBack={() => setStep('clarify')}
+        />
+      )}
+
+      {saveError && (
+        <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.6rem 0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.8rem' }}>
+          {saveError}
+        </div>
+      )}
+
+      {step === 'review' && spec && !saving && (
+        <FeatureBuilderReviewStep
+          spec={spec}
+          onApprove={handleApproved}
+          onBack={() => setStep('plan')}
+        />
+      )}
+
+      {saving && (
         <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.5rem' }}>
-            {step.charAt(0).toUpperCase() + step.slice(1)} — Coming in Phase 2
+          <p style={{ color: '#64748b', fontSize: '0.85rem' }}>Saving spec…</p>
+        </div>
+      )}
+
+      {step === 'generate' && savedPath && (
+        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a', margin: '0 0 0.75rem' }}>
+            Spec Saved
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0 0 0.5rem' }}>
+            Saved to: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>{savedPath}</code>
           </p>
-          {refinedDescription && (
-            <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem', textAlign: 'left', background: '#f8fafc', padding: '0.75rem', borderRadius: '8px' }}>
-              {refinedDescription}
-            </p>
-          )}
-          <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            AI plan generation will be implemented in Phase 2.
+          <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0 0 1rem' }}>
+            Next: Run <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>/skill-creator</code> in Claude Code to generate the skill from this spec.
           </p>
-          <button className="admin-btn" onClick={() => setStep('clarify')} style={{ marginTop: '1rem' }}>
-            ← Back to Clarify
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button className="admin-btn" onClick={handleReset}>Create Another</button>
+            <button className="admin-btn admin-btn-primary" onClick={() => navigate('/settings')}>
+              Back to Admin
+            </button>
+          </div>
         </div>
       )}
     </div>

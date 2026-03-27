@@ -220,6 +220,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    saveSpec: (spec: unknown) =>
+      adminFetch<{ path: string }>('/api/admin/feature-builder/save-spec', {
+        method: 'POST',
+        body: JSON.stringify({ spec }),
+      }),
   },
 
   products: {
