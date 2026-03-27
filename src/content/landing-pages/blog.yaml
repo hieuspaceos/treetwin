@@ -118,12 +118,6 @@ sections:
       heading: What Customers Are Saying
       subheading: Real feedback from developers using ClaudeKit in production
       items:
-        - quote: >-
-            “Tried @Goon's .claude file from the human-mcp repo and it's really impressive. Need to test it more to
-            truly appreciate it. Hope this helps everyone.”
-          image: /assets/testimonials/01.png
-          name: Hoan Nguyen
-          role: Discord User
         - quote: “Your amazing”
           image: /assets/testimonials/02.jpeg
           name: Philonik
