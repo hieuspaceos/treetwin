@@ -63,7 +63,9 @@ export interface CtaData {
   headline: string
   subheadline?: string
   cta: { text: string; url: string }
-  variant?: 'default' | 'accent' | 'dark'
+  /** Layout variant: centered (default), split (text left + btn right), banner (full-width gradient), minimal (text link only), with-image (bg image + overlay) */
+  variant?: 'default' | 'split' | 'banner' | 'minimal' | 'with-image'
+  backgroundImage?: string
 }
 
 export interface StatItem {

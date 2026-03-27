@@ -94,9 +94,7 @@ html:has(.landing-nav) {
   color: var(--lp-accent);
 }
 
-/* CTA variants */
-.landing-cta-accent { background: linear-gradient(135deg, var(--lp-primary), var(--lp-secondary)); color: #fff; }
-.landing-cta-dark { background: var(--lp-text); color: var(--lp-bg); }
+/* CTA variants are now handled inline by landing-cta.astro per variant */
 
 /* Nav */
 .landing-nav {

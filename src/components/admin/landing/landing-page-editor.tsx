@@ -303,28 +303,23 @@ export function LandingPageEditor({ slug }: Props) {
         </div>
         {/* Active group buttons */}
         {pickerGroup === -1 ? (
-          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {SECTION_GROUPS.map((g, gi) => (
-              <span key={g.group} style={{ display: 'contents' }}>
-                {gi > 0 && <span style={{ width: '1px', height: '16px', background: '#e2e8f0', margin: '0 0.15rem' }} />}
-                {g.items.map(s => (
-                  <button
-                    key={s.type}
-                    onClick={() => addSection(s.type)}
-                    title={`${g.group}: ${s.desc}`}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '0.2rem',
-                      padding: '0.25rem 0.5rem', border: '1px solid #e2e8f0', borderRadius: '6px',
-                      background: 'white', cursor: 'pointer', fontSize: '0.65rem', color: '#475569',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
-                  >
-                    <span style={{ fontSize: '0.75rem' }}>{s.icon}</span>
-                    <span>{s.label}</span>
-                  </button>
-                ))}
-              </span>
+          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+            {SECTION_CATALOG.map(s => (
+              <button
+                key={s.type}
+                onClick={() => addSection(s.type)}
+                title={s.desc}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.2rem',
+                  padding: '0.25rem 0.5rem', border: '1px solid #e2e8f0', borderRadius: '6px',
+                  background: 'white', cursor: 'pointer', fontSize: '0.65rem', color: '#475569',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
+              >
+                <span style={{ fontSize: '0.75rem' }}>{s.icon}</span>
+                <span>{s.label}</span>
+              </button>
             ))}
           </div>
         ) : (

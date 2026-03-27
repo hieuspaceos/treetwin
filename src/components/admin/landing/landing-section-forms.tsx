@@ -146,10 +146,22 @@ export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
   const set = (k: keyof CtaData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="default">Centered (default)</option>
+          <option value="split">Split (text left, button right)</option>
+          <option value="banner">Banner (full-width gradient)</option>
+          <option value="minimal">Minimal (text link only)</option>
+          <option value="with-image">With Image (background + overlay)</option>
+        </select>
+      </Field>
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
       <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
       <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Get Started' })} /></Field>
+      {data.variant === 'with-image' && (
+        <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
+      )}
     </>
   )
 }

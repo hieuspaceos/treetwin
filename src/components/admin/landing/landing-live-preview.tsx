@@ -112,11 +112,49 @@ function PreviewText({ heading, items }: { heading?: string; items?: Array<Recor
 }
 
 function PreviewCta({ data }: { data: CtaData }) {
+  const v = data.variant || 'default'
+  const btn = <span style={{ display: 'inline-block', background: 'var(--lp-primary)', color: '#fff', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600 }}>{data.cta?.text}</span>
+
+  if (v === 'split') return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', padding: '2rem', background: 'var(--lp-surface)', borderRadius: '14px', flexWrap: 'wrap' }}>
+      <div>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--lp-text)' }}>{data.headline}</h2>
+        {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{data.subheadline}</p>}
+      </div>
+      {btn}
+    </div>
+  )
+  if (v === 'banner') return (
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'linear-gradient(135deg, var(--lp-primary), var(--lp-secondary))', borderRadius: '14px' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h2>
+      {data.subheadline && <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '1rem' }}>{data.subheadline}</p>}
+      <span style={{ display: 'inline-block', background: '#fff', color: 'var(--lp-primary)', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700 }}>{data.cta?.text}</span>
+    </div>
+  )
+  if (v === 'minimal') return (
+    <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+      <p style={{ fontSize: '0.95rem' }}>
+        <span style={{ color: 'var(--lp-text-muted)' }}>{data.headline}</span>{' '}
+        <span style={{ color: 'var(--lp-primary)', fontWeight: 600, textDecoration: 'underline' }}>{data.cta?.text}</span>
+      </p>
+    </div>
+  )
+  if (v === 'with-image') return (
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: '14px', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : 'var(--lp-surface)' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h2>
+        {data.subheadline && <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '1rem' }}>{data.subheadline}</p>}
+        {btn}
+      </div>
+    </div>
+  )
+  // default
   return (
-    <div style={{ textAlign: 'center', padding: '2.5rem 2rem', background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.1))', borderRadius: '14px' }}>
-      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h2>
-      {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', marginBottom: '1rem' }}>{data.subheadline}</p>}
-      {data.cta && <span style={{ display: 'inline-block', background: 'var(--lp-primary, #16a34a)', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600 }}>{data.cta.text}</span>}
+    <div style={{ textAlign: 'center', padding: '2.5rem 2rem', background: 'var(--lp-surface)', borderRadius: '14px' }}>
+      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.5rem' }}>{data.headline}</h2>
+      {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', marginBottom: '1rem' }}>{data.subheadline}</p>}
+      {btn}
     </div>
   )
 }
