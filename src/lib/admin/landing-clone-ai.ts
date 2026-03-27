@@ -9,29 +9,55 @@ const GEMINI_API_URL =
 
 /** Section types and variants available in the landing page builder */
 const SECTION_SCHEMA = `
-Available section types and their variants:
-- hero: variants=[centered, split, video-bg, minimal]. Fields: headline, subheadline, cta{text,url}, backgroundImage, embed
+Available section types, their variants, and fields:
+
+STRUCTURE:
+- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}], variant
+- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
+
+HERO (exactly ONE per page):
+- hero: variants=[centered, split, video-bg, minimal].
+  Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL)
+  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
+  IMPORTANT: cta is always an ARRAY, even for a single button.
+
+CONTENT:
 - features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description}], columns(2|3|4)
-- pricing: variants=[cards, simple, highlight-center]. Fields: heading, subheading, plans[{name,price,period,description,features[],cta{text,url},highlighted}]
-- testimonials: variants=[cards, single, minimal]. Fields: heading, items[{quote,name,role,company,avatar}]
-- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
-- cta: variants=[default, split, banner, minimal, with-image]. Fields: headline, subheadline, cta{text,url}, backgroundImage
-- stats: variants=[row, cards, large]. Fields: heading, items[{value,label,prefix,suffix}]
+- stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
 - how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
 - team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
+- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
+- rich-text: Fields: content (HTML string)
+
+CONVERSION:
+- pricing: variants=[cards, simple, highlight-center].
+  Fields: heading, subheading, plans[{name, price, period, description, features[], cta{text,url}, highlighted, badge}]
+  IMPORTANT: Only actual pricing plan CARDS go here. Do NOT confuse CTA buttons or bundle upsells with pricing plans.
+  Count the actual plan cards on the page — if there are 2 cards, output exactly 2 plans.
+  badge: optional label like "Most Popular" or "BEST VALUE" shown on the card.
+- testimonials: variants=[cards, single, minimal, carousel].
+  Fields: heading, subheading, items[{quote, name, role, company, avatar, image}]
+  avatar = small profile picture URL. image = screenshot of the original testimonial post.
+  Use "carousel" variant if testimonials scroll horizontally.
+- cta: variants=[default, split, banner, minimal, with-image].
+  Fields: headline, subheadline, backgroundImage
+  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
+  IMPORTANT: cta is always an ARRAY.
+- social-proof: variants=[inline, banner]. Fields: text, icon, link
+  Short trust line like "Join 500+ happy customers" shown between sections.
 - logo-wall: Fields: heading, logos[{name,url,image}]
-- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}]
-- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}]
+- banner: Fields: text, cta{text,url}, variant(info|warning|success)
+- countdown: Fields: targetDate, heading, expiredText
+- contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
+- comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
+
+MEDIA:
 - video: Fields: url, caption, autoplay
 - image: Fields: src, alt, caption, fullWidth
 - image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
 - gallery: Fields: heading, images[{src,alt,caption}]
 - map: Fields: address, embedUrl, height
-- rich-text: Fields: content (HTML string)
 - divider: Fields: style(line|dots|space), height
-- countdown: Fields: targetDate, heading, expiredText
-- contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
-- banner: Fields: text, cta{text,url}, variant(info|warning|success)
 - layout: Fields: columns(number[]), gap, children[{column,sections[]}]
 `
 
@@ -55,6 +81,13 @@ Rules:
 - If a section doesn't match any type, use rich-text with the HTML content
 - Extract colors from the page's CSS/inline styles — find the dominant brand color
 - Keep content in the ORIGINAL language of the page
+
+CRITICAL — avoid these common mistakes:
+- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}], never a single object
+- PRICING: Count the actual pricing CARDS on the page. Do NOT create extra plans from CTA buttons, bundle links, or upsell text that appear elsewhere (hero, footer, CTA sections). If the page shows 2 pricing cards, output exactly 2 plans.
+- TESTIMONIALS: If testimonials scroll/slide horizontally, use variant "carousel". The "image" field is for screenshots of the original post, NOT avatar/profile pictures.
+- SOCIAL PROOF: Short trust lines like "Join 500+ happy customers" between sections should be "social-proof" type, NOT part of other sections.
+- Do NOT duplicate content across sections. Each piece of content belongs to exactly one section.
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {

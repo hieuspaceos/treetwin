@@ -15,7 +15,7 @@ const { heading, items, variant = 'row' } = Astro.props
 {variant === 'row' && (
   <section class="landing-section">
     {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
-    <div class="landing-grid-4">
+    <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'} style={items.length <= 2 ? 'max-width: 540px; margin: 0 auto' : undefined}>
       {items.map((stat) => (
         <div class="glass-card p-6 text-center">
           <p class="landing-stat-value">{stat.prefix}{stat.value}{stat.suffix}</p>
@@ -30,7 +30,7 @@ const { heading, items, variant = 'row' } = Astro.props
 {variant === 'cards' && (
   <section class="landing-section">
     {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
-    <div class="landing-grid-4">
+    <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'} style={items.length <= 2 ? 'max-width: 540px; margin: 0 auto' : undefined}>
       {items.map((stat) => (
         <div style="padding: 1.75rem 1.25rem; text-align: center; background: var(--lp-surface); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 15%, transparent); box-shadow: 0 4px 16px color-mix(in srgb, var(--lp-primary) 8%, transparent)">
           <p style="font-size: 2.25rem; font-weight: 800; color: var(--lp-primary); line-height: 1">

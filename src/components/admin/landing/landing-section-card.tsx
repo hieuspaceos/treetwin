@@ -48,6 +48,9 @@ const TYPE_LABELS: Record<string, string> = {
   countdown: 'Countdown',
   'contact-form': 'Contact Form',
   banner: 'Banner',
+  comparison: 'Comparison',
+  'ai-search': 'AI Search',
+  'social-proof': 'Social Proof',
   layout: 'Layout',
 }
 

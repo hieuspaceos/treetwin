@@ -1,14 +1,21 @@
 ---
 /**
- * Testimonials section with 3 layout variants:
+ * Testimonials section with 4 layout variants:
  * - cards (default): grid of quote cards with avatars
  * - single: one large quote centered (uses first item)
  * - minimal: text-only quotes, no avatars
+ * - carousel: auto-scrolling horizontal strip with nav arrows + dots
+ *
+ * Each testimonial can have `avatar` (profile pic) and/or `image` (screenshot).
  */
 import type { TestimonialsData } from '@/lib/landing/landing-types'
 
 interface Props extends TestimonialsData {}
 const { heading, items, variant = 'cards' } = Astro.props
+
+/* Carousel duplicates items for seamless infinite scroll */
+const carouselItems = variant === 'carousel' ? [...items, ...items] : items
+const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
 ---
 
 {/* Cards: default grid with avatars */}
@@ -18,6 +25,9 @@ const { heading, items, variant = 'cards' } = Astro.props
     <div class="landing-grid-2">
       {items.map((t) => (
         <div class="glass-card p-6">
+          {t.image && (
+            <img src={t.image} alt={t.name} class="mb-4 w-full rounded-lg object-cover" style="max-height: 200px" loading="lazy" />
+          )}
           <p class="mb-4 italic" style="color: var(--lp-text-muted)">"{t.quote}"</p>
           <div class="flex items-center gap-3">
             {t.avatar && <img src={t.avatar} alt={t.name} class="h-10 w-10 rounded-full object-cover" />}
@@ -30,6 +40,45 @@ const { heading, items, variant = 'cards' } = Astro.props
           </div>
         </div>
       ))}
+    </div>
+  </section>
+)}
+
+{/* Carousel: auto-scrolling with arrows + dots */}
+{variant === 'carousel' && (
+  <section class="landing-section" style="overflow: hidden; padding-left: 0; padding-right: 0">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold" style="padding: 0 2rem">{heading}</h2>}
+    <div class="lp-carousel-wrapper" id={carouselId}>
+      {/* Arrow buttons */}
+      <button class="lp-carousel-arrow lp-carousel-prev" aria-label="Previous" data-dir="prev">‹</button>
+      <button class="lp-carousel-arrow lp-carousel-next" aria-label="Next" data-dir="next">›</button>
+
+      <div class="lp-testimonial-carousel">
+        <div class="lp-testimonial-track">
+          {carouselItems.map((t) => (
+            <div class="lp-testimonial-slide glass-card" style="overflow: hidden">
+              {t.image && (
+                <img src={t.image} alt={t.name} class="w-full object-cover" style="height: 180px" loading="lazy" />
+              )}
+              <div class="p-4">
+                <p class="mb-2 text-xs italic" style="color: var(--lp-text-muted); line-height: 1.5">"{t.quote}"</p>
+                <p class="text-xs font-semibold">{t.name}
+                  {(t.role || t.company) && (
+                    <span style="color: var(--lp-text-muted); font-weight: 400"> · {[t.role, t.company].filter(Boolean).join(' · ')}</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dot indicators — max 5 dots, each represents a group of slides */}
+      <div class="lp-carousel-dots">
+        {Array.from({ length: Math.min(5, items.length) }, (_, i) => (
+          <button class={`lp-carousel-dot${i === 0 ? ' active' : ''}`} data-index={i} aria-label={`Group ${i + 1}`} />
+        ))}
+      </div>
     </div>
   </section>
 )}
@@ -71,3 +120,146 @@ const { heading, items, variant = 'cards' } = Astro.props
     </div>
   </section>
 )}
+
+<style>
+  /* Carousel wrapper — relative for arrow positioning */
+  .lp-carousel-wrapper {
+    position: relative;
+  }
+
+  /* Arrow buttons */
+  .lp-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--lp-text) 15%, transparent);
+    background: color-mix(in srgb, var(--lp-surface) 90%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--lp-text);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lp-carousel-arrow:hover {
+    background: color-mix(in srgb, var(--lp-primary) 15%, var(--lp-surface));
+    border-color: var(--lp-primary);
+  }
+  .lp-carousel-prev { left: 0.75rem; }
+  .lp-carousel-next { right: 0.75rem; }
+
+  /* Track */
+  .lp-testimonial-carousel {
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+  .lp-testimonial-track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    animation: lp-scroll 30s linear infinite;
+  }
+  .lp-testimonial-track:hover {
+    animation-play-state: paused;
+  }
+  .lp-testimonial-slide {
+    flex-shrink: 0;
+    width: 320px;
+    max-width: 80vw;
+  }
+
+  /* Dot indicators */
+  .lp-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding: 0 2rem;
+  }
+  .lp-carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: color-mix(in srgb, var(--lp-text) 20%, transparent);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+  }
+  .lp-carousel-dot:hover {
+    background: color-mix(in srgb, var(--lp-text) 40%, transparent);
+  }
+  .lp-carousel-dot.active {
+    background: var(--lp-primary);
+    transform: scale(1.25);
+  }
+
+  @keyframes lp-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 640px) {
+    .lp-testimonial-slide { width: 280px; }
+    .lp-testimonial-track { animation-duration: 40s; }
+    .lp-carousel-arrow { width: 32px; height: 32px; font-size: 1rem; }
+  }
+</style>
+
+<script define:vars={{ carouselId, itemCount: items.length }}>
+  /* Carousel nav: arrows scroll by 1 slide, dots represent groups */
+  document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.getElementById(carouselId)
+    if (!wrapper) return
+
+    const track = wrapper.querySelector('.lp-testimonial-track')
+    const dots = wrapper.querySelectorAll('.lp-carousel-dot')
+    if (!track) return
+
+    const slideWidth = 320 + 20
+    const dotCount = dots.length
+    /* Each dot covers a group of slides */
+    const slidesPerDot = Math.ceil(itemCount / dotCount)
+
+    function scrollBy(offset) {
+      track.style.animation = 'none'
+      const current = -new DOMMatrix(getComputedStyle(track).transform).m41
+      track.style.transform = `translateX(${-(current + offset)}px)`
+      clearTimeout(track._resumeTimer)
+      track._resumeTimer = setTimeout(() => {
+        track.style.transform = ''
+        track.style.animation = ''
+      }, 4000)
+    }
+
+    wrapper.querySelector('.lp-carousel-prev')?.addEventListener('click', () => scrollBy(-slideWidth))
+    wrapper.querySelector('.lp-carousel-next')?.addEventListener('click', () => scrollBy(slideWidth))
+
+    /* Dot click — jump to group start position */
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const targetSlide = i * slidesPerDot
+        const current = -new DOMMatrix(getComputedStyle(track).transform).m41
+        scrollBy(targetSlide * slideWidth - current)
+      })
+    })
+
+    /* Auto-update active dot based on scroll position */
+    function updateDots() {
+      const pos = -new DOMMatrix(getComputedStyle(track).transform).m41
+      const currentSlide = Math.round(pos / slideWidth) % itemCount
+      const activeDot = Math.min(Math.floor(currentSlide / slidesPerDot), dotCount - 1)
+      dots.forEach((d, i) => d.classList.toggle('active', i === activeDot))
+      requestAnimationFrame(updateDots)
+    }
+    requestAnimationFrame(updateDots)
+  })
+</script>

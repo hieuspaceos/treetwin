@@ -41,6 +41,9 @@ const SECTION_GROUPS: Array<{ group: string; items: SectionCatalogItem[] }> = [
     { type: 'banner', label: 'Banner', icon: '📣', desc: 'Announcement banner' },
     { type: 'countdown', label: 'Countdown', icon: '⏱', desc: 'Countdown timer' },
     { type: 'contact-form', label: 'Contact', icon: '📬', desc: 'Contact form with fields' },
+    { type: 'comparison', label: 'Comparison', icon: '⚖️', desc: 'Side-by-side comparison table' },
+    { type: 'ai-search', label: 'AI Search', icon: '🔍', desc: 'AI-powered product search input' },
+    { type: 'social-proof', label: 'Social Proof', icon: '🏅', desc: 'Short trust/proof line' },
   ]},
   { group: 'Media', items: [
     { type: 'video', label: 'Video', icon: '🎬', desc: 'YouTube/Vimeo embed' },
@@ -77,6 +80,9 @@ function defaultSectionData(type: SectionType): SectionData {
     countdown: { targetDate: '', heading: 'Offer ends in' },
     'contact-form': { heading: 'Contact Us', fields: [{ label: 'Name', type: 'text' }, { label: 'Email', type: 'email' }, { label: 'Message', type: 'textarea' }], submitText: 'Send Message' },
     banner: { text: 'Announcement goes here', variant: 'info' },
+    comparison: { heading: 'Comparison', columns: [{ label: 'Us' }, { label: 'Others' }], rows: [{ label: 'Price', values: ['Free', 'Paid'], highlight: true }] },
+    'ai-search': { placeholder: 'Describe what you need...', thinkingText: 'Analyzing...', resultsHeader: 'Suggestions', hints: [], defaultSuggestions: [], intents: [] },
+    'social-proof': { text: 'Trusted by 100+ businesses', variant: 'inline' },
     layout: { columns: [1, 1], gap: '1rem', children: [] },
   }
   return defaults[type] || {} as SectionData

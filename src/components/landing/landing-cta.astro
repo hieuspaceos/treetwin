@@ -6,11 +6,25 @@
  * - banner: full-width gradient with large text
  * - minimal: simple text link, no button styling
  * - with-image: background image + dark overlay
+ *
+ * cta accepts single {text,url} (legacy) or an array — first item = primary style.
  */
 import type { CtaData } from '@/lib/landing/landing-types'
 
 interface Props extends CtaData {}
 const { headline, subheadline, cta, variant = 'default', backgroundImage } = Astro.props
+
+// Normalize cta to array for consistent rendering
+const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
+
+function ctaClass(index: number, ctaVariant?: string): string {
+  if (ctaVariant === 'secondary') return 'landing-btn-secondary'
+  if (ctaVariant === 'outline') return 'landing-btn-outline'
+  return index === 0 ? 'landing-btn-primary' : 'landing-btn-secondary'
+}
+
+// First CTA for minimal/split variants (single button)
+const primaryCta = ctaList[0]
 ---
 
 {/* Default: centered */}
@@ -18,7 +32,13 @@ const { headline, subheadline, cta, variant = 'default', backgroundImage } = Ast
   <section class="landing-section text-center">
     <h2 class="text-3xl font-bold">{headline}</h2>
     {subheadline && <p class="mx-auto mt-3 max-w-xl" style="color: var(--lp-text-muted)">{subheadline}</p>}
-    <a href={cta.url} class="landing-btn-primary mt-6">{cta.text}</a>
+    {ctaList.length > 0 && (
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
+        {ctaList.map((item, i) => (
+          <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
+        ))}
+      </div>
+    )}
   </section>
 )}
 
@@ -29,7 +49,13 @@ const { headline, subheadline, cta, variant = 'default', backgroundImage } = Ast
       <h2 class="text-2xl font-bold">{headline}</h2>
       {subheadline && <p class="mt-2" style="color: var(--lp-text-muted)">{subheadline}</p>}
     </div>
-    <a href={cta.url} class="landing-btn-primary" style="flex-shrink: 0">{cta.text}</a>
+    {ctaList.length > 0 && (
+      <div class="flex flex-wrap items-center gap-3" style="flex-shrink: 0">
+        {ctaList.map((item, i) => (
+          <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
+        ))}
+      </div>
+    )}
   </section>
 )}
 
@@ -38,7 +64,9 @@ const { headline, subheadline, cta, variant = 'default', backgroundImage } = Ast
   <section class="landing-section text-center" style={`background: linear-gradient(135deg, var(--lp-primary), var(--lp-secondary)); color: #fff; padding: 4rem 2rem; border-radius: var(--lp-radius)`}>
     <h2 class="text-4xl font-bold" style="color: #fff">{headline}</h2>
     {subheadline && <p class="mx-auto mt-3 max-w-xl" style="color: rgba(255,255,255,0.85)">{subheadline}</p>}
-    <a href={cta.url} class="mt-6" style="display: inline-block; background: #fff; color: var(--lp-primary); padding: 0.75rem 2rem; border-radius: var(--lp-radius); font-weight: 700; text-decoration: none">{cta.text}</a>
+    {primaryCta && (
+      <a href={primaryCta.url} class="mt-6" style="display: inline-block; background: #fff; color: var(--lp-primary); padding: 0.75rem 2rem; border-radius: var(--lp-radius); font-weight: 700; text-decoration: none">{primaryCta.text}</a>
+    )}
   </section>
 )}
 
@@ -47,8 +75,12 @@ const { headline, subheadline, cta, variant = 'default', backgroundImage } = Ast
   <section class="landing-section text-center" style="background: transparent; padding: 2rem">
     <p class="text-lg">
       <span style="color: var(--lp-text-muted)">{headline}</span>
-      {' '}
-      <a href={cta.url} style="color: var(--lp-primary); font-weight: 600; text-decoration: underline">{cta.text}</a>
+      {primaryCta && (
+        <>
+          {' '}
+          <a href={primaryCta.url} style="color: var(--lp-primary); font-weight: 600; text-decoration: underline">{primaryCta.text}</a>
+        </>
+      )}
     </p>
   </section>
 )}
@@ -63,7 +95,13 @@ const { headline, subheadline, cta, variant = 'default', backgroundImage } = Ast
     <div style="position: relative; z-index: 1">
       <h2 class="text-3xl font-bold" style="color: #fff">{headline}</h2>
       {subheadline && <p class="mx-auto mt-3 max-w-xl" style="color: rgba(255,255,255,0.8)">{subheadline}</p>}
-      <a href={cta.url} class="landing-btn-primary mt-6">{cta.text}</a>
+      {ctaList.length > 0 && (
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
+          {ctaList.map((item, i) => (
+            <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
+          ))}
+        </div>
+      )}
     </div>
   </section>
 )}

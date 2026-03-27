@@ -1,0 +1,29 @@
+---
+/**
+ * Social proof — short trust line shown inline or as a highlighted banner.
+ * - inline: subtle centered text row
+ * - banner: soft primary-tinted background strip
+ * Supports optional icon (emoji/text) and link (wraps in <a>).
+ */
+import type { SocialProofData } from '@/lib/landing/landing-types'
+
+interface Props extends SocialProofData {}
+const { text, icon, link, variant = 'inline' } = Astro.props
+
+const Tag = link ? 'a' : 'div'
+const linkProps = link ? { href: link, style: 'text-decoration: none; color: inherit;' } : {}
+---
+
+{variant === 'inline' && (
+  <Tag {...linkProps} class="block text-center py-4" style={`color: var(--lp-text-muted); font-size: 0.875rem;${link ? ' cursor: pointer;' : ''}`}>
+    {icon && <span style="margin-right: 0.5rem">{icon}</span>}
+    {text}
+  </Tag>
+)}
+
+{variant === 'banner' && (
+  <Tag {...linkProps} class="block text-center py-6 px-4" style={`background: color-mix(in srgb, var(--lp-primary) 8%, var(--lp-surface)); color: var(--lp-text-muted); font-size: 0.9rem; border-radius: var(--lp-radius);${link ? ' cursor: pointer;' : ''}`}>
+    {icon && <span style="margin-right: 0.5rem">{icon}</span>}
+    {text}
+  </Tag>
+)}

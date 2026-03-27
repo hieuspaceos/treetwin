@@ -27,7 +27,10 @@ import LandingDivider from './landing-divider.astro'
 import LandingCountdown from './landing-countdown.astro'
 import LandingContactForm from './landing-contact-form.astro'
 import LandingBanner from './landing-banner.astro'
+import LandingComparison from './landing-comparison.astro'
+import LandingAiSearch from './landing-ai-search.astro'
 import LandingLayout from './landing-layout.astro'
+import LandingSocialProof from './landing-social-proof.astro'
 import type { LandingSection } from '@/lib/landing/landing-types'
 
 import '@/styles/landing.css'
@@ -78,7 +81,10 @@ const componentMap: Record<string, any> = {
   countdown: LandingCountdown,
   'contact-form': LandingContactForm,
   banner: LandingBanner,
+  comparison: LandingComparison,
+  'ai-search': LandingAiSearch,
   layout: LandingLayout,
+  'social-proof': LandingSocialProof,
 }
 ---
 

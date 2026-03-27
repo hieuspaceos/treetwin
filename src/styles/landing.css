@@ -108,3 +108,64 @@ html:has(.landing-nav) {
   color: var(--lp-text-muted);
   border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
 }
+
+/* Footer columns grid — responsive: 2-col mobile, brand + links on desktop */
+.lp-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem 1.5rem;
+}
+@media (min-width: 768px) {
+  .lp-footer-grid {
+    /* First child (brand) spans wider, rest share remaining space equally */
+    grid-template-columns: 2fr repeat(var(--lp-footer-cols, 5), 1fr);
+  }
+}
+
+/* Secondary button style */
+.landing-btn-secondary {
+  display: inline-block;
+  background: color-mix(in srgb, var(--lp-text) 10%, transparent);
+  color: var(--lp-text);
+  padding: 0.75rem 2rem;
+  border-radius: var(--lp-radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.landing-btn-secondary:hover {
+  background: color-mix(in srgb, var(--lp-text) 16%, transparent);
+}
+
+/* Outline button style */
+.landing-btn-outline {
+  display: inline-block;
+  background: transparent;
+  color: var(--lp-primary);
+  padding: 0.75rem 2rem;
+  border-radius: var(--lp-radius);
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid color-mix(in srgb, var(--lp-primary) 40%, transparent);
+  transition: border-color 0.2s, background 0.2s;
+}
+.landing-btn-outline:hover {
+  border-color: var(--lp-primary);
+  background: color-mix(in srgb, var(--lp-primary) 8%, transparent);
+}
+
+/* Override glass-card in landing context to use LP design tokens instead of global theme */
+.landing-section .glass-card {
+  background: color-mix(in srgb, var(--lp-text) 6%, var(--lp-surface));
+  border: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);
+  color: var(--lp-text);
+}
+
+/* Gradient text effect — apply to headings */
+.landing-gradient-text {
+  background: linear-gradient(135deg, var(--lp-primary), var(--lp-accent, var(--lp-secondary)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+

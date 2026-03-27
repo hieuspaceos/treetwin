@@ -6,7 +6,8 @@
 export interface HeroData {
   headline: string
   subheadline?: string
-  cta?: { text: string; url: string }
+  /** Single CTA (legacy) or array of CTAs — first = primary, rest = secondary/outline */
+  cta?: { text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' } | Array<{ text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' }>
   backgroundImage?: string
   embed?: string
   /** Layout variant: centered (default), split (text left + media right), video-bg (full-width bg), minimal (no CTA) */
@@ -17,6 +18,10 @@ export interface FeatureItem {
   icon?: string
   title: string
   description: string
+  /** Optional price tag displayed at bottom of card */
+  price?: string
+  /** Price type badge (e.g. "one-time", "ai-addon", "bundled") */
+  priceType?: string
 }
 export interface FeaturesData {
   heading?: string
@@ -32,6 +37,7 @@ export interface PricingPlan {
   price: string
   period?: string
   description?: string
+  badge?: string
   features: string[]
   cta: { text: string; url: string }
   highlighted?: boolean
@@ -50,12 +56,14 @@ export interface Testimonial {
   role?: string
   company?: string
   avatar?: string
+  /** Screenshot image of the original testimonial post — displayed as card image in carousel/cards */
+  image?: string
 }
 export interface TestimonialsData {
   heading?: string
   items: Testimonial[]
-  /** Layout variant: cards (default), single (one large quote centered), minimal (text-only, no avatars) */
-  variant?: 'cards' | 'single' | 'minimal'
+  /** Layout variant: cards (default), single (one large quote centered), minimal (text-only, no avatars), carousel (auto-scrolling horizontal) */
+  variant?: 'cards' | 'single' | 'minimal' | 'carousel'
 }
 
 export interface FaqItem {
@@ -72,7 +80,8 @@ export interface FaqData {
 export interface CtaData {
   headline: string
   subheadline?: string
-  cta: { text: string; url: string }
+  /** Single CTA (legacy) or array of CTAs — first = primary, rest = secondary/outline */
+  cta: { text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' } | Array<{ text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' }>
   /** Layout variant: centered (default), split (text left + btn right), banner (full-width gradient), minimal (text link only), with-image (bg image + overlay) */
   variant?: 'default' | 'split' | 'banner' | 'minimal' | 'with-image'
   backgroundImage?: string
@@ -204,6 +213,16 @@ export interface BannerData {
   variant?: 'info' | 'warning' | 'success'
 }
 
+/** Social proof — short trust line, inline or banner style */
+export interface SocialProofData {
+  text: string
+  /** Optional icon/emoji displayed before text */
+  icon?: string
+  /** Optional link URL — makes the strip clickable */
+  link?: string
+  variant?: 'inline' | 'banner'
+}
+
 export interface LayoutChild {
   column: number
   sections: LandingSection[]
@@ -212,6 +231,48 @@ export interface LayoutData {
   columns: number[]  // ratio array, e.g. [1, 1] = 50/50, [1, 2] = 33/67
   gap?: string
   children: LayoutChild[]
+}
+
+/** Comparison table — side-by-side feature/price comparison */
+export interface ComparisonColumn {
+  label: string
+}
+export interface ComparisonRow {
+  label: string
+  values: string[]
+  /** Highlight this row with accent color */
+  highlight?: boolean
+}
+export interface ComparisonData {
+  heading?: string
+  subheading?: string
+  columns: ComparisonColumn[]
+  rows: ComparisonRow[]
+}
+
+/** AI search input — textarea with hint chips and suggestion results */
+export interface AiSearchSuggestion {
+  icon?: string
+  name: string
+  description: string
+  price?: string
+  priceType?: string
+  url?: string
+}
+export interface AiSearchIntent {
+  /** Keywords to match in user input */
+  keywords: string[]
+  suggestions: AiSearchSuggestion[]
+}
+export interface AiSearchData {
+  placeholder?: string
+  thinkingText?: string
+  resultsHeader?: string
+  hints?: Array<{ icon?: string; label: string; text: string }>
+  /** Default suggestions shown when no intent matches */
+  defaultSuggestions?: AiSearchSuggestion[]
+  /** Intent-based suggestion groups */
+  intents?: AiSearchIntent[]
 }
 
 /** Per-page design settings — colors, fonts, border radius */
@@ -234,10 +295,10 @@ export interface LandingDesign {
 }
 
 /** All possible section type identifiers */
-export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout'
+export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout' | 'comparison' | 'ai-search' | 'social-proof'
 
 /** Union of all section data types */
-export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData
+export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData
 
 export interface LandingSection {
   type: SectionType

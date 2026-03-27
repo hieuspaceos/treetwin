@@ -3,7 +3,7 @@
  * Each form renders inputs for its typed section data.
  * Dynamic array support: items[] with add/remove.
  */
-import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild } from '@/lib/landing/landing-types'
+import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -42,6 +42,17 @@ function ArrayField({ label, items, onChange }: { label: string; items: string[]
 
 export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
   const set = (k: keyof HeroData, v: unknown) => onChange({ ...data, [k]: v })
+  // Normalize cta: support both single object and array — edit first item only in admin
+  const ctaItem = Array.isArray(data.cta) ? data.cta[0] : data.cta
+  const setCta = (patch: Partial<{ text: string; url: string }>) => {
+    if (Array.isArray(data.cta)) {
+      const updated = [...data.cta]
+      updated[0] = { ...updated[0], ...patch }
+      set('cta', updated)
+    } else {
+      set('cta', { ...(data.cta || {}), ...patch })
+    }
+  }
   return (
     <>
       <Field label="Layout Variant">
@@ -55,11 +66,14 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
       {data.variant !== 'minimal' && <>
-        <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
-        <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Get Started' })} /></Field>
+        <Field label="CTA Text"><input style={inputStyle} value={ctaItem?.text || ''} onChange={(e) => setCta({ text: e.target.value, url: ctaItem?.url || '#' })} /></Field>
+        <Field label="CTA URL"><input style={inputStyle} value={ctaItem?.url || ''} onChange={(e) => setCta({ url: e.target.value, text: ctaItem?.text || 'Get Started' })} /></Field>
       </>}
       {(data.variant === 'video-bg' || data.variant === 'split') && (
         <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
+      )}
+      {(data.variant === 'split' || data.variant === 'centered' || data.variant === 'video-bg') && (
+        <Field label="Embed URL (video/iframe)"><input style={inputStyle} value={data.embed || ''} onChange={(e) => set('embed', e.target.value)} placeholder="https://cdn.example.com/video.mp4 or YouTube embed" /></Field>
       )}
     </>
   )
@@ -132,6 +146,7 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
       <Field label="Layout Variant">
         <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
           <option value="cards">Cards (default)</option>
+          <option value="carousel">Carousel (auto-scrolling horizontal)</option>
           <option value="single">Single (one large centered quote)</option>
           <option value="minimal">Minimal (text-only, no avatars)</option>
         </select>
@@ -142,7 +157,9 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
             <textarea placeholder="Quote" style={{ ...textareaStyle, minHeight: '50px', marginBottom: '4px' }} value={item.quote} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], quote: e.target.value }; set('items', n) }} />
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={item.name} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], name: e.target.value }; set('items', n) }} />
-            <input placeholder="Role" style={inputStyle} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
+            <input placeholder="Role" style={{ ...inputStyle, marginBottom: '4px' }} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
+            <input placeholder="Avatar URL (profile pic)" style={{ ...inputStyle, marginBottom: '4px' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
+            <input placeholder="Image URL (screenshot)" style={inputStyle} value={item.image || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], image: e.target.value }; set('items', n) }} />
             <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
           </div>
@@ -185,6 +202,17 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
 
 export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
   const set = (k: keyof CtaData, v: unknown) => onChange({ ...data, [k]: v })
+  // Normalize cta: support both single object and array — edit first item only in admin
+  const ctaItem = Array.isArray(data.cta) ? data.cta[0] : data.cta
+  const setCta = (patch: Partial<{ text: string; url: string }>) => {
+    if (Array.isArray(data.cta)) {
+      const updated = [...data.cta]
+      updated[0] = { ...updated[0], ...patch }
+      set('cta', updated)
+    } else {
+      set('cta', { ...(data.cta || {}), ...patch })
+    }
+  }
   return (
     <>
       <Field label="Layout Variant">
@@ -198,8 +226,8 @@ export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
       </Field>
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
-      <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
-      <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Get Started' })} /></Field>
+      <Field label="CTA Text"><input style={inputStyle} value={ctaItem?.text || ''} onChange={(e) => setCta({ text: e.target.value, url: ctaItem?.url || '#' })} /></Field>
+      <Field label="CTA URL"><input style={inputStyle} value={ctaItem?.url || ''} onChange={(e) => setCta({ url: e.target.value, text: ctaItem?.text || 'Get Started' })} /></Field>
       {data.variant === 'with-image' && (
         <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
       )}
@@ -342,6 +370,7 @@ function NavSectionForm({ data, onChange }: FormProps<NavData>) {
 function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
   const set = (k: keyof FooterData, v: unknown) => onChange({ ...data, [k]: v })
   const links = data.links || []
+  const columns = data.columns || []
   return (
     <>
       <Field label="Layout Variant">
@@ -352,7 +381,38 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
         </select>
       </Field>
       <Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field>
-      <Field label="Footer Links">
+
+      {/* Column groups editor — shown when variant is columns */}
+      {data.variant === 'columns' && (
+        <Field label="Column Groups">
+          {columns.map((col, ci) => (
+            <div key={ci} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <input style={{ ...inputStyle, flex: 1, fontWeight: 600 }} value={col.heading} placeholder="Column heading"
+                  onChange={(e) => { const n = [...columns]; n[ci] = { ...n[ci], heading: e.target.value }; set('columns', n) }} />
+                <button type="button" onClick={() => set('columns', columns.filter((_, j) => j !== ci))}
+                  style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>Remove</button>
+              </div>
+              {(col.links || []).map((link, li) => (
+                <div key={li} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem', paddingLeft: '0.5rem' }}>
+                  <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
+                    onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], label: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
+                  <input style={{ ...inputStyle, flex: 1 }} value={link.href} placeholder="/page"
+                    onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], href: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
+                  <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: (n[ci].links || []).filter((_, j) => j !== li) }; set('columns', n) }}
+                    style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: [...(n[ci].links || []), { label: '', href: '' }] }; set('columns', n) }}
+                style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', paddingLeft: '0.5rem' }}>+ Add link</button>
+            </div>
+          ))}
+          <button type="button" onClick={() => set('columns', [...columns, { heading: '', links: [] }])}
+            style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add column group</button>
+        </Field>
+      )}
+
+      <Field label={data.variant === 'columns' ? 'Bottom Bar Links (e.g. Privacy, Terms)' : 'Footer Links'}>
         {links.map((link, i) => (
           <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
             <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
@@ -550,6 +610,7 @@ const NESTED_SECTION_TYPES = [
   'hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats',
   'how-it-works', 'team', 'logo-wall', 'video', 'image', 'image-text',
   'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner',
+  'comparison', 'ai-search', 'social-proof',
 ] as const
 
 /** Minimal defaults for nested sections added via layout column */
@@ -575,6 +636,9 @@ function nestedSectionDefault(type: string): SectionData {
     countdown: { targetDate: '', heading: '' },
     'contact-form': { heading: '', fields: [], submitText: 'Send' },
     banner: { text: '', variant: 'info' },
+    comparison: { heading: '', columns: [{ label: '' }], rows: [] },
+    'ai-search': { placeholder: '', thinkingText: '', resultsHeader: '', hints: [], defaultSuggestions: [], intents: [] },
+    'social-proof': { text: '', variant: 'inline' },
   }
   return map[type] || ({} as SectionData)
 }
@@ -586,6 +650,7 @@ const SECTION_LABELS: Record<string, string> = {
   team: 'Team', 'logo-wall': 'Logo Wall', video: 'Video', image: 'Image',
   'image-text': 'Image+Text', gallery: 'Gallery', map: 'Map', 'rich-text': 'Rich Text',
   divider: 'Divider', countdown: 'Countdown', 'contact-form': 'Contact Form', banner: 'Banner',
+  comparison: 'Comparison', 'ai-search': 'AI Search', 'social-proof': 'Social Proof',
 }
 
 export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
@@ -680,6 +745,81 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
   )
 }
 
+export function ComparisonSectionForm({ data, onChange }: FormProps<ComparisonData>) {
+  const set = (k: keyof ComparisonData, v: unknown) => onChange({ ...data, [k]: v })
+  const columns = data.columns || []
+  const rows = data.rows || []
+  return (
+    <>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
+      <Field label="Columns">
+        {columns.map((col, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <input style={{ ...inputStyle, flex: 1 }} value={col.label} onChange={(e) => { const c = [...columns]; c[i] = { ...c[i], label: e.target.value }; set('columns', c) }} placeholder="Column label" />
+            <button type="button" onClick={() => set('columns', columns.filter((_, j) => j !== i))} style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('columns', [...columns, { label: '' }])} style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Column</button>
+      </Field>
+      <Field label="Rows">
+        {rows.map((row, i) => (
+          <div key={i} style={{ marginBottom: '0.75rem', padding: '0.5rem', background: '#f8fafc', borderRadius: '6px' }}>
+            <input style={{ ...inputStyle, marginBottom: '0.25rem' }} value={row.label} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], label: e.target.value }; set('rows', r) }} placeholder="Row label" />
+            {(row.values || []).map((val, vi) => (
+              <input key={vi} style={{ ...inputStyle, marginBottom: '0.25rem' }} value={val} onChange={(e) => { const r = [...rows]; const vals = [...(r[i].values || [])]; vals[vi] = e.target.value; r[i] = { ...r[i], values: vals }; set('rows', r) }} placeholder={`Value for ${columns[vi]?.label || `col ${vi + 1}`}`} />
+            ))}
+            <label style={{ fontSize: '0.7rem', color: '#64748b' }}><input type="checkbox" checked={row.highlight || false} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], highlight: e.target.checked }; set('rows', r) }} /> Highlight</label>
+            <button type="button" onClick={() => set('rows', rows.filter((_, j) => j !== i))} style={{ marginLeft: '0.5rem', fontSize: '0.7rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('rows', [...rows, { label: '', values: columns.map(() => ''), highlight: false }])} style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Row</button>
+      </Field>
+    </>
+  )
+}
+
+export function AiSearchSectionForm({ data, onChange }: FormProps<AiSearchData>) {
+  const set = (k: keyof AiSearchData, v: unknown) => onChange({ ...data, [k]: v })
+  const hints = data.hints || []
+  return (
+    <>
+      <Field label="Placeholder"><input style={inputStyle} value={data.placeholder || ''} onChange={(e) => set('placeholder', e.target.value)} placeholder="Describe what you need..." /></Field>
+      <Field label="Thinking Text"><input style={inputStyle} value={data.thinkingText || ''} onChange={(e) => set('thinkingText', e.target.value)} /></Field>
+      <Field label="Results Header"><input style={inputStyle} value={data.resultsHeader || ''} onChange={(e) => set('resultsHeader', e.target.value)} /></Field>
+      <Field label="Hint Chips">
+        {hints.map((hint, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <input style={{ ...inputStyle, width: '3rem' }} value={hint.icon || ''} onChange={(e) => { const h = [...hints]; h[i] = { ...h[i], icon: e.target.value }; set('hints', h) }} placeholder="🔍" />
+            <input style={{ ...inputStyle, flex: 1 }} value={hint.label} onChange={(e) => { const h = [...hints]; h[i] = { ...h[i], label: e.target.value }; set('hints', h) }} placeholder="Label" />
+            <input style={{ ...inputStyle, flex: 2 }} value={hint.text} onChange={(e) => { const h = [...hints]; h[i] = { ...h[i], text: e.target.value }; set('hints', h) }} placeholder="Fill text" />
+            <button type="button" onClick={() => set('hints', hints.filter((_, j) => j !== i))} style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('hints', [...hints, { icon: '', label: '', text: '' }])} style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Hint</button>
+      </Field>
+      <p style={{ fontSize: '0.7rem', color: '#94a3b8', fontStyle: 'italic' }}>Default suggestions and intents are configured via YAML</p>
+    </>
+  )
+}
+
+export function SocialProofSectionForm({ data, onChange }: FormProps<SocialProofData>) {
+  const set = (k: keyof SocialProofData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Trusted by 100+ businesses" /></Field>
+      <Field label="Icon (emoji or text)"><input style={inputStyle} value={data.icon || ''} onChange={(e) => set('icon', e.target.value)} placeholder="🚀" /></Field>
+      <Field label="Link URL (optional)"><input style={inputStyle} value={data.link || ''} onChange={(e) => set('link', e.target.value)} placeholder="https://..." /></Field>
+      <Field label="Variant">
+        <select style={inputStyle} value={data.variant || 'inline'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="inline">Inline</option>
+          <option value="banner">Banner</option>
+        </select>
+      </Field>
+    </>
+  )
+}
+
 /** Maps section type to its form component */
 export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>> = {
   nav: NavSectionForm,
@@ -704,5 +844,8 @@ export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>>
   countdown: CountdownSectionForm,
   'contact-form': ContactFormSectionForm,
   banner: BannerSectionForm,
+  comparison: ComparisonSectionForm,
+  'ai-search': AiSearchSectionForm,
+  'social-proof': SocialProofSectionForm,
   layout: LayoutSectionForm,
 }

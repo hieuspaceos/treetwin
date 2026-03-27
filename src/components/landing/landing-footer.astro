@@ -30,26 +30,30 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
   </footer>
 )}
 
-{/* Columns: multi-column with link groups */}
+{/* Columns: multi-column with link groups + brand name */}
 {variant === 'columns' && (
   <footer class="landing-footer py-12 text-sm">
-    <div class="mx-auto max-w-5xl px-6">
-      {columns.length > 0 && (
-        <div style={`display: grid; grid-template-columns: repeat(${Math.min(columns.length, 4)}, 1fr); gap: 2rem; margin-bottom: 2.5rem`}>
-          {columns.map(col => (
-            <div>
-              <p class="mb-3 font-semibold text-xs uppercase tracking-wider" style="color: var(--lp-text)">{col.heading}</p>
-              <ul style="display: flex; flex-direction: column; gap: 0.5rem">
-                {col.links.map(link => (
-                  <li>
-                    <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="lp-footer-grid" style={`--lp-footer-cols: ${columns.length}; margin-bottom: 2.5rem`}>
+        {/* Brand column */}
+        <div>
+          <p class="mb-3 text-xl font-bold" style="color: var(--lp-text)">{pageTitle || ''}</p>
+          <p style="color: var(--lp-text-muted); max-width: 220px; line-height: 1.5">{text ? text.split('©')[0]?.trim() || '' : ''}</p>
         </div>
-      )}
+        {/* Link columns */}
+        {columns.map(col => (
+          <div>
+            <p class="mb-3 font-semibold text-xs uppercase tracking-wider" style="color: var(--lp-text)">{col.heading}</p>
+            <ul style="display: flex; flex-direction: column; gap: 0.5rem">
+              {col.links.map(link => (
+                <li>
+                  <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
       <div style="border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); padding-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem">
         <p style="color: var(--lp-text-muted)">{copyright}</p>
         {links.length > 0 && (

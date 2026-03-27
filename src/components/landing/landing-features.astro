@@ -23,6 +23,14 @@ const gridClass = `landing-grid-${columns}` as const
           {item.icon && <span class="mb-3 block text-2xl">{item.icon}</span>}
           <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
           <p class="text-sm" style="color: var(--lp-text-muted)">{item.description}</p>
+          {item.price && (
+            <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
+              <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
+              {item.priceType && (
+                <span style="font-size: 0.75rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 5%, transparent); padding: 0.25rem 0.625rem; border-radius: 100px">{item.priceType}</span>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>
