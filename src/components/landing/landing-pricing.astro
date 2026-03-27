@@ -6,23 +6,24 @@ const { heading, subheading, plans } = Astro.props
 ---
 
 <section class="landing-section">
-  {heading && <h2 class="mb-2 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center text-slate-500">{subheading}</p>}
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
   <div class="landing-grid-3">
     {plans.map((plan) => (
-      <div class={`glass-card p-6 flex flex-col ${plan.highlighted ? 'landing-pricing-highlight' : ''}`}>
-        <h3 class="text-lg font-semibold text-slate-900">{plan.name}</h3>
+      <div class={`p-6 flex flex-col ${plan.highlighted ? 'landing-pricing-highlight' : ''}`} style="background: var(--lp-surface); border-radius: var(--lp-radius)">
+        <h3 class="text-lg font-semibold">{plan.name}</h3>
         <div class="mt-2 flex items-baseline gap-1">
-          <span class="text-3xl font-bold text-slate-900">{plan.price}</span>
-          {plan.period && <span class="text-sm text-slate-400">{plan.period}</span>}
+          <span class="text-3xl font-bold">{plan.price}</span>
+          {plan.period && <span class="text-sm" style="color: var(--lp-text-muted)">{plan.period}</span>}
         </div>
-        {plan.description && <p class="mt-2 text-sm text-slate-500">{plan.description}</p>}
-        <ul class="mt-4 flex-1 space-y-2 text-sm text-slate-600">
-          {plan.features.map((f) => <li class="flex items-start gap-2"><span class="text-green-500">✓</span>{f}</li>)}
+        {plan.description && <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{plan.description}</p>}
+        <ul class="mt-4 flex-1 space-y-2 text-sm">
+          {plan.features.map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
         </ul>
         <a
           href={plan.cta.url}
-          class={`mt-6 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${plan.highlighted ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+          class={`mt-6 block px-4 py-2.5 text-center text-sm font-semibold transition-colors ${plan.highlighted ? 'landing-btn-primary' : ''}`}
+          style={plan.highlighted ? undefined : `background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)`}
         >
           {plan.cta.text}
         </a>

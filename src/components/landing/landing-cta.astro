@@ -6,13 +6,10 @@ const { headline, subheadline, cta, variant = 'default' } = Astro.props
 const variantClass = variant === 'accent' ? 'landing-cta-accent' : variant === 'dark' ? 'landing-cta-dark' : ''
 ---
 
-<section class={`landing-section glass-panel rounded-2xl text-center ${variantClass}`}>
-  <h2 class="text-3xl font-bold text-slate-900">{headline}</h2>
-  {subheadline && <p class="mx-auto mt-3 max-w-xl text-slate-500">{subheadline}</p>}
-  <a
-    href={cta.url}
-    class="mt-6 inline-block rounded-xl bg-green-600 px-8 py-3 text-white font-semibold hover:bg-green-700 transition-colors"
-  >
+<section class={`landing-section text-center ${variantClass}`}>
+  <h2 class="text-3xl font-bold">{headline}</h2>
+  {subheadline && <p class="mx-auto mt-3 max-w-xl" style="color: var(--lp-text-muted)">{subheadline}</p>}
+  <a href={cta.url} class="landing-btn-primary mt-6">
     {cta.text}
   </a>
 </section>

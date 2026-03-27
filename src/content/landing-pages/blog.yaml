@@ -37,3 +37,17 @@ sections:
     data:
       text: © 2026 blog
       links: []
+design:
+  preset: modern-dark
+  colors:
+    primary: '#10b981'
+    secondary: '#06b6d4'
+    accent: '#f59e0b'
+    background: '#0f172a'
+    surface: '#1e293b'
+    text: '#f1f5f9'
+    textMuted: '#94a3b8'
+  fonts:
+    heading: Lora
+    body: DM Sans
+  borderRadius: 12px

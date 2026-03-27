@@ -8,7 +8,7 @@
 import { getCollection } from 'astro:content'
 import LandingLayout from '@/layouts/landing-layout.astro'
 import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
-import type { LandingSection } from '@/lib/landing/landing-types'
+import type { LandingSection, LandingDesign } from '@/lib/landing/landing-types'
 
 export async function getStaticPaths() {
   const pages = await getCollection('landingPages')
@@ -23,6 +23,7 @@ export async function getStaticPaths() {
 
 const { page, product } = Astro.props
 const sections = page.data.sections as unknown as LandingSection[]
+const design = (page.data as Record<string, unknown>).design as LandingDesign | undefined
 // If nav/footer section exists (even disabled), hide layout's nav/footer
 // User controls visibility via section enabled toggle — layout never overrides
 const hasNav = sections.some(s => s.type === 'nav')
@@ -37,6 +38,7 @@ const hasFooter = sections.some(s => s.type === 'footer')
   ctaHref={!hasNav && product ? `/${product.data.slug}/admin` : undefined}
   hideNav={hasNav}
   hideFooter={hasFooter}
+  design={design}
 >
   <LandingSectionRenderer sections={sections} pageTitle={page.data.title} />
 </LandingLayout>

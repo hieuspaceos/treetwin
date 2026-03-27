@@ -40,9 +40,9 @@ const autoLinks = links && links.length > 0
       }))
 ---
 
-<nav class="landing-nav glass-nav sticky top-0 z-50" aria-label="Landing page navigation">
+<nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
   <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-    <a href="#" class="text-lg font-semibold tracking-tight text-slate-900">
+    <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text)">
       {brandName || pageTitle || 'Home'}
     </a>
     {autoLinks.length > 0 && (
@@ -50,7 +50,8 @@ const autoLinks = links && links.length > 0
         {autoLinks.map(link => (
           <a
             href={link.href}
-            class="rounded-full px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-black/[0.04] hover:text-slate-900"
+            class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors"
+            style="color: var(--lp-text-muted)"
           >
             {link.label}
           </a>

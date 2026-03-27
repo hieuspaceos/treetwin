@@ -10,6 +10,8 @@ import { siteConfig } from '@/config/site-config'
 import BaseHead from '@/components/base-head.astro'
 import Analytics from '@vercel/analytics/astro'
 import SpeedInsights from '@vercel/speed-insights/astro'
+import { designToCssVars, designFontsUrl } from '@/lib/landing/landing-design-presets'
+import type { LandingDesign } from '@/lib/landing/landing-types'
 import '@/styles/globals.css'
 
 interface Props {
@@ -26,6 +28,8 @@ interface Props {
   hideNav?: boolean
   /** Hide layout footer when page has its own footer section */
   hideFooter?: boolean
+  /** Per-page design settings (colors, fonts, radius) */
+  design?: LandingDesign
 }
 
 const {
@@ -37,14 +41,18 @@ const {
   ctaHref,
   hideNav = false,
   hideFooter = false,
+  design,
 } = Astro.props
 
 const themeId = getActiveThemeId()
 const theme = getTheme(themeId)
 const themeVars = themeToStyleVars(theme)
-const styleString = Object.entries(themeVars)
+const themeStyleString = Object.entries(themeVars)
   .map(([k, v]) => `${k}:${v}`)
   .join(';')
+const designStyleString = designToCssVars(design)
+const fontsUrl = designFontsUrl(design)
+const styleString = `${themeStyleString};${designStyleString}`
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
 ---
 
@@ -52,11 +60,14 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
 <html lang={Astro.currentLocale || 'en'}>
   <head>
     <BaseHead title={title} description={description} canonicalUrl={canonicalUrl}>
+      {fontsUrl && <link rel="preconnect" href="https://fonts.googleapis.com" />}
+      {fontsUrl && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
+      {fontsUrl && <link rel="stylesheet" href={fontsUrl} />}
       <slot name="head" />
     </BaseHead>
   </head>
   <body>
-    <div style={`${styleString};font-family:${theme.fontFamily}`}>
+    <div class="landing-page-root" style={`${styleString};font-family:var(--lp-font-body, ${theme.fontFamily});background:var(--lp-bg);color:var(--lp-text)`}>
       {/* Layout nav — hidden when page has its own nav section */}
       {!hideNav && (
         <nav class="glass-nav sticky top-0 z-50" aria-label="Main navigation">

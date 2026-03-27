@@ -6,20 +6,17 @@ const { headline, subheadline, cta, backgroundImage, embed } = Astro.props
 ---
 
 <section
-  class="landing-section glass-panel rounded-2xl text-center"
+  class="landing-section text-center"
   style={backgroundImage ? `background-image: url(${backgroundImage}); background-size: cover; background-position: center;` : undefined}
 >
-  <h1 class="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+  <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
     {headline}
   </h1>
   {subheadline && (
-    <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-500">{subheadline}</p>
+    <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
   )}
   {cta && (
-    <a
-      href={cta.url}
-      class="mt-8 inline-block rounded-xl bg-green-600 px-8 py-3 text-white font-semibold hover:bg-green-700 transition-colors"
-    >
+    <a href={cta.url} class="landing-btn-primary mt-8">
       {cta.text}
     </a>
   )}

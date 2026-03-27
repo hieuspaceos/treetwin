@@ -190,6 +190,25 @@ export interface LayoutData {
   children: LayoutChild[]
 }
 
+/** Per-page design settings — colors, fonts, border radius */
+export interface LandingDesign {
+  preset?: string
+  colors?: {
+    primary?: string
+    secondary?: string
+    accent?: string
+    background?: string
+    surface?: string
+    text?: string
+    textMuted?: string
+  }
+  fonts?: {
+    heading?: string
+    body?: string
+  }
+  borderRadius?: string
+}
+
 /** All possible section type identifiers */
 export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout'
 
@@ -208,5 +227,6 @@ export interface LandingPageConfig {
   title: string
   description?: string
   template?: string
+  design?: LandingDesign
   sections: LandingSection[]
 }

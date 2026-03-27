@@ -3,11 +3,14 @@
  * Renders sections from React state directly — no server round-trip needed.
  * Mirrors the Astro section components but as simple React divs.
  */
-import type { LandingSection, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, LayoutData } from '@/lib/landing/landing-types'
+import { useEffect } from 'react'
+import type { LandingSection, LandingDesign, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, LayoutData } from '@/lib/landing/landing-types'
+import { designToCssVars, designFontsUrl } from '@/lib/landing/landing-design-presets'
 
 interface Props {
   sections: LandingSection[]
   pageTitle?: string
+  design?: LandingDesign
 }
 
 /** Section type to readable label for nav auto-links */
@@ -25,9 +28,9 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
 
   return (
     <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #e2e8f0', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <strong style={{ fontSize: '1rem', color: '#1e293b' }}>{data.brandName || pageTitle || 'Home'}</strong>
+      <strong style={{ fontSize: '1rem', color: 'var(--lp-text, #1e293b)' }}>{data.brandName || pageTitle || 'Home'}</strong>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
-        {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: '#64748b' }}>{l.label}</span>)}
+        {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{l.label}</span>)}
       </div>
     </div>
   )
@@ -36,9 +39,9 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
 function PreviewHero({ data }: { data: HeroData }) {
   return (
     <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'rgba(255,255,255,0.5)', borderRadius: '16px' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>{data.headline}</h1>
-      {data.subheadline && <p style={{ color: '#64748b', fontSize: '1rem', marginBottom: '1.5rem' }}>{data.subheadline}</p>}
-      {data.cta && <span style={{ display: 'inline-block', background: '#16a34a', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600 }}>{data.cta.text}</span>}
+      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h1>
+      {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', fontSize: '1rem', marginBottom: '1.5rem' }}>{data.subheadline}</p>}
+      {data.cta && <span style={{ display: 'inline-block', background: 'var(--lp-primary, #16a34a)', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600 }}>{data.cta.text}</span>}
     </div>
   )
 }
@@ -46,13 +49,13 @@ function PreviewHero({ data }: { data: HeroData }) {
 function PreviewFeatures({ data }: { data: FeaturesData }) {
   return (
     <div style={{ padding: '2rem 1rem' }}>
-      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.columns || 3}, 1fr)`, gap: '1rem' }}>
         {data.items?.map((item, i) => (
           <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: '1rem' }}>
             {item.icon && <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>}
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b', margin: '0.5rem 0 0.25rem' }}>{item.title}</h3>
-            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.description}</p>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)', margin: '0.5rem 0 0.25rem' }}>{item.title}</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{item.description}</p>
           </div>
         ))}
       </div>
@@ -63,13 +66,13 @@ function PreviewFeatures({ data }: { data: FeaturesData }) {
 function PreviewPricing({ data }: { data: PricingData }) {
   return (
     <div style={{ padding: '2rem 1rem' }}>
-      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         {data.plans?.map((plan, i) => (
           <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: '1.5rem', minWidth: '180px', border: plan.highlighted ? '2px solid #16a34a' : '1px solid #e2e8f0' }}>
-            <h3 style={{ fontWeight: 600, color: '#1e293b' }}>{plan.name}</h3>
-            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>{plan.price}<span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{plan.period}</span></p>
-            <ul style={{ fontSize: '0.8rem', color: '#64748b', listStyle: 'none', padding: 0 }}>
+            <h3 style={{ fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{plan.name}</h3>
+            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)' }}>{plan.price}<span style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #94a3b8)' }}>{plan.period}</span></p>
+            <ul style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)', listStyle: 'none', padding: 0 }}>
               {plan.features?.map((f, j) => <li key={j} style={{ padding: '0.15rem 0' }}>✓ {f}</li>)}
             </ul>
           </div>
@@ -96,12 +99,12 @@ function PreviewText({ heading, items }: { heading?: string; items?: Array<Recor
   }
   return (
     <div style={{ padding: '2rem 1rem' }}>
-      {heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>{heading}</h2>}
+      {heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{heading}</h2>}
       {items?.map((item, i) => (
         <div key={i} style={{ background: 'rgba(255,255,255,0.4)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.5rem' }}>
-          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{itemText(item) || itemName(item)}</p>
-          {itemSub(item) && <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{itemSub(item)}</p>}
-          {itemName(item) && itemText(item) && <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>— {itemName(item)}</p>}
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{itemText(item) || itemName(item)}</p>
+          {itemSub(item) && <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{itemSub(item)}</p>}
+          {itemName(item) && itemText(item) && <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)' }}>— {itemName(item)}</p>}
         </div>
       ))}
     </div>
@@ -111,9 +114,9 @@ function PreviewText({ heading, items }: { heading?: string; items?: Array<Recor
 function PreviewCta({ data }: { data: CtaData }) {
   return (
     <div style={{ textAlign: 'center', padding: '2.5rem 2rem', background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.1))', borderRadius: '14px' }}>
-      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>{data.headline}</h2>
-      {data.subheadline && <p style={{ color: '#64748b', marginBottom: '1rem' }}>{data.subheadline}</p>}
-      {data.cta && <span style={{ display: 'inline-block', background: '#16a34a', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600 }}>{data.cta.text}</span>}
+      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h2>
+      {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', marginBottom: '1rem' }}>{data.subheadline}</p>}
+      {data.cta && <span style={{ display: 'inline-block', background: 'var(--lp-primary, #16a34a)', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600 }}>{data.cta.text}</span>}
     </div>
   )
 }
@@ -123,8 +126,8 @@ function PreviewStats({ data }: { data: StatsData }) {
     <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', padding: '2rem', flexWrap: 'wrap' }}>
       {data.items?.map((s, i) => (
         <div key={i} style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#16a34a' }}>{s.prefix}{s.value}{s.suffix}</div>
-          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{s.label}</div>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--lp-accent, #16a34a)' }}>{s.prefix}{s.value}{s.suffix}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{s.label}</div>
         </div>
       ))}
     </div>
@@ -133,7 +136,7 @@ function PreviewStats({ data }: { data: StatsData }) {
 
 function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: string }) {
   return (
-    <div style={{ textAlign: 'center', padding: '1.5rem', borderTop: '1px solid #e2e8f0', color: '#94a3b8', fontSize: '0.8rem' }}>
+    <div style={{ textAlign: 'center', padding: '1.5rem', borderTop: '1px solid #e2e8f0', color: 'var(--lp-text-muted, #94a3b8)', fontSize: '0.8rem' }}>
       {data.text || `© ${new Date().getFullYear()} ${pageTitle || ''}`}
     </div>
   )
@@ -144,7 +147,7 @@ function PreviewVideo({ data }: { data: VideoData }) {
     <div style={{ padding: '1rem', background: 'rgba(0,0,0,0.05)', borderRadius: '10px', textAlign: 'center' }}>
       <div style={{ fontSize: '2rem' }}>▶</div>
       <p style={{ fontSize: '0.8rem', color: '#475569', wordBreak: 'break-all' }}>{data.url}</p>
-      {data.caption && <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{data.caption}</p>}
+      {data.caption && <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)' }}>{data.caption}</p>}
     </div>
   )
 }
@@ -152,10 +155,10 @@ function PreviewVideo({ data }: { data: VideoData }) {
 function PreviewImage({ data }: { data: ImageData }) {
   return (
     <div style={{ padding: '0.5rem', textAlign: 'center' }}>
-      <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '2rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+      <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '2rem', fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)' }}>
         [Image] {data.alt || data.src}
       </div>
-      {data.caption && <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>{data.caption}</p>}
+      {data.caption && <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)', marginTop: '4px' }}>{data.caption}</p>}
     </div>
   )
 }
@@ -163,11 +166,11 @@ function PreviewImage({ data }: { data: ImageData }) {
 function PreviewImageText({ data }: { data: ImageTextData }) {
   return (
     <div style={{ display: 'flex', gap: '1rem', padding: '1rem', flexDirection: data.imagePosition === 'right' ? 'row-reverse' : 'row' }}>
-      <div style={{ flex: 1, background: '#e2e8f0', borderRadius: '8px', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>Image</div>
+      <div style={{ flex: 1, background: '#e2e8f0', borderRadius: '8px', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: 'var(--lp-text-muted, #94a3b8)' }}>Image</div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.5rem' }}>
-        {data.heading && <p style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>{data.heading}</p>}
-        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{data.text}</p>
-        {data.cta && <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>{data.cta.text} →</span>}
+        {data.heading && <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--lp-text, #1e293b)' }}>{data.heading}</p>}
+        <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{data.text}</p>
+        {data.cta && <span style={{ fontSize: '0.75rem', color: 'var(--lp-accent, #16a34a)', fontWeight: 600 }}>{data.cta.text} →</span>}
       </div>
     </div>
   )
@@ -176,10 +179,10 @@ function PreviewImageText({ data }: { data: ImageTextData }) {
 function PreviewGallery({ data }: { data: GalleryData }) {
   return (
     <div style={{ padding: '1rem' }}>
-      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</h2>}
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.75rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
         {(data.images || []).map((_, i) => (
-          <div key={i} style={{ background: '#e2e8f0', borderRadius: '6px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: '#94a3b8' }}>img</div>
+          <div key={i} style={{ background: '#e2e8f0', borderRadius: '6px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: 'var(--lp-text-muted, #94a3b8)' }}>img</div>
         ))}
         {(data.images || []).length === 0 && [0,1,2].map(i => (
           <div key={i} style={{ background: '#e2e8f0', borderRadius: '6px', aspectRatio: '1' }} />
@@ -193,7 +196,7 @@ function PreviewMap({ data }: { data: MapData }) {
   return (
     <div style={{ padding: '1rem', background: '#e2e8f0', borderRadius: '10px', textAlign: 'center', minHeight: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <span style={{ fontSize: '1.5rem' }}>📍</span>
-      <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>{data.address || data.embedUrl || 'Map'}</p>
+      <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)', marginTop: '4px' }}>{data.address || data.embedUrl || 'Map'}</p>
     </div>
   )
 }
@@ -218,16 +221,16 @@ function PreviewDivider({ data }: { data: DividerData }) {
 function PreviewCountdown({ data }: { data: CountdownData }) {
   return (
     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-      {data.heading && <p style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</p>}
+      {data.heading && <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--lp-text, #1e293b)', marginBottom: '0.75rem' }}>{data.heading}</p>}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
         {['DD','HH','MM','SS'].map((u) => (
           <div key={u} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#16a34a' }}>{u}</div>
-            <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>{u === 'DD' ? 'Days' : u === 'HH' ? 'Hours' : u === 'MM' ? 'Mins' : 'Secs'}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--lp-accent, #16a34a)' }}>{u}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--lp-text-muted, #94a3b8)' }}>{u === 'DD' ? 'Days' : u === 'HH' ? 'Hours' : u === 'MM' ? 'Mins' : 'Secs'}</div>
           </div>
         ))}
       </div>
-      {data.targetDate && <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.5rem' }}>{data.targetDate}</p>}
+      {data.targetDate && <p style={{ fontSize: '0.7rem', color: 'var(--lp-text-muted, #94a3b8)', marginTop: '0.5rem' }}>{data.targetDate}</p>}
     </div>
   )
 }
@@ -236,13 +239,13 @@ function PreviewContactForm({ data }: { data: ContactFormData }) {
   const fields = data.fields || []
   return (
     <div style={{ padding: '1rem' }}>
-      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</h2>}
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.75rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '300px', margin: '0 auto' }}>
         {fields.map((f, i) => (
-          <div key={i} style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>{f.label} ({f.type})</div>
+          <div key={i} style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--lp-text-muted, #64748b)' }}>{f.label} ({f.type})</div>
         ))}
-        {fields.length === 0 && <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>No fields configured</div>}
-        <div style={{ background: '#16a34a', borderRadius: '6px', padding: '0.4rem 1rem', fontSize: '0.75rem', color: 'white', textAlign: 'center', alignSelf: 'flex-start' }}>{data.submitText || 'Send Message'}</div>
+        {fields.length === 0 && <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)' }}>No fields configured</div>}
+        <div style={{ background: 'var(--lp-primary, #16a34a)', borderRadius: '6px', padding: '0.4rem 1rem', fontSize: '0.75rem', color: 'white', textAlign: 'center', alignSelf: 'flex-start' }}>{data.submitText || 'Send Message'}</div>
       </div>
     </div>
   )
@@ -277,7 +280,7 @@ function PreviewLayout({ data }: { data: LayoutData }) {
         return (
           <div key={colIdx} style={{ minHeight: '60px', background: 'rgba(241,245,249,0.5)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
             {sections.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.65rem', padding: '0.5rem' }}>Column {colIdx + 1} (empty)</div>
+              <div style={{ textAlign: 'center', color: 'var(--lp-text-muted, #94a3b8)', fontSize: '0.65rem', padding: '0.5rem' }}>Column {colIdx + 1} (empty)</div>
             )}
             {sections.map((s, i) => (
               <div key={i} style={{ borderRadius: '6px', overflow: 'hidden', fontSize: '0.85em' }}>
@@ -315,18 +318,49 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'contact-form': return <PreviewContactForm data={d as unknown as ContactFormData} />
     case 'banner': return <PreviewBanner data={d as unknown as BannerData} />
     case 'layout': return <PreviewLayout data={d as unknown as LayoutData} />
-    default: return <div style={{ padding: '1rem', color: '#94a3b8', textAlign: 'center' }}>[{section.type}]</div>
+    default: return <div style={{ padding: '1rem', color: 'var(--lp-text-muted, #94a3b8)', textAlign: 'center' }}>[{section.type}]</div>
   }
 }
 
-export function LandingLivePreview({ sections, pageTitle }: Props) {
+export function LandingLivePreview({ sections, pageTitle, design }: Props) {
   const enabled = sections.filter(s => s.enabled !== false)
   const navSection = enabled.find(s => s.type === 'nav')
   const footerSection = enabled.find(s => s.type === 'footer')
   const body = enabled.filter(s => s.type !== 'nav' && s.type !== 'footer').sort((a, b) => a.order - b.order)
 
+  // Parse design CSS vars into a React style object
+  const designVarsStr = designToCssVars(design)
+  const designStyle: Record<string, string> = {}
+  designVarsStr.split(';').forEach(pair => {
+    const [k, ...v] = pair.split(':')
+    if (k && v.length) designStyle[k] = v.join(':')
+  })
+
+  // Load Google Fonts dynamically when design fonts change
+  const fontsUrl = designFontsUrl(design)
+  useEffect(() => {
+    if (!fontsUrl) return
+    const id = 'lp-preview-fonts'
+    let link = document.getElementById(id) as HTMLLinkElement | null
+    if (!link) {
+      link = document.createElement('link')
+      link.id = id
+      link.rel = 'stylesheet'
+      document.head.appendChild(link)
+    }
+    link.href = fontsUrl
+  }, [fontsUrl])
+
   return (
-    <div style={{ background: '#f8fafc', borderRadius: '8px', overflow: 'hidden', height: '100%', overflowY: 'auto', fontSize: '0.85em' }}>
+    <div className="landing-page-root" style={{
+      ...designStyle,
+      background: 'var(--lp-bg, #f8fafc)',
+      color: 'var(--lp-text, #0f172a)',
+      fontFamily: 'var(--lp-font-body, system-ui), system-ui, sans-serif',
+      borderRadius: '8px', overflow: 'hidden', height: '100%', overflowY: 'auto', fontSize: '0.85em',
+    }}>
+      {/* Inject heading font rule so all h1/h2/h3 in preview use --lp-font-heading */}
+      <style>{`.landing-page-root h1,.landing-page-root h2,.landing-page-root h3{font-family:var(--lp-font-heading,system-ui),system-ui,sans-serif}`}</style>
       {navSection && <PreviewNav data={navSection.data as NavData} sections={enabled} pageTitle={pageTitle} />}
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {body.map((section, i) => (

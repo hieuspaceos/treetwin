@@ -12,15 +12,15 @@ const { text, links = [], pageTitle } = Astro.props
 const year = new Date().getFullYear()
 ---
 
-<footer class="landing-section border-t border-slate-200/50 py-8 text-center text-sm text-slate-400">
+<footer class="landing-footer py-8 text-center text-sm">
   {links.length > 0 && (
     <div class="mb-4 flex justify-center gap-4">
       {links.map(link => (
-        <a href={link.href} class="text-slate-500 hover:text-slate-700 transition-colors">
+        <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">
           {link.label}
         </a>
       ))}
     </div>
   )}
-  <p>{text || `© ${year} ${pageTitle || ''}`}</p>
+  <p style="color: var(--lp-text-muted)">{text || `© ${year} ${pageTitle || ''}`}</p>
 </footer>

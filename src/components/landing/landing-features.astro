@@ -7,14 +7,14 @@ const gridClass = `landing-grid-${columns}` as const
 ---
 
 <section class="landing-section">
-  {heading && <h2 class="mb-2 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center text-slate-500">{subheading}</p>}
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
   <div class={gridClass}>
     {items.map((item) => (
-      <div class="glass-card p-6">
+      <div class="p-6" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius)">
         {item.icon && <span class="mb-3 block text-2xl">{item.icon}</span>}
-        <h3 class="mb-2 text-lg font-semibold text-slate-900">{item.title}</h3>
-        <p class="text-sm text-slate-500">{item.description}</p>
+        <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
+        <p class="text-sm" style="color: var(--lp-text-muted)">{item.description}</p>
       </div>
     ))}
   </div>
