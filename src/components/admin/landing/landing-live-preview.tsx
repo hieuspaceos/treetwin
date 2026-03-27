@@ -550,7 +550,6 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
         {/* Brand column on left */}
         <div style={{ flex: '0 0 auto', minWidth: '100px' }}>
           <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.4rem' }}>{pageTitle || 'Brand'}</p>
-          {data.text && <p style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted)', maxWidth: '160px' }}>{data.text}</p>}
         </div>
         {/* Link columns on right */}
         {data.columns && data.columns.length > 0 && (
