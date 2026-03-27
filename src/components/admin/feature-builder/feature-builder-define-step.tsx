@@ -7,6 +7,8 @@ import type { FeatureDescription } from '@/lib/admin/feature-builder-ai'
 
 interface Props {
   onNext: (description: FeatureDescription) => void
+  /** Report partial form state for live preview */
+  onChange?: (partial: Partial<FeatureDescription>) => void
 }
 
 const fieldStyle = {
@@ -35,7 +37,7 @@ function toKebabCase(str: string): string {
     .replace(/-+/g, '-')
 }
 
-export function FeatureBuilderDefineStep({ onNext }: Props) {
+export function FeatureBuilderDefineStep({ onNext, onChange }: Props) {
   const [label, setLabel] = useState('')
   const [name, setName] = useState('')
   const [purpose, setPurpose] = useState('')
@@ -44,9 +46,16 @@ export function FeatureBuilderDefineStep({ onNext }: Props) {
   const [section, setSection] = useState<FeatureDescription['section']>('content')
   const [error, setError] = useState('')
 
+  /** Emit current form state to parent for live preview */
+  function emit(overrides: Partial<FeatureDescription> = {}) {
+    onChange?.({ name: overrides.name ?? name, label: overrides.label ?? label, purpose, dataDescription, uiNeeds, section, ...overrides })
+  }
+
   function handleLabelChange(val: string) {
     setLabel(val)
-    setName(toKebabCase(val))
+    const n = toKebabCase(val)
+    setName(n)
+    emit({ label: val, name: n })
   }
 
   function handleSubmit() {
@@ -86,7 +95,7 @@ export function FeatureBuilderDefineStep({ onNext }: Props) {
           style={{ ...fieldStyle, minHeight: '80px', resize: 'vertical' }}
           placeholder="What does this feature do? Who uses it and why?"
           value={purpose}
-          onChange={e => setPurpose(e.target.value)}
+          onChange={e => { setPurpose(e.target.value); emit({ purpose: e.target.value }) }}
         />
       </div>
 
@@ -96,14 +105,14 @@ export function FeatureBuilderDefineStep({ onNext }: Props) {
           style={{ ...fieldStyle, minHeight: '80px', resize: 'vertical' }}
           placeholder="What data does it store? e.g. review text, rating (1-5), author, product reference"
           value={dataDescription}
-          onChange={e => setDataDescription(e.target.value)}
+          onChange={e => { setDataDescription(e.target.value); emit({ dataDescription: e.target.value }) }}
         />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <label style={labelStyle}>UI Type</label>
-          <select style={fieldStyle} value={uiNeeds} onChange={e => setUiNeeds(e.target.value as FeatureDescription['uiNeeds'])}>
+          <select style={fieldStyle} value={uiNeeds} onChange={e => { const v = e.target.value as FeatureDescription['uiNeeds']; setUiNeeds(v); emit({ uiNeeds: v }) }}>
             <option value="list-detail">List + Detail</option>
             <option value="form">Form only</option>
             <option value="dashboard">Dashboard</option>
@@ -112,7 +121,7 @@ export function FeatureBuilderDefineStep({ onNext }: Props) {
         </div>
         <div>
           <label style={labelStyle}>Section</label>
-          <select style={fieldStyle} value={section} onChange={e => setSection(e.target.value as FeatureDescription['section'])}>
+          <select style={fieldStyle} value={section} onChange={e => { const v = e.target.value as FeatureDescription['section']; setSection(v); emit({ section: v }) }}>
             <option value="content">Content</option>
             <option value="assets">Assets</option>
             <option value="marketing">Marketing</option>
