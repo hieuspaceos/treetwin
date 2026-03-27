@@ -35,11 +35,6 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
   <footer class="landing-footer py-12 text-sm">
     <div class="mx-auto max-w-6xl px-6">
       <div class="lp-footer-grid" style={`--lp-footer-cols: ${columns.length}; margin-bottom: 2.5rem`}>
-        {/* Brand column */}
-        <div>
-          <p class="mb-3 text-xl font-bold" style="color: var(--lp-text)">{pageTitle || ''}</p>
-          <p style="color: var(--lp-text-muted); max-width: 220px; line-height: 1.5">{text ? text.split('©')[0]?.trim() || '' : ''}</p>
-        </div>
         {/* Link columns */}
         {columns.map(col => (
           <div>

@@ -547,11 +547,7 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
   if (v === 'columns') return (
     <div style={{ borderTop: '1px solid var(--lp-text-muted, #94a3b8)', padding: '1.5rem', fontSize: '0.75rem' }}>
       <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        {/* Brand column on left */}
-        <div style={{ flex: '0 0 auto', minWidth: '100px' }}>
-          <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.4rem' }}>{pageTitle || 'Brand'}</p>
-        </div>
-        {/* Link columns on right */}
+        {/* Link columns */}
         {data.columns && data.columns.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.columns.length}, 1fr)`, gap: '0.75rem', flex: 1, minWidth: 0 }}>
             {data.columns.map((col, i) => (

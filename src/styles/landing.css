@@ -117,8 +117,7 @@ html:has(.landing-nav) {
 }
 @media (min-width: 768px) {
   .lp-footer-grid {
-    /* First child (brand) spans wider, rest share remaining space equally */
-    grid-template-columns: 2fr repeat(var(--lp-footer-cols, 5), 1fr);
+    grid-template-columns: repeat(var(--lp-footer-cols, 5), 1fr);
   }
 }
 
