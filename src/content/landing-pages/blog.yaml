@@ -232,20 +232,46 @@ sections:
             - label: Terms
               href: /terms
       variant: columns
+  - type: comparison
+    order: 9
+    enabled: true
+    data:
+      heading: Comparison
+      columns:
+        - label: Us
+        - label: Others
+      rows:
+        - label: Price
+          values:
+            - Free
+            - Paid
+          highlight: false
+        - label: gfdg
+          values:
+            - gdf
+            - gdfgdf
+          highlight: false
+      subheading: gfgdfg
+  - type: countdown
+    order: 11
+    enabled: true
+    data:
+      targetDate: 2026-03-28T02:22
+      heading: Offer ends in
 design:
-  preset: modern-dark
+  preset: warm-sunset
   colors:
-    primary: '#10b981'
-    secondary: '#06b6d4'
-    accent: '#f59e0b'
-    background: '#0f172a'
-    surface: '#1e293b'
-    text: '#f1f5f9'
-    textMuted: '#94a3b8'
+    primary: '#ea580c'
+    secondary: '#dc2626'
+    accent: '#16a34a'
+    background: '#fffbeb'
+    surface: '#fef3c7'
+    text: '#451a03'
+    textMuted: '#92400e'
   fonts:
-    heading: Plus Jakarta Sans
-    body: Inter
-  borderRadius: 12px
+    heading: Outfit
+    body: Nunito
+  borderRadius: 14px
 description: >-
   Production-ready AI subagents, workflows, and integrations for software development and growth marketing. Built on
   Claude Code.
