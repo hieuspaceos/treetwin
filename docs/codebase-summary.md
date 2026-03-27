@@ -1,6 +1,6 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v2.4.1 — Recent Enhancements (SEO/Accessibility, Landing Builder v2 Phase 2)
+**Status:** v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
 **Last Updated:** 2026-03-27
 **Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
 **Deployment:** Vercel
@@ -37,9 +37,11 @@ Tree Identity is a personal content engine with optional landing page builder �
 - **Custom admin dashboard** — Full-featured React UI at `/admin`, not Keystatic
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
 - **Island architecture** — Astro by default, React only for interactive components
-- **Landing page system** — YAML-driven modular sections, 23 component types, D&D editor
+- **Landing page system** — YAML-driven modular sections, 11 section types (36 layout variants), D&D editor, design system (6 presets + custom colors/fonts)
+- **AI landing cloner** — Paste URL, AI extracts sections + design, auto-generates landing config
+- **Feature builder** — AI-assisted feature generation with hybrid code generation engine (Gemini + templates)
 - **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
-- **Self-hosted assets** — Fonts in `public/fonts/`, no external CDN dependencies
+- **Self-hosted assets** — Fonts in `public/fonts/`, Google Fonts auto-load, no external CDN dependencies
 - **Shared head component** — `base-head.astro` for OG/Twitter/accessibility metadata
 
 ## Directory Structure
@@ -553,69 +555,69 @@ See `.env.example` for full details.
 
 ## Recent Changes (2026-03-27)
 
-### Feature Builder Phase 1 (New)
-- **Wizard UI:** `/admin/feature-builder` (Define + AI Clarify steps)
-- **Files:** `feature-builder-ai.ts`, `feature-builder-wizard.tsx`, `feature-builder-define-step.tsx`, `feature-builder-clarify-step.tsx`
-- **API:** `POST /api/admin/feature-builder/clarify` — Gemini Flash clarification
-- **Registration:** Feature module (system section, requires `GEMINI_API_KEY`)
+### v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
 
-### Product-Scoped GoClaw API (New)
-- **15 new endpoints:** `/api/goclaw/[product]/*` (landing, content, setup, voices, templates)
-- **Auth:** Existing `GOCLAW_API_KEY` + product slug validation
-- **Content filtering:** Filtered by `product.coreCollections`
-- **Feature gating:** Respects `product.features` enabled status
-- **Auth module:** `src/lib/goclaw/product-scope.ts` (product validation + filtering)
-- **Backward compat:** Global `/api/goclaw/*` endpoints unchanged
+#### Landing Design System (New)
+- **6 design presets:** clean-light, modern-dark, gradient-bold, startup-fresh, corporate-trust, warm-sunset
+- **Per-page customization:** Colors (primary, secondary, accent), fonts (headings, body), border-radius
+- **CSS variables:** `--lp-*` tokens for all landing section components
+- **Google Fonts integration:** Auto-load via link tags (no external CDN)
+- **Design panel UI:** `/admin/landing/[slug]/design` with preset picker + custom editor
+- **Live preview:** Real-time design updates without save cycle
 
-### Public Entity Rendering (New)
-- **Configuration:** Entity definitions with `public` config: `enabled`, `path`, `listTitle`, `listFields`
-- **Routes:** `/e/{path}/` (list) and `/e/{path}/{slug}` (detail)
-- **Components:** `entity-list-view.astro`, `entity-detail-view.astro`
-- **SEO:** Dynamic OG/Twitter meta via `BaseHead`
-- **Example:** Customer entity at `/e/customers/`
+#### Section Layout Variants (36 Total - New)
+- **Hero:** 4 variants (centered, split, video-bg, minimal)
+- **CTA:** 5 variants (default, split, banner, minimal, with-image)
+- **Features:** 3 variants (grid, list, alternating)
+- **Pricing:** 3 variants (cards, simple, highlight-center)
+- **Testimonials:** 3 variants (cards, single, minimal)
+- **FAQ:** 3 variants (accordion, two-column, simple)
+- **Stats:** 3 variants (row, cards, large)
+- **How It Works:** 3 variants (numbered, timeline, cards)
+- **Team:** 3 variants (grid, list, compact)
+- **Nav:** 3 variants (default, centered, transparent)
+- **Footer:** 3 variants (simple, columns, minimal)
+- **Tabbed section picker:** Admin UI filters sections by category (All/Structure/Content/Conversion/Media)
 
-### Accessibility & SEO Enhancements
-- **Shared head component:** `base-head.astro` centralizes OG/Twitter meta, aria-labels, form labels, unique section IDs
-- **Self-hosted Inter font:** Removed Google Fonts CDN dependency, fonts now in `public/fonts/`
-- **Iframe titles:** All iframes require titles for accessibility
-- **Form labels:** All form inputs require proper labels
-- **Section IDs:** Unique IDs on all major sections for anchor linking
+#### AI Landing Clone (New)
+- **Feature:** `POST /api/admin/landing/clone` — Paste URL → AI extracts sections + design → generates landing config
+- **Model:** Gemini 2.5 Flash (upgraded from 2.0-flash)
+- **UX:** Modal in landing editor with URL input + clone button
+- **Output:** YAML landing config with extracted sections + design system values
 
-### Product Admin Improvements
-- **Product settings:** Separate settings page (not combined with core site settings)
-- **No product dashboard:** Redirects to product settings page instead
-- **Back-to-site links:** Product admin navbar links back to product landing page
-- **Auto landing page:** Products auto-create landing page on creation
-- **Self-editing:** Products can edit their own landing page without enabling landing module
+#### Feature Builder Phase 3 (Enhanced)
+- **Hybrid code generation:** AI + template combination for faster scaffolding
+- **Categorized output:** Code organized by data models, API routes, React components, tests
+- **Generation guides:** In-app help text for each artifact type
+- **AI Fill:** Auto-populate field descriptions using Gemini
+- **Code review step:** Edit generated code before applying
 
-### Features Hub
-- **Marketplace-style page:** New features discovery page at `/admin/features`
-- **Search & filters:** Search by name, filter by category/status
-- **Live status:** Shows enabled/disabled per feature
+#### Gemini 2.5-flash Update
+- **Upgrade:** All AI calls from `gemini-2.0-flash` → `gemini-2.5-flash`
+- **Reason:** 2.0-flash deprecated, 2.5-flash faster + better context handling
+- **Files updated:** feature-builder-ai.ts, ai-setup-generator.ts, voice-analyze, landing-clone
+- **Breaking:** Projects using custom Gemini API keys must update to 2.5-flash
 
-### Sidebar Redesign
-- **Core admin simplified:** Dashboard + Features (expand/collapse) + Products + Settings
-- **Feature submenu:** Expandable/collapsible Features menu in sidebar
-- **Back-to-site:** Quick link to product landing page in product admin
+#### Admin UX Polish
+- **Dashboard redirect:** `/admin` → `/features` (removed dashboard landing page)
+- **Split preview default:** Feature builder live preview panel enabled by default
+- **Thin scrollbars:** CSS improvements for admin UI scrolling
+- **Import consolidation:** All admin pages use same Gemini model constants
 
-### Entity System Fixes
-- **Route ordering:** Fixed via wouter Switch route ordering
-- **Field schema editor:** Inline add/remove/reorder fields, batch save
-- **Delete entity type API:** New endpoint + UI for entity type deletion
-- **Update definition API:** New endpoint for entity definition updates
+### Previous Versions (v2.5.0 and earlier)
 
-### Landing Builder v2 Phase 2
-- **Layout/grid section:** Column presets (50/50, 33/67, etc.) with quick-add buttons
-- **Nested sections:** Sections within layout columns
-- **Empty state:** Layout columns show "Add section" when empty
-- **Dropdown quick-add:** Sections can be moved into layout columns via dropdown
-
-### UI Polish
-- **Breadcrumb fix:** Hidden on single-segment pages
-- **Topbar fix:** Role badge only shown when username != role
-- **Records removed:** Replaced entirely by Entities system
+See git log for full history. Key components:
+- Feature Builder Phase 1-2: Wizard UI, AI clarification, skill spec generation
+- Product-Scoped GoClaw API: 15 endpoints with product filtering + feature gating
+- Public Entity Rendering: Static pages at `/e/{path}/`
+- Feature Module System: 10+ toggleable features via registry
+- Landing Builder v1-v2: YAML-driven sections, D&D editor, 23 section types, templates
+- Custom Admin Dashboard: React-based UI with media browser, CodeMirror 6 editor, voice analysis
+- Voice Management: Profile system with effectiveness scoring + AI analysis
+- i18n System: Multi-language translations with sub-sections
+- Accessibility & SEO: Shared head component, self-hosted fonts, JSON-LD schemas
 
 ---
 
 **Last updated:** 2026-03-27
-**Version:** v2.5.0
+**Version:** v2.6.0

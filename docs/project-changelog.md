@@ -4,6 +4,66 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3 (2026-03-27)
+
+**Status:** Complete
+
+Landing page builder enhancements: per-page design system with presets, CSS variables, section layout variants across 11 types (36 variants total), AI landing page cloner from URL, and Feature Builder Phase 3 hybrid code generation engine.
+
+#### Landing Page Design System (New)
+- **6 design presets:** clean-light, modern-dark, gradient-bold, startup-fresh, corporate-trust, warm-sunset
+- **Per-page customization:** Colors (primary, secondary, accent), fonts (headings, body), border-radius
+- **Google Fonts integration:** Auto-loaded via link tags, no external CDN
+- **CSS variables:** `--lp-*` tokens for colors, fonts, spacing in landing sections
+- **Design panel UI:** `/admin/landing/[slug]/design` with preset picker + custom editor
+- **Live preview integration:** Real-time design updates without save
+
+#### Section Layout Variants (36 Total - New)
+All 11 section types now support multiple layout variants:
+- **Hero:** centered, split, video-bg, minimal (4 variants)
+- **CTA:** default, split, banner, minimal, with-image (5 variants)
+- **Features:** grid, list, alternating (3 variants)
+- **Pricing:** cards, simple, highlight-center (3 variants)
+- **Testimonials:** cards, single, minimal (3 variants)
+- **FAQ:** accordion, two-column, simple (3 variants)
+- **Stats:** row, cards, large (3 variants)
+- **How It Works:** numbered, timeline, cards (3 variants)
+- **Team:** grid, list, compact (3 variants)
+- **Nav:** default, centered, transparent (3 variants)
+- **Footer:** simple, columns, minimal (3 variants)
+- **Tabbed section picker:** Admin UI filters sections by All/Structure/Content/Conversion/Media
+
+#### AI Landing Page Cloner (New)
+- **Feature:** Paste URL → AI analyzes HTML → extracts sections, design, content → auto-generates landing config
+- **Implementation:** `POST /api/admin/landing/clone` endpoint
+- **AI Model:** Gemini 2.5 Flash for fast HTML analysis + section extraction
+- **Output:** YAML landing config with extracted sections + design system values
+- **UX:** Modal in landing editor with URL input + clone button
+
+#### Feature Builder Phase 3 (Enhanced)
+- **Hybrid code generation engine:** Combines AI + templates for faster component scaffolding
+- **Categorized output:** Generated code organized by: data models, API routes, React components, tests
+- **Generation guides:** In-app help text for each generated artifact
+- **AI Fill button:** Auto-populate field descriptions using Gemini
+- **Code review step:** User can edit generated code before applying
+
+#### Gemini Model Update (2026-03-27)
+- **Upgrade:** All Gemini API calls updated from `gemini-2.0-flash` → `gemini-2.5-flash`
+- **Reason:** 2.0-flash deprecated; 2.5-flash available (faster, better context handling)
+- **Files updated:** AI setup generator, voice analysis, feature builder, landing clone
+
+#### Admin UX Improvements (Various)
+- **Dashboard deprecation:** `/admin` no longer shows dashboard; redirects to `/features`
+- **Split preview default:** Feature builder live preview panel enabled by default
+- **Thin scrollbars:** Admin UI uses CSS scrollbar-width improvements
+- **Import updates:** All admin pages use updated Gemini model constants
+
+#### Breaking Changes
+- **Gemini model version:** Projects using custom Gemini API keys must update to 2.5-flash (or equivalent)
+- **Landing design tokens:** Landing sections now use `--lp-*` variables (previously hardcoded colors)
+
+---
+
 ### v2.5.0 — Feature Builder Phase 1 + Product-Scoped API + Public Entity Rendering (2026-03-27)
 
 **Status:** Complete
@@ -462,4 +522,4 @@ All partials imported in `admin.css` for single stylesheet generation.
 ---
 
 **Last updated:** 2026-03-27
-**Version:** v2.5.0
+**Version:** v2.6.0

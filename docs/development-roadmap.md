@@ -4,18 +4,18 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-27)
 
-**Phase:** v2.5.0 — Feature Builder Phase 1 + Product-Scoped API + Public Entity Rendering
-**Completion:** v2.4.1 complete + feature builder phase 1 + product-scoped GoClaw API + public entity rendering
+**Phase:** v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
+**Completion:** v2.5.0 complete + landing design system + AI clone + feature builder phases 2-3
 **Active Team:** Solo (HieuSpace)
-**Key Features Added (v2.5.0):**
-- Feature Builder Phase 1: Wizard at `/admin/feature-builder` with define + AI clarify steps
-- Gemini Flash clarification: Auto-generate follow-up questions to refine feature specs
-- Product-Scoped GoClaw API: 15 new endpoints at `/api/goclaw/[product]/*` with product filtering + feature gating
-- Product auth module: `src/lib/goclaw/product-scope.ts` for validation + content filtering
-- Public Entity Rendering: Entity definitions with public config enable static pages at `/e/{path}/`
-- Entity view components: `entity-list-view.astro`, `entity-detail-view.astro` for dynamic rendering
-- SEO for entity pages: OG/Twitter meta via existing `BaseHead` component
-- Backward compatibility: Global `/api/goclaw/*` endpoints unchanged
+**Key Features Added (v2.6.0):**
+- Landing Design System: 6 presets, per-page customization, CSS variables, Google Fonts auto-load
+- Section Layout Variants: 36 total variants across 11 section types (hero, cta, features, pricing, testimonials, faq, stats, how-it-works, team, nav, footer)
+- Tabbed Section Picker: Admin UI filters sections by category (All/Structure/Content/Conversion/Media)
+- AI Landing Clone: Paste URL → AI extracts sections + design → generates landing config
+- Feature Builder Phase 3: Hybrid code generation (AI + templates), categorized output, code review step
+- Gemini 2.5-flash: Updated all AI calls from 2.0-flash → 2.5-flash
+- Admin UX: Dashboard redirects to features, split preview default, thin scrollbars
+- AI Fill: Auto-populate descriptions in feature builder
 
 ---
 
@@ -403,9 +403,86 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 11 — Future Enhancements (Backlog)
+## Phase 11 — Landing Design System + AI Clone + Feature Builder Phase 3 ✓ COMPLETE
 
-### 11A — Landing Page Advanced Features (Proposed)
+**Timeline:** 2026-03-27
+**Status:** Complete
+**Effort:** 12 hours
+
+### Deliverables
+
+**Landing Page Design System (New):**
+- [x] 6 design presets: clean-light, modern-dark, gradient-bold, startup-fresh, corporate-trust, warm-sunset
+- [x] Per-page customization: Colors (primary, secondary, accent), fonts (headings, body), border-radius
+- [x] Google Fonts integration: Auto-load via link tags, no external dependencies
+- [x] CSS variables: `--lp-*` tokens for all landing sections
+- [x] Design panel UI: Preset picker + custom editor at `/admin/landing/[slug]/design`
+- [x] Live preview updates: Real-time design changes without save cycle
+
+**Section Layout Variants (36 Total - New):**
+- [x] Hero: 4 variants (centered, split, video-bg, minimal)
+- [x] CTA: 5 variants (default, split, banner, minimal, with-image)
+- [x] Features: 3 variants (grid, list, alternating)
+- [x] Pricing: 3 variants (cards, simple, highlight-center)
+- [x] Testimonials: 3 variants (cards, single, minimal)
+- [x] FAQ: 3 variants (accordion, two-column, simple)
+- [x] Stats: 3 variants (row, cards, large)
+- [x] How It Works: 3 variants (numbered, timeline, cards)
+- [x] Team: 3 variants (grid, list, compact)
+- [x] Nav: 3 variants (default, centered, transparent)
+- [x] Footer: 3 variants (simple, columns, minimal)
+- [x] Tabbed section picker: Filters sections by category (All/Structure/Content/Conversion/Media)
+
+**AI Landing Page Cloner (New):**
+- [x] Clone endpoint: `POST /api/admin/landing/clone`
+- [x] HTML analysis: Gemini 2.5 Flash parses URL, extracts sections + design
+- [x] Config generation: Auto-generates YAML landing config from extracted content
+- [x] Clone modal UI: URL input + clone button in landing editor
+- [x] Design extraction: Analyzes colors, fonts, layout from source site
+
+**Feature Builder Phase 3 (Enhanced):**
+- [x] Hybrid code generation: AI + template combination for faster scaffolding
+- [x] Categorized output: Code organized by data models, API routes, React components, tests
+- [x] Generation guides: In-app help text for each artifact type
+- [x] AI Fill: Auto-populate descriptions using Gemini
+- [x] Code review step: Edit generated code before applying
+
+**Gemini 2.5-flash Update:**
+- [x] Upgrade all AI calls: 2.0-flash → 2.5-flash
+- [x] Update in: feature-builder-ai.ts, ai-setup-generator.ts, voice-analyze, landing-clone
+- [x] Reason: 2.0-flash deprecated, 2.5-flash faster + better context handling
+
+**Admin UX Polish:**
+- [x] Dashboard redirect: `/admin` → `/features`
+- [x] Split preview default: Feature builder live preview enabled by default
+- [x] Thin scrollbars: CSS improvements for admin UI scrolling
+- [x] Import consolidation: All admin pages use same Gemini model constants
+
+### Files Created/Modified
+
+**New Components:**
+- `src/components/admin/landing/landing-design-panel.tsx` — Design preset picker + custom editor
+- `src/components/admin/landing/landing-clone-modal.tsx` — Clone URL input + button
+- Multiple feature-builder components enhanced with code review + categorized output
+
+**API Routes:**
+- `src/pages/api/admin/landing/clone.ts` — Clone landing from URL
+
+**Styling:**
+- Landing section components updated with `--lp-*` CSS variable support
+- Design system integration across all 11 section types
+
+### Architecture
+- Design system: Preset values + per-page overrides stored in landing config
+- Variants: Each section type has multiple component variant implementations
+- AI Clone: Gemini 2.5 Flash analyzes HTML, returns structured section + design data
+- Code generation: Hybrid approach combines Gemini output with predefined templates
+
+---
+
+## Phase 12 — Future Enhancements (Backlog)
+
+### 12A — Landing Page Advanced Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -422,7 +499,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11B — Analytics Dashboard (Proposed)
+### 12B — Analytics Dashboard (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -438,7 +515,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11C — Advanced Media Features (Proposed)
+### 12C — Advanced Media Features (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -454,7 +531,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11D — Collaborative Editing (Proposed)
+### 12D — Collaborative Editing (Proposed)
 **Effort:** 20 hours
 **Priority:** P4
 
@@ -469,7 +546,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11E — Content Versioning & History (Proposed)
+### 12E — Content Versioning & History (Proposed)
 **Effort:** 6 hours
 **Priority:** P2
 
@@ -484,7 +561,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11F — Internationalization (i18n) Extended (Proposed)
+### 12F — Internationalization (i18n) Extended (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -501,7 +578,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11G — Plugin System (Proposed)
+### 12G — Plugin System (Proposed)
 **Effort:** 16 hours
 **Priority:** P5
 
@@ -516,7 +593,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11H — Monetization Features (Proposed)
+### 12H — Monetization Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P4
 
@@ -532,7 +609,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 11I — Search Enhancements (Proposed)
+### 12I — Search Enhancements (Proposed)
 **Effort:** 6 hours
 **Priority:** P3
 
@@ -591,11 +668,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 9.5 — v2.4.1 Enhancements | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
 | 10 — Feature Builder Phase 1 | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
 | 10.5 — Product-Scoped API + Entity Rendering | 2026-03-27 | 6h | HieuSpace | ✓ Complete |
-| 11 — Feature Builder Phases 2-4 | 2026-Q2 | 12h | — | Backlog |
-| 12A — Landing Analytics | TBD | 12h | — | Proposed |
-| 12B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 12C — Media+ | TBD | 8h | — | Proposed |
-| 12D — Collaboration | TBD | 20h | — | Proposed |
+| 11 — Landing Design System + AI Clone + FB Phase 3 | 2026-03-27 | 12h | HieuSpace | ✓ Complete |
+| 12 — Feature Builder Phase 4 | 2026-Q2 | 8h | — | Backlog |
+| 13A — Landing Advanced | TBD | 12h | — | Proposed |
+| 13B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 13C — Media+ | TBD | 8h | — | Proposed |
+| 13D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -603,10 +681,10 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.5.0 | 2026-03-27 | Feature Builder Phase 1 + Product-Scoped GoClaw API + Public Entity Rendering | Complete |
-| Planned | v2.6.0 | 2026-Q2 | Feature Builder Phases 2-4 (schema builder, component generator, integration) | Backlog |
-| Planned | v2.7.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
-| Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Media Features | Backlog |
+| Current | v2.6.0 | 2026-03-27 | Landing Design System + AI Clone + Feature Builder Phase 3 | Complete |
+| Planned | v2.7.0 | 2026-Q2 | Feature Builder Phase 4 (integration + module installation) | Backlog |
+| Planned | v2.8.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
+| Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Content Versioning + Media Features | Backlog |
 | Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
 ---
@@ -623,4 +701,4 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 **Last updated:** 2026-03-27
 **Next review:** 2026-04-10
-**Next phase:** Feature Builder Phases 2-4 (schema builder + component generator + integration)
+**Next phase:** Feature Builder Phase 4 (integration + module installation) + Landing Advanced Features
