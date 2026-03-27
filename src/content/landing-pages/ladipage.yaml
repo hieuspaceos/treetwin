@@ -184,3 +184,17 @@ sections:
     data:
       text: asadfdsfsdfsdfsdf
       links: []
+design:
+  preset: gradient-bold
+  colors:
+    primary: '#8b5cf6'
+    secondary: '#ec4899'
+    accent: '#f97316'
+    background: '#faf5ff'
+    surface: '#f3e8ff'
+    text: '#1e1b4b'
+    textMuted: '#6b7280'
+  fonts:
+    heading: Poppins
+    body: DM Sans
+  borderRadius: 16px

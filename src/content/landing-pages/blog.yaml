@@ -1,53 +1,260 @@
-title: blog
+title: ClaudeKit - AI Development & Marketing Teams
 sections:
   - type: nav
     order: -1
     enabled: true
     data:
-      brandName: blog
-      links: []
+      brandName: ClaudeKit
+      links:
+        - label: Home
+          href: /
+        - label: Products
+          href: '#'
+        - label: Blog
+          href: /blog
+        - label: Community
+          href: https://claudekit.cc/discord
+        - label: Docs
+          href: https://docs.claudekit.cc
+        - label: Referrals
+          href: '#'
+      variant: default
   - type: hero
     order: 0
     enabled: true
     data:
-      headline: blog
-      subheadline: Welcome
+      headline: Ship Faster With AI Dev Teams
+      subheadline: Production-ready AI subagents automate your development & marketing workflows. Build in hours, not weeks.
       cta:
-        text: Get Started
-        url: '#'
+        - text: Get Engineer Kit — $99
+          url: /engineer#pricing
+        - text: Get Marketing Kit - $99
+          url: '#'
+      embed: https://cdn.claudekit.cc/videos/claudekit-intro-v2.mp4
+      backgroundImage: /assets/video/intro-poster.jpg
+      variant: split
   - type: features
     order: 1
     enabled: true
     data:
-      heading: Features
+      heading: Tired of Wrestling With Claude Code?
+      subheading: You know Claude is powerful, but getting consistent, production-quality output is frustrating.
       items:
-        - title: Feature 1
-          description: Description
-  - type: cta
+        - title: Context Spirals
+          description: Token limits eating your budget while Claude loses track of project context across sessions
+        - title: Inconsistent Output
+          description: Every session feels like starting over - different code styles, missed requirements, quality variance
+        - title: Manual Workflows
+          description: Copy-pasting prompts between projects, rebuilding the same patterns over and over
+      columns: 3
+      variant: grid
+  - type: stats
     order: 2
     enabled: true
     data:
-      headline: Ready to start?
+      heading: 'ClaudeKit: Your AI Development & Marketing Teams'
+      subheading: Production-ready subagents, workflows, and integrations that transform Claude Code into a powerhouse.
+      items:
+        - value: 108+
+          label: Skills
+        - value: 95+
+          label: Commands
+        - value: '45'
+          label: AI Agents
+      variant: cards
+  - type: pricing
+    order: 3
+    enabled: true
+    data:
+      heading: Choose Your AI Team
+      subheading: Both kits work seamlessly with Claude Code
+      plans:
+        - name: Engineer Kit
+          price: '99'
+          period: one-time
+          description: 60+ skills, 30+ workflows, and AI subagents for fullstack development
+          features:
+            - Frontend & backend skills
+            - Database management
+            - DevOps automation
+            - Code review & debugging
+            - Ship features 10x faster
+            - Consistent code quality
+            - Works with any stack
+          cta:
+            text: Learn More →
+            url: /engineer
+          highlighted: true
+        - name: Marketing Kit
+          price: '99'
+          period: one-time
+          description: 12+ MCP integrations, 3 workflows for research, sales & growth
+          features:
+            - Lead generation automation
+            - Email & programmatic SEO
+            - CRM integrations
+            - Marketing subagents
+            - Automate lead research
+            - Scale content creation
+            - Multi-channel outreach
+          cta:
+            text: Learn More →
+            url: /marketing
+          highlighted: false
+      variant: cards
+  - type: testimonials
+    order: 4
+    enabled: true
+    data:
+      heading: What Customers Are Saying
+      subheading: Real feedback from developers using ClaudeKit in production
+      items:
+        - quote: >-
+            “Tried @Goon's .claude file from the human-mcp repo and it's really impressive. Need to test it more to
+            truly appreciate it. Hope this helps everyone.”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F01.png&w=3840&q=75
+          name: Hoan Nguyen
+          role: Discord User
+        - quote: “Your amazing”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F02.jpeg&w=3840&q=75
+          name: Philonik
+          role: Discord User
+        - quote: >-
+            “Duy Nguyen has claudekit. I find it much more stable, the whole project doesn't break. Currently my 20x
+            package is limited because I need to review everything carefully, I don't know why Claude AI has developed
+            so many unnecessary things, and many duplicates, but I don't know how to fix it either. So having your kit
+            is like hitting gold.”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F03.jpeg&w=3840&q=75
+          name: Lương Thanh Thế
+          role: Facebook User
+        - quote: >-
+            “anyway, been playing with claudekit all day, so far so good! the /plan and /cook feature, very impressive
+            😄”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F04.jpeg&w=3840&q=75
+          name: Zachary Nguyen
+          role: Discord User
+        - quote: “no kit yet, just 8 hours with kit, now 16 hours =)))”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F05.png&w=3840&q=75
+          name: cesc
+          role: Discord User
+        - quote: “Confirming it's super smooth, it fixed all the CodeRabbit issues it found. Worth the $30/month, big time!”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F06.jpeg&w=3840&q=75
+          name: Anonymous
+          role: User
+        - quote: >-
+            “I completed the feature for iamhere.to with just a single prompt. #ClaudeKit by @goon_nguyen is truly
+            effective.”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F07.jpeg&w=3840&q=75
+          name: LAM (@laingoclam)
+          role: X.com User
+        - quote: “This speed is really impressive, first time seeing it so calm again”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F08.jpeg&w=3840&q=75
+          name: Zachary Nguyen
+          role: Discord User
+        - quote: >-
+            “using AI tools, bought this kit, now understanding how convenient it is for coders. Opening the project and
+            running 2-3 claude instances doing different features but still feeling confident”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F09.jpeg&w=3840&q=75
+          name: Hải Đăng
+          role: Discord User
+        - quote: >-
+            “Cooking all day and night. Admit there's no plan, cook, test always, claude code is really easy to get
+            confused. plus the docs are aligned with everything. Before telling claude code it would take a while to
+            align the project, but only within 1 session it's all in. now having claude kit is really convenient.”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F10.jpeg&w=3840&q=75
+          name: Mr The
+          role: Discord User
+        - quote: >-
+            “I really like its structured proceed with specialized agents. Really considering upgrading to max because
+            the process with this is amazing.”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F11.jpeg&w=3840&q=75
+          name: Florin Makes (@florinmakes)
+          role: X.com User
+        - quote: “Used CK for 2 days and got cursed by colleagues. Specifically, too free so got cursed 🤣”
+          avatar: /_next/image?url=%2Fassets%2Ftestimonials%2F12.jpeg&w=3840&q=75
+          name: phuongdeptrai
+          role: Discord User
+      variant: cards
+  - type: cta
+    order: 5
+    enabled: true
+    data:
+      headline: Ready to 10x Your Productivity?
+      subheadline: Join hundreds of happy builders using ClaudeKit
       cta:
-        text: Get Started
-        url: '#'
+        - text: Get Engineer Kit — $99
+          url: /engineer#pricing
+        - text: Get Marketing Kit — $99
+          url: /marketing#pricing
+        - text: Get ClaudeKit Combo - $149
+          url: '#'
+      variant: default
   - type: footer
     order: 999
     enabled: true
     data:
-      text: © 2026 blog
-      links: []
+      text: © 2025 ClaudeKit. Built on Claude Code by Anthropic. 🔒 Stripe Verified | SOC 2 Certified | GDPR Compliant
+      columns:
+        - heading: Products
+          links:
+            - label: Engineer Kit
+              href: /engineer
+            - label: Marketing Kit
+              href: /marketing
+            - label: Bundle
+              href: /#pricing
+        - heading: Product
+          links:
+            - label: Features
+              href: '#features'
+            - label: Pricing
+              href: '#pricing'
+            - label: Documentation
+              href: https://docs.claudekit.cc
+            - label: Changelog
+              href: /changelog
+        - heading: Resources
+          links:
+            - label: Blog
+              href: /blog
+            - label: Guides
+              href: https://docs.claudekit.cc/docs/getting-started/introduction
+            - label: Examples
+              href: https://docs.claudekit.cc/docs/use-cases
+        - heading: Community
+          links:
+            - label: Discord
+              href: https://claudekit.cc/discord
+            - label: GitHub
+              href: https://github.com/claudekit
+        - heading: Company
+          links:
+            - label: About
+              href: '#about'
+            - label: Referral Program
+              href: /account/login
+            - label: Leaderboard
+              href: /leaderboard
+            - label: Contact
+              href: /cdn-cgi/l/email-protection#572422272738252317343b362233323c3e23793434
+            - label: Privacy
+              href: /privacy
+            - label: Terms
+              href: /terms
+      variant: columns
 design:
-  preset: modern-dark
   colors:
-    primary: '#10b981'
-    secondary: '#06b6d4'
-    accent: '#f59e0b'
-    background: '#0f172a'
-    surface: '#1e293b'
-    text: '#f1f5f9'
-    textMuted: '#94a3b8'
+    primary: '#D97757'
+    secondary: '#2A2A2A'
+    accent: '#D4A27F'
+    background: '#0E0E0E'
+    surface: '#1A1A1A'
+    text: '#F0F0F0'
+    textMuted: '#A0A0A0'
   fonts:
-    heading: Lora
-    body: DM Sans
-  borderRadius: 12px
+    heading: Inter, sans-serif
+    body: Inter, sans-serif
+  borderRadius: 8px
+description: >-
+  Production-ready AI subagents, workflows, and integrations for software development and growth marketing. Built on
+  Claude Code.
