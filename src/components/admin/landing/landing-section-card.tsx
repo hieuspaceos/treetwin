@@ -20,6 +20,8 @@ interface Props {
   onMove: (direction: 'up' | 'down') => void
   onRemove: () => void
   onToggle: (enabled: boolean) => void
+  /** Called when section is expanded/selected for editing */
+  onSelect?: () => void
   /** Available layout columns to move this section into */
   layoutTargets?: Array<{ layoutIndex: number; layoutLabel: string; columns: number[] }>
   onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
@@ -54,7 +56,7 @@ const TYPE_LABELS: Record<string, string> = {
   layout: 'Layout',
 }
 
-export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, layoutTargets, onMoveToLayout }: Props) {
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onSelect, layoutTargets, onMoveToLayout }: Props) {
   const [expanded, setExpanded] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
@@ -92,7 +94,7 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
           cursor: 'pointer',
           userSelect: 'none',
         }}
-        onClick={() => setExpanded((e) => !e)}
+        onClick={() => { setExpanded((e) => !e); if (!expanded) onSelect?.() }}
       >
         {/* Drag handle */}
         <span

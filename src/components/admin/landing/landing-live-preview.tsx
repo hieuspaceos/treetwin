@@ -11,6 +11,8 @@ interface Props {
   sections: LandingSection[]
   pageTitle?: string
   design?: LandingDesign
+  /** Index of section being edited — preview scrolls to and highlights it */
+  selectedSectionIdx?: number | null
 }
 
 /** Section type to readable label for nav auto-links */
@@ -838,11 +840,14 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
   }
 }
 
-export function LandingLivePreview({ sections, pageTitle, design }: Props) {
+export function LandingLivePreview({ sections, pageTitle, design, selectedSectionIdx }: Props) {
   const enabled = sections.filter(s => s.enabled !== false)
   const navSection = enabled.find(s => s.type === 'nav')
   const footerSection = enabled.find(s => s.type === 'footer')
   const body = enabled.filter(s => s.type !== 'nav' && s.type !== 'footer').sort((a, b) => a.order - b.order)
+
+  // Map original section index → body index for highlight matching
+  const sectionOriginalIndices = body.map(s => sections.indexOf(s))
 
   // Parse design CSS vars into a React style object
   const designVarsStr = designToCssVars(design)
@@ -867,6 +872,30 @@ export function LandingLivePreview({ sections, pageTitle, design }: Props) {
     link.href = fontsUrl
   }, [fontsUrl])
 
+  // Scroll to selected section in preview when it changes
+  useEffect(() => {
+    if (selectedSectionIdx == null) return
+    // Check if selected section is nav or footer
+    const sel = sections[selectedSectionIdx]
+    if (!sel) return
+    let targetId = ''
+    if (sel.type === 'nav') targetId = 'lp-preview-nav'
+    else if (sel.type === 'footer') targetId = 'lp-preview-footer'
+    else targetId = `lp-preview-section-${selectedSectionIdx}`
+    const el = document.getElementById(targetId)
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [selectedSectionIdx])
+
+  // Is this section currently selected?
+  const isSelected = (originalIdx: number) => selectedSectionIdx != null && originalIdx === selectedSectionIdx
+
+  const highlightStyle = {
+    outline: '2px solid var(--lp-primary, #3b82f6)',
+    outlineOffset: '2px',
+    borderRadius: '8px',
+    transition: 'outline 0.2s ease',
+  }
+
   return (
     <div className="landing-page-root" style={{
       ...designStyle,
@@ -875,20 +904,31 @@ export function LandingLivePreview({ sections, pageTitle, design }: Props) {
       fontFamily: 'var(--lp-font-body, system-ui), system-ui, sans-serif',
       borderRadius: '8px', overflow: 'hidden', height: '100%', overflowY: 'auto', fontSize: '0.85em',
     }}>
-      {/* Inject preview CSS: heading fonts + card surface color that contrasts with bg */}
+      {/* Inject preview CSS: heading fonts + card surface color */}
       <style>{`
         .landing-page-root h1,.landing-page-root h2,.landing-page-root h3{font-family:var(--lp-font-heading,system-ui),system-ui,sans-serif}
         .landing-page-root .lp-prev-card{background:color-mix(in srgb, var(--lp-text) 8%, var(--lp-surface));border:1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);border-radius:var(--lp-radius, 12px)}
       `}</style>
-      {navSection && <PreviewNav data={navSection.data as NavData} sections={enabled} pageTitle={pageTitle} />}
+      {navSection && (
+        <div id="lp-preview-nav" style={isSelected(sections.indexOf(navSection)) ? highlightStyle : {}}>
+          <PreviewNav data={navSection.data as NavData} sections={enabled} pageTitle={pageTitle} />
+        </div>
+      )}
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {body.map((section, i) => (
-          <div key={`${section.type}-${i}`} id={`preview-${section.type}`}>
-            {renderSection(section, enabled, pageTitle)}
-          </div>
-        ))}
+        {body.map((section, i) => {
+          const origIdx = sectionOriginalIndices[i]
+          return (
+            <div key={`${section.type}-${i}`} id={`lp-preview-section-${origIdx}`} style={isSelected(origIdx) ? highlightStyle : {}}>
+              {renderSection(section, enabled, pageTitle)}
+            </div>
+          )
+        })}
       </div>
-      {footerSection && <PreviewFooter data={footerSection.data as FooterData} pageTitle={pageTitle} />}
+      {footerSection && (
+        <div id="lp-preview-footer" style={isSelected(sections.indexOf(footerSection)) ? highlightStyle : {}}>
+          <PreviewFooter data={footerSection.data as FooterData} pageTitle={pageTitle} />
+        </div>
+      )}
     </div>
   )
 }

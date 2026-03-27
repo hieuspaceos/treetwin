@@ -109,6 +109,7 @@ export function LandingPageEditor({ slug }: Props) {
   const [settingsOpen, setSettingsOpen] = useState(true)
   const [pickerGroup, setPickerGroup] = useState(-1)
   const [cloneOpen, setCloneOpen] = useState(false)
+  const [selectedSectionIdx, setSelectedSectionIdx] = useState<number | null>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -386,6 +387,7 @@ export function LandingPageEditor({ slug }: Props) {
                 onMove={(dir) => moveSection(i, dir)}
                 onRemove={() => removeSection(i)}
                 onToggle={(enabled) => toggleSection(i, enabled)}
+                onSelect={() => setSelectedSectionIdx(i)}
                 layoutTargets={layoutOptions.map(lo => ({
                   layoutIndex: lo.index,
                   layoutLabel: `Layout #${lo.index + 1}`,
@@ -438,7 +440,7 @@ export function LandingPageEditor({ slug }: Props) {
           {/* Preview container with device width */}
           <div style={{ flex: 1, overflow: 'auto', scrollbarWidth: 'thin', display: 'flex', justifyContent: 'center', background: '#e2e8f0', padding: typeof previewWidth === 'number' ? '1rem' : 0 }}>
             <div style={{ width: typeof previewWidth === 'number' ? `${previewWidth}px` : '100%', maxWidth: '100%', background: 'white', height: 'fit-content', minHeight: '100%' }}>
-              <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} />
+              <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx} />
             </div>
           </div>
         </div>
