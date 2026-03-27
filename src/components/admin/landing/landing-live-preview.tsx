@@ -559,7 +559,7 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
           </div>
         )}
       </div>
-      <p style={{ color: 'var(--lp-text-muted)', borderTop: '1px solid var(--lp-text-muted, #94a3b8)', paddingTop: '0.75rem' }}>{copyright}</p>
+      <p style={{ color: 'var(--lp-text-muted)', borderTop: '1px solid var(--lp-text-muted, #94a3b8)', paddingTop: '0.75rem', textAlign: 'center' }}>{copyright}</p>
     </div>
   )
   if (v === 'minimal') return (
