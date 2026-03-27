@@ -220,6 +220,11 @@ export const api = {
   },
 
   featureBuilder: {
+    aiFill: (idea: string) =>
+      adminFetch<{ label: string; purpose: string; dataDescription: string; uiNeeds: string; section: string }>(
+        '/api/admin/feature-builder/ai-fill',
+        { method: 'POST', body: JSON.stringify({ idea }) },
+      ),
     clarify: (data: { description: unknown; history: unknown[] }) =>
       adminFetch<unknown>('/api/admin/feature-builder/clarify', {
         method: 'POST',
