@@ -554,7 +554,7 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
         </div>
         {/* Link columns on right */}
         {data.columns && data.columns.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(data.columns.length, 4)}, 1fr)`, gap: '1rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.columns.length}, 1fr)`, gap: '0.75rem', flex: 1, minWidth: 0 }}>
             {data.columns.map((col, i) => (
               <div key={i}>
                 <p style={{ fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.4rem' }}>{col.heading}</p>
