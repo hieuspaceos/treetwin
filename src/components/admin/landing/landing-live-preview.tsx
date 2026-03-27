@@ -25,10 +25,32 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
     .filter(s => s.enabled !== false && !skipTypes.has(s.type))
     .sort((a, b) => a.order - b.order)
     .map(s => ({ label: sectionLabels[s.type] || s.type, href: `#preview-${s.type}` }))
+  const brand = data.brandName || pageTitle || 'Home'
+  const v = data.variant || 'default'
 
+  if (v === 'centered') return (
+    <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #e2e8f0', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
+        {links.slice(0, Math.ceil(links.length / 2)).map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{l.label}</span>)}
+      </div>
+      <strong style={{ fontSize: '1rem', color: 'var(--lp-text, #1e293b)', padding: '0 1rem' }}>{brand}</strong>
+      <div style={{ display: 'flex', gap: '0.5rem', flex: 1, justifyContent: 'flex-end' }}>
+        {links.slice(Math.ceil(links.length / 2)).map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{l.label}</span>)}
+      </div>
+    </div>
+  )
+  if (v === 'transparent') return (
+    <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'transparent', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <strong style={{ fontSize: '1rem', color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{brand}</strong>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.85)' }}>{l.label}</span>)}
+      </div>
+    </div>
+  )
+  // default
   return (
     <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #e2e8f0', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <strong style={{ fontSize: '1rem', color: 'var(--lp-text, #1e293b)' }}>{data.brandName || pageTitle || 'Home'}</strong>
+      <strong style={{ fontSize: '1rem', color: 'var(--lp-text, #1e293b)' }}>{brand}</strong>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{l.label}</span>)}
       </div>
@@ -37,16 +59,83 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
 }
 
 function PreviewHero({ data }: { data: HeroData }) {
+  const v = data.variant || 'centered'
+  const btn = data.cta && <span style={{ display: 'inline-block', background: 'var(--lp-primary, #16a34a)', color: 'white', padding: '0.4rem 1.25rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>{data.cta.text}</span>
+
+  if (v === 'split') return (
+    <div style={{ display: 'flex', gap: '1.5rem', padding: '2rem 1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ flex: 1, minWidth: '160px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h1>
+        {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', fontSize: '0.85rem', marginBottom: '1rem' }}>{data.subheadline}</p>}
+        {btn}
+      </div>
+      <div style={{ flex: 1, minWidth: '120px', background: 'rgba(0,0,0,0.06)', borderRadius: '10px', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--lp-text-muted, #94a3b8)', fontSize: '0.7rem' }}>
+        {data.backgroundImage ? <img src={data.backgroundImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} /> : 'Media'}
+      </div>
+    </div>
+  )
+  if (v === 'video-bg') return (
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: '14px', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : '#1e293b' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h1>
+        {data.subheadline && <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', marginBottom: '1rem' }}>{data.subheadline}</p>}
+        {btn}
+      </div>
+    </div>
+  )
+  if (v === 'minimal') return (
+    <div style={{ textAlign: 'center', padding: '2.5rem 2rem' }}>
+      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h1>
+      {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', fontSize: '1rem' }}>{data.subheadline}</p>}
+    </div>
+  )
+  // centered (default)
   return (
     <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'rgba(255,255,255,0.5)', borderRadius: '16px' }}>
       <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.5rem' }}>{data.headline}</h1>
       {data.subheadline && <p style={{ color: 'var(--lp-text-muted, #64748b)', fontSize: '1rem', marginBottom: '1.5rem' }}>{data.subheadline}</p>}
-      {data.cta && <span style={{ display: 'inline-block', background: 'var(--lp-primary, #16a34a)', color: 'white', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600 }}>{data.cta.text}</span>}
+      {btn}
     </div>
   )
 }
 
 function PreviewFeatures({ data }: { data: FeaturesData }) {
+  const v = data.variant || 'grid'
+
+  if (v === 'list') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {data.items?.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem' }}>
+            <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{item.icon || '✓'}</span>
+            <div>
+              <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{item.title}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #64748b)' }}>{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (v === 'alternating') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {data.items?.map((item, i) => (
+          <div key={i} style={{ display: 'flex', gap: '1rem', flexDirection: i % 2 === 1 ? 'row-reverse' : 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ flex: '0 0 3rem', height: '3rem', background: 'rgba(255,255,255,0.6)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>{item.icon || '✦'}</div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{item.title}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #64748b)' }}>{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // grid (default)
   return (
     <div style={{ padding: '2rem 1rem' }}>
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
@@ -64,12 +153,45 @@ function PreviewFeatures({ data }: { data: FeaturesData }) {
 }
 
 function PreviewPricing({ data }: { data: PricingData }) {
+  const v = data.variant || 'cards'
+
+  if (v === 'simple') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {data.plans?.map((plan, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem 1rem', border: plan.highlighted ? '1.5px solid var(--lp-primary, #16a34a)' : '1px solid #e2e8f0' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--lp-text, #1e293b)' }}>{plan.name}</span>
+            <span style={{ fontWeight: 700, color: 'var(--lp-text, #1e293b)' }}>{plan.price}</span>
+            <span style={{ fontSize: '0.75rem', background: plan.highlighted ? 'var(--lp-primary, #16a34a)' : '#e2e8f0', color: plan.highlighted ? '#fff' : '#475569', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>{plan.cta?.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (v === 'highlight-center') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+        {data.plans?.map((plan, i) => {
+          const isCenter = i === Math.floor((data.plans?.length || 0) / 2) || plan.highlighted
+          return (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: isCenter ? '1.5rem' : '1rem', minWidth: isCenter ? '160px' : '130px', border: isCenter ? '2px solid var(--lp-primary, #16a34a)' : '1px solid #e2e8f0', transform: isCenter ? 'scale(1.05)' : 'none' }}>
+              <h3 style={{ fontWeight: 600, fontSize: isCenter ? '1rem' : '0.85rem', color: 'var(--lp-text, #1e293b)' }}>{plan.name}</h3>
+              <p style={{ fontSize: isCenter ? '1.5rem' : '1.1rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)' }}>{plan.price}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+  // cards (default)
   return (
     <div style={{ padding: '2rem 1rem' }}>
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         {data.plans?.map((plan, i) => (
-          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: '1.5rem', minWidth: '180px', border: plan.highlighted ? '2px solid #16a34a' : '1px solid #e2e8f0' }}>
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: '1.5rem', minWidth: '180px', border: plan.highlighted ? '2px solid var(--lp-primary, #16a34a)' : '1px solid #e2e8f0' }}>
             <h3 style={{ fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{plan.name}</h3>
             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)' }}>{plan.price}<span style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #94a3b8)' }}>{plan.period}</span></p>
             <ul style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)', listStyle: 'none', padding: 0 }}>
@@ -82,31 +204,173 @@ function PreviewPricing({ data }: { data: PricingData }) {
   )
 }
 
-function PreviewText({ heading, items }: { heading?: string; items?: Array<Record<string, unknown>> }) {
-  /** Extract display text from any item shape */
-  function itemText(item: Record<string, unknown>): string {
-    return (item.question || item.quote || item.title || item.description || item.value || '') as string
-  }
-  function itemSub(item: Record<string, unknown>): string {
-    if (item.answer) return item.answer as string
-    if (item.role && item.name) return `${item.role}`
-    if (item.company) return `${item.role || ''}, ${item.company}`
-    if (item.label) return item.label as string
-    return ''
-  }
-  function itemName(item: Record<string, unknown>): string {
-    return (item.name || '') as string
-  }
-  return (
+function PreviewTestimonials({ data }: { data: TestimonialsData }) {
+  const v = data.variant || 'cards'
+  if (v === 'single') return (
+    <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+      {data.heading && <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.[0] && (
+        <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '12px', padding: '1.5rem', maxWidth: '420px', margin: '0 auto' }}>
+          <p style={{ fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>"{data.items[0].quote}"</p>
+          <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{data.items[0].name}</p>
+        </div>
+      )}
+    </div>
+  )
+  if (v === 'minimal') return (
     <div style={{ padding: '2rem 1rem' }}>
-      {heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{heading}</h2>}
-      {items?.map((item, i) => (
-        <div key={i} style={{ background: 'rgba(255,255,255,0.4)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.5rem' }}>
-          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{itemText(item) || itemName(item)}</p>
-          {itemSub(item) && <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{itemSub(item)}</p>}
-          {itemName(item) && itemText(item) && <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #94a3b8)' }}>— {itemName(item)}</p>}
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.map((t, i) => (
+        <div key={i} style={{ borderLeft: '3px solid var(--lp-primary, #16a34a)', padding: '0.5rem 0.75rem', marginBottom: '0.75rem' }}>
+          <p style={{ fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--lp-text, #1e293b)' }}>"{t.quote}"</p>
+          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--lp-text-muted, #64748b)', marginTop: '0.25rem' }}>— {t.name}</p>
         </div>
       ))}
+    </div>
+  )
+  // cards (default)
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+        {data.items?.map((t, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem' }}>
+            <p style={{ fontStyle: 'italic', fontSize: '0.78rem', color: 'var(--lp-text-muted, #64748b)', marginBottom: '0.5rem' }}>"{t.quote}"</p>
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{t.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PreviewFaq({ data }: { data: FaqData }) {
+  const v = data.variant || 'accordion'
+  if (v === 'two-column') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.map((faq, i) => (
+        <div key={i} style={{ display: 'flex', gap: '0', marginBottom: '0.25rem', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ flex: 1, padding: '0.6rem 0.75rem', background: 'rgba(255,255,255,0.8)', borderRight: '1px solid #e2e8f0' }}>
+            <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{faq.question}</p>
+          </div>
+          <div style={{ flex: 2, padding: '0.6rem 0.75rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #64748b)' }}>{faq.answer}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+  if (v === 'simple') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.map((faq, i) => (
+        <div key={i} style={{ marginBottom: '1rem' }}>
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)', marginBottom: '0.25rem' }}>{faq.question}</p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted, #64748b)' }}>{faq.answer}</p>
+        </div>
+      ))}
+    </div>
+  )
+  // accordion (default)
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.map((faq, i) => (
+        <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.4rem' }}>
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>▸ {faq.question}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PreviewHowItWorks({ data }: { data: HowItWorksData }) {
+  const v = data.variant || 'numbered'
+  if (v === 'timeline') return (
+    <div style={{ padding: '2rem 1rem 2rem 2.5rem', position: 'relative' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ position: 'absolute', left: '1.25rem', top: '4rem', bottom: '1rem', width: '2px', background: 'var(--lp-primary, #16a34a)', opacity: 0.25 }} />
+      {data.items?.map((step, i) => (
+        <div key={i} style={{ position: 'relative', marginBottom: '0.75rem', paddingLeft: '0.5rem' }}>
+          <div style={{ position: 'absolute', left: '-1.3rem', top: '0.25rem', width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: 'var(--lp-primary, #16a34a)' }} />
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{step.title}</p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted, #64748b)' }}>{step.description}</p>
+        </div>
+      ))}
+    </div>
+  )
+  if (v === 'cards') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+        {data.items?.map((step, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem', border: '1px solid rgba(22,163,74,0.15)' }}>
+            <div style={{ fontSize: '1.25rem', marginBottom: '0.4rem' }}>{step.icon || `${i + 1}️⃣`}</div>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{step.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // numbered (default)
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+        {data.items?.map((step, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center' }}>
+            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'rgba(22,163,74,0.12)', color: 'var(--lp-primary, #16a34a)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.5rem', fontSize: '0.85rem' }}>{step.number ?? i + 1}</div>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{step.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PreviewTeam({ data }: { data: TeamData }) {
+  const v = data.variant || 'grid'
+  if (v === 'list') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.members?.map((m, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.6rem 0.75rem', marginBottom: '0.4rem' }}>
+          <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'rgba(22,163,74,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem', color: 'var(--lp-primary, #16a34a)', flexShrink: 0 }}>{m.name?.charAt(0)}</div>
+          <div>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{m.name}</p>
+            <p style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted, #64748b)' }}>{m.role}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+  if (v === 'compact') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+        {data.members?.map((m, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '8px', padding: '0.4rem 0.75rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{m.name}</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--lp-text-muted, #64748b)' }}>{m.role}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // grid (default)
+  return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+        {data.members?.map((m, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center' }}>
+            <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'rgba(22,163,74,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', color: 'var(--lp-primary, #16a34a)', margin: '0 auto 0.5rem' }}>{m.name?.charAt(0)}</div>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text, #1e293b)' }}>{m.name}</p>
+            <p style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted, #64748b)' }}>{m.role}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -160,6 +424,32 @@ function PreviewCta({ data }: { data: CtaData }) {
 }
 
 function PreviewStats({ data }: { data: StatsData }) {
+  const v = data.variant || 'row'
+  if (v === 'cards') return (
+    <div style={{ padding: '2rem 1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+        {data.items?.map((s, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.7)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center', border: '1px solid rgba(22,163,74,0.15)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--lp-primary, #16a34a)' }}>{s.prefix}{s.value}{s.suffix}</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted, #64748b)' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (v === 'large') return (
+    <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+      {data.heading && <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '1rem' }}>{data.heading}</h2>}
+      {data.items?.map((s, i) => (
+        <div key={i} style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--lp-primary, #16a34a)', lineHeight: 1 }}>{s.prefix}{s.value}{s.suffix}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--lp-text-muted, #64748b)', marginTop: '0.25rem' }}>{s.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+  // row (default)
   return (
     <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', padding: '2rem', flexWrap: 'wrap' }}>
       {data.items?.map((s, i) => (
@@ -173,9 +463,36 @@ function PreviewStats({ data }: { data: StatsData }) {
 }
 
 function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: string }) {
+  const copyright = data.text || `© ${new Date().getFullYear()} ${pageTitle || ''}`
+  const v = data.variant || 'simple'
+
+  if (v === 'columns') return (
+    <div style={{ borderTop: '1px solid #e2e8f0', padding: '1.5rem', fontSize: '0.75rem' }}>
+      {data.columns && data.columns.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(data.columns.length, 4)}, 1fr)`, gap: '1rem', marginBottom: '1rem' }}>
+          {data.columns.map((col, i) => (
+            <div key={i}>
+              <p style={{ fontWeight: 700, color: 'var(--lp-text, #1e293b)', marginBottom: '0.4rem' }}>{col.heading}</p>
+              {col.links?.map((l, j) => <p key={j} style={{ color: 'var(--lp-text-muted, #94a3b8)', marginBottom: '0.2rem' }}>{l.label}</p>)}
+            </div>
+          ))}
+        </div>
+      )}
+      <p style={{ color: 'var(--lp-text-muted, #94a3b8)', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>{copyright}</p>
+    </div>
+  )
+  if (v === 'minimal') return (
+    <div style={{ padding: '0.75rem', textAlign: 'center', color: 'var(--lp-text-muted, #94a3b8)', fontSize: '0.7rem' }}>{copyright}</div>
+  )
+  // simple (default)
   return (
     <div style={{ textAlign: 'center', padding: '1.5rem', borderTop: '1px solid #e2e8f0', color: 'var(--lp-text-muted, #94a3b8)', fontSize: '0.8rem' }}>
-      {data.text || `© ${new Date().getFullYear()} ${pageTitle || ''}`}
+      {data.links && data.links.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+          {data.links.map((l, i) => <span key={i} style={{ color: 'var(--lp-text-muted, #94a3b8)' }}>{l.label}</span>)}
+        </div>
+      )}
+      {copyright}
     </div>
   )
 }
@@ -341,10 +658,10 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'pricing': return <PreviewPricing data={d as unknown as PricingData} />
     case 'cta': return <PreviewCta data={d as unknown as CtaData} />
     case 'stats': return <PreviewStats data={d as unknown as StatsData} />
-    case 'testimonials': return <PreviewText heading={(d as any).heading} items={(d as any).items} />
-    case 'faq': return <PreviewText heading={(d as any).heading} items={(d as any).items} />
-    case 'how-it-works': return <PreviewText heading={(d as any).heading} items={(d as any).items} />
-    case 'team': return <PreviewText heading={(d as any).heading} items={(d as any).members} />
+    case 'testimonials': return <PreviewTestimonials data={d as unknown as TestimonialsData} />
+    case 'faq': return <PreviewFaq data={d as unknown as FaqData} />
+    case 'how-it-works': return <PreviewHowItWorks data={d as unknown as HowItWorksData} />
+    case 'team': return <PreviewTeam data={d as unknown as TeamData} />
     case 'video': return <PreviewVideo data={d as unknown as VideoData} />
     case 'image': return <PreviewImage data={d as unknown as ImageData} />
     case 'image-text': return <PreviewImageText data={d as unknown as ImageTextData} />

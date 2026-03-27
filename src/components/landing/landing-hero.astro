@@ -1,24 +1,86 @@
 ---
+/**
+ * Hero section with 4 layout variants:
+ * - centered (default): centered headline + CTA, optional background image
+ * - split: text left + image/embed right (50/50)
+ * - video-bg: full-width background image with overlay
+ * - minimal: just headline + subheadline, no CTA button
+ */
 import type { HeroData } from '@/lib/landing/landing-types'
 
 interface Props extends HeroData {}
-const { headline, subheadline, cta, backgroundImage, embed } = Astro.props
+const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered' } = Astro.props
 ---
 
-<section
-  class="landing-section text-center"
-  style={backgroundImage ? `background-image: url(${backgroundImage}); background-size: cover; background-position: center;` : undefined}
->
-  <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-    {headline}
-  </h1>
-  {subheadline && (
-    <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
-  )}
-  {cta && (
-    <a href={cta.url} class="landing-btn-primary mt-8">
-      {cta.text}
-    </a>
-  )}
-  {embed && <div class="mt-8" set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />}
-</section>
+{/* Centered: default layout */}
+{variant === 'centered' && (
+  <section
+    class="landing-section text-center"
+    style={backgroundImage ? `background-image: url(${backgroundImage}); background-size: cover; background-position: center;` : undefined}
+  >
+    <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">{headline}</h1>
+    {subheadline && (
+      <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
+    )}
+    {cta && (
+      <a href={cta.url} class="landing-btn-primary mt-8">{cta.text}</a>
+    )}
+    {embed && <div class="mt-8" set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />}
+  </section>
+)}
+
+{/* Split: text left, image/embed right */}
+{variant === 'split' && (
+  <section class="landing-section" style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap">
+    <div style="flex: 1; min-width: 260px">
+      <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{headline}</h1>
+      {subheadline && (
+        <p class="mt-4 text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
+      )}
+      {cta && (
+        <a href={cta.url} class="landing-btn-primary mt-8" style="display: inline-block">{cta.text}</a>
+      )}
+    </div>
+    <div style="flex: 1; min-width: 260px; display: flex; align-items: center; justify-content: center">
+      {embed && <div set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />}
+      {backgroundImage && !embed && (
+        <img src={backgroundImage} alt={headline} style="max-width: 100%; border-radius: var(--lp-radius); object-fit: cover" />
+      )}
+      {!embed && !backgroundImage && (
+        <div style="width: 100%; aspect-ratio: 16/9; background: color-mix(in srgb, var(--lp-primary) 10%, var(--lp-surface)); border-radius: var(--lp-radius); display: flex; align-items: center; justify-content: center; color: var(--lp-text-muted); font-size: 0.875rem">
+          Media placeholder
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Video-bg: full-width background with overlay */}
+{variant === 'video-bg' && (
+  <section
+    class="landing-section text-center"
+    style={`position: relative; background-image: url(${backgroundImage || ''}); background-size: cover; background-position: center; padding: 5rem 2rem; overflow: hidden`}
+  >
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55)"></div>
+    <div style="position: relative; z-index: 1">
+      <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl" style="color: #fff">{headline}</h1>
+      {subheadline && (
+        <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: rgba(255,255,255,0.85)">{subheadline}</p>
+      )}
+      {cta && (
+        <a href={cta.url} class="landing-btn-primary mt-8">{cta.text}</a>
+      )}
+      {embed && <div class="mt-8" set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />}
+    </div>
+  </section>
+)}
+
+{/* Minimal: headline + subheadline only, no CTA button */}
+{variant === 'minimal' && (
+  <section class="landing-section text-center" style="background: transparent; padding: 3rem 2rem">
+    <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{headline}</h1>
+    {subheadline && (
+      <p class="mx-auto mt-4 max-w-2xl text-xl" style="color: var(--lp-text-muted)">{subheadline}</p>
+    )}
+  </section>
+)}

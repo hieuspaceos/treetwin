@@ -1,62 +1,86 @@
 ---
 /**
- * Landing page nav section — sticky top nav with brand name and anchor links.
- * Links auto-generated from sibling sections if not provided in data.
- * Each link scrolls to the corresponding section via #section-{type} anchors.
+ * Landing page nav section with 3 layout variants:
+ * - default: logo left, links right (sticky with background)
+ * - centered: logo centered, links split left/right
+ * - transparent: no background, overlay style (for hero-over use)
  */
 import type { NavData, LandingSection } from '@/lib/landing/landing-types'
 
 interface Props extends NavData {
-  /** All enabled sections on the page — used to auto-generate nav links */
   sections?: LandingSection[]
-  /** Page title fallback for brand name */
   pageTitle?: string
 }
 
-const { brandName, links, sections = [], pageTitle } = Astro.props
+const { brandName, links, sections = [], pageTitle, variant = 'default' } = Astro.props
 
-/** Section type to readable label for auto-generated links */
 const sectionLabels: Record<string, string> = {
-  features: 'Features',
-  pricing: 'Pricing',
-  testimonials: 'Testimonials',
-  faq: 'FAQ',
-  stats: 'Stats',
-  'how-it-works': 'How It Works',
-  team: 'Team',
-  'logo-wall': 'Partners',
+  features: 'Features', pricing: 'Pricing', testimonials: 'Testimonials',
+  faq: 'FAQ', stats: 'Stats', 'how-it-works': 'How It Works',
+  team: 'Team', 'logo-wall': 'Partners',
 }
 
-// Auto-generate links from enabled sections (skip hero, nav, footer, cta)
 const skipTypes = new Set(['hero', 'nav', 'footer', 'cta'])
 const autoLinks = links && links.length > 0
   ? links
   : sections
       .filter(s => s.enabled !== false && !skipTypes.has(s.type))
       .sort((a, b) => a.order - b.order)
-      .map(s => ({
-        label: sectionLabels[s.type] || s.type,
-        href: `#section-${s.type}`,
-      }))
+      .map(s => ({ label: sectionLabels[s.type] || s.type, href: `#section-${s.type}` }))
+
+const brand = brandName || pageTitle || 'Home'
 ---
 
-<nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
-  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-    <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text)">
-      {brandName || pageTitle || 'Home'}
-    </a>
-    {autoLinks.length > 0 && (
-      <div class="hidden items-center gap-1 sm:flex">
-        {autoLinks.map(link => (
-          <a
-            href={link.href}
-            class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors"
-            style="color: var(--lp-text-muted)"
-          >
-            {link.label}
-          </a>
+{/* Default: logo left, links right */}
+{variant === 'default' && (
+  <nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text)">{brand}</a>
+      {autoLinks.length > 0 && (
+        <div class="hidden items-center gap-1 sm:flex">
+          {autoLinks.map(link => (
+            <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  </nav>
+)}
+
+{/* Centered: logo centered, links split left/right */}
+{variant === 'centered' && (
+  <nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3" style="position: relative">
+      {/* Left links (first half) */}
+      <div class="hidden items-center gap-1 sm:flex" style="flex: 1">
+        {autoLinks.slice(0, Math.ceil(autoLinks.length / 2)).map(link => (
+          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
         ))}
       </div>
-    )}
-  </div>
-</nav>
+      {/* Center brand */}
+      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text); flex-shrink: 0; padding: 0 1rem">{brand}</a>
+      {/* Right links (second half) */}
+      <div class="hidden items-center gap-1 sm:flex" style="flex: 1; justify-content: flex-end">
+        {autoLinks.slice(Math.ceil(autoLinks.length / 2)).map(link => (
+          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+        ))}
+      </div>
+    </div>
+  </nav>
+)}
+
+{/* Transparent: no background, overlay style */}
+{variant === 'transparent' && (
+  <nav class="sticky top-0 z-50" style="background: transparent; border-bottom: none" aria-label="Landing page navigation">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+      <a href="#" class="text-lg font-semibold tracking-tight" style="color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.4)">{brand}</a>
+      {autoLinks.length > 0 && (
+        <div class="hidden items-center gap-1 sm:flex">
+          {autoLinks.map(link => (
+            <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: rgba(255,255,255,0.85)">{link.label}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  </nav>
+)}

@@ -1,22 +1,71 @@
 ---
+/**
+ * How It Works section with 3 layout variants:
+ * - numbered (default): numbered step cards in a grid
+ * - timeline: vertical timeline with connecting line and dots
+ * - cards: step cards in a grid with icon emphasis
+ */
 import type { HowItWorksData } from '@/lib/landing/landing-types'
 
 interface Props extends HowItWorksData {}
-const { heading, subheading, items } = Astro.props
+const { heading, subheading, items, variant = 'numbered' } = Astro.props
 ---
 
-<section class="landing-section">
-  {heading && <h2 class="mb-2 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center text-slate-500">{subheading}</p>}
-  <div class="landing-grid-3">
-    {items.map((step, i) => (
-      <div class="glass-card p-6 text-center">
-        <span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 text-lg font-bold text-green-600">
-          {step.number ?? i + 1}
-        </span>
-        <h3 class="mb-2 text-lg font-semibold text-slate-900">{step.title}</h3>
-        <p class="text-sm text-slate-500">{step.description}</p>
-      </div>
-    ))}
-  </div>
-</section>
+{/* Numbered: default grid with numbered badges */}
+{variant === 'numbered' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+    {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+    <div class="landing-grid-3">
+      {items.map((step, i) => (
+        <div class="glass-card p-6 text-center">
+          <span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold" style="background: color-mix(in srgb, var(--lp-primary) 12%, transparent); color: var(--lp-primary)">
+            {step.number ?? i + 1}
+          </span>
+          <h3 class="mb-2 text-lg font-semibold">{step.title}</h3>
+          <p class="text-sm" style="color: var(--lp-text-muted)">{step.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Timeline: vertical timeline with dots and connecting line */}
+{variant === 'timeline' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+    {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+    <div style="max-width: 640px; margin: 0 auto; position: relative; padding-left: 2.5rem">
+      {/* Vertical line */}
+      <div style="position: absolute; left: 0.75rem; top: 0.5rem; bottom: 0.5rem; width: 2px; background: color-mix(in srgb, var(--lp-primary) 25%, transparent)"></div>
+      {items.map((step, i) => (
+        <div style="position: relative; margin-bottom: 2rem">
+          {/* Dot */}
+          <div style="position: absolute; left: -1.875rem; top: 0.25rem; width: 1.125rem; height: 1.125rem; border-radius: 50%; background: var(--lp-primary); border: 2px solid var(--lp-bg, #fff); z-index: 1"></div>
+          <div style="padding: 1rem 1.25rem; background: var(--lp-surface); border-radius: var(--lp-radius)">
+            <span class="text-xs font-bold" style="color: var(--lp-primary)">Step {step.number ?? i + 1}</span>
+            <h3 class="mt-1 mb-1 text-base font-semibold">{step.title}</h3>
+            <p class="text-sm" style="color: var(--lp-text-muted)">{step.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Cards: icon-forward step cards */}
+{variant === 'cards' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+    {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+    <div class="landing-grid-3">
+      {items.map((step, i) => (
+        <div style="padding: 1.75rem; background: var(--lp-surface); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 15%, transparent)">
+          <div style="font-size: 2rem; margin-bottom: 1rem">{step.icon ?? `${step.number ?? i + 1}️⃣`}</div>
+          <h3 class="mb-2 text-lg font-bold">{step.title}</h3>
+          <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.65">{step.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}

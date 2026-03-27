@@ -1,20 +1,63 @@
 ---
+/**
+ * FAQ section with 3 layout variants:
+ * - accordion (default): expandable Q&A via details/summary (static HTML, no JS)
+ * - two-column: questions left, answers right
+ * - simple: all expanded, no toggle
+ */
 import type { FaqData } from '@/lib/landing/landing-types'
 
 interface Props extends FaqData {}
-const { heading, items } = Astro.props
+const { heading, items, variant = 'accordion' } = Astro.props
 ---
 
-<section class="landing-section">
-  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  <div class="mx-auto max-w-2xl space-y-3">
-    {items.map((faq) => (
-      <details class="glass-card rounded-xl">
-        <summary class="cursor-pointer px-6 py-4 text-sm font-semibold text-slate-900 select-none">
-          {faq.question}
-        </summary>
-        <p class="px-6 pb-4 text-sm text-slate-500">{faq.answer}</p>
-      </details>
-    ))}
-  </div>
-</section>
+{/* Accordion: details/summary native HTML */}
+{variant === 'accordion' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+    <div class="mx-auto max-w-2xl space-y-3">
+      {items.map((faq) => (
+        <details class="glass-card rounded-xl">
+          <summary class="cursor-pointer px-6 py-4 text-sm font-semibold select-none" style="color: var(--lp-text)">
+            {faq.question}
+          </summary>
+          <p class="px-6 pb-4 text-sm" style="color: var(--lp-text-muted)">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Two-column: questions left, answers right */}
+{variant === 'two-column' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+    <div style="display: flex; flex-direction: column; gap: 0; max-width: 860px; margin: 0 auto; border: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); border-radius: var(--lp-radius); overflow: hidden">
+      {items.map((faq, i) => (
+        <div style={`display: flex; gap: 0; ${i > 0 ? 'border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent)' : ''}`}>
+          <div style="flex: 1; padding: 1.25rem 1.5rem; background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-right: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); min-width: 0">
+            <p class="text-sm font-semibold" style="color: var(--lp-text)">{faq.question}</p>
+          </div>
+          <div style="flex: 2; padding: 1.25rem 1.5rem; min-width: 0">
+            <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.65">{faq.answer}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Simple: all expanded, clean list */}
+{variant === 'simple' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+    <div style="display: flex; flex-direction: column; gap: 2rem; max-width: 720px; margin: 0 auto">
+      {items.map((faq) => (
+        <div>
+          <h3 class="mb-2 text-base font-semibold" style="color: var(--lp-text)">{faq.question}</h3>
+          <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.7">{faq.answer}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}

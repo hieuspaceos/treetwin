@@ -44,10 +44,23 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
   const set = (k: keyof HeroData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'centered'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="centered">Centered (default)</option>
+          <option value="split">Split (text left + media right)</option>
+          <option value="video-bg">Video/Image Background</option>
+          <option value="minimal">Minimal (no CTA button)</option>
+        </select>
+      </Field>
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
-      <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
-      <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Get Started' })} /></Field>
+      {data.variant !== 'minimal' && <>
+        <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
+        <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Get Started' })} /></Field>
+      </>}
+      {(data.variant === 'video-bg' || data.variant === 'split') && (
+        <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
+      )}
     </>
   )
 }
@@ -57,6 +70,13 @@ export function FeaturesSectionForm({ data, onChange }: FormProps<FeaturesData>)
   const items = data.items || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="grid">Grid (default)</option>
+          <option value="list">List (icon left, text right)</option>
+          <option value="alternating">Alternating (zigzag rows)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
       <Field label="Feature Items">
@@ -80,6 +100,13 @@ export function PricingSectionForm({ data, onChange }: FormProps<PricingData>) {
   const plans = data.plans || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="cards">Cards (default)</option>
+          <option value="simple">Simple (horizontal compact)</option>
+          <option value="highlight-center">Highlight Center (elevated middle plan)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Plans">
         {plans.map((plan, i) => (
@@ -102,6 +129,13 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
   const items = data.items || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="cards">Cards (default)</option>
+          <option value="single">Single (one large centered quote)</option>
+          <option value="minimal">Minimal (text-only, no avatars)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Testimonials">
         {items.map((item, i) => (
@@ -125,6 +159,13 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
   const items = data.items || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'accordion'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="accordion">Accordion (default, expandable)</option>
+          <option value="two-column">Two Column (Q left, A right)</option>
+          <option value="simple">Simple (all expanded)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="FAQ Items">
         {items.map((item, i) => (
@@ -171,6 +212,13 @@ export function StatsSectionForm({ data, onChange }: FormProps<StatsData>) {
   const items = data.items || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'row'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="row">Row (default, horizontal)</option>
+          <option value="cards">Cards (each stat in a card)</option>
+          <option value="large">Large (big numbers, vertical)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Stats">
         {items.map((item, i) => (
@@ -193,6 +241,13 @@ export function HowItWorksSectionForm({ data, onChange }: FormProps<HowItWorksDa
   const items = data.items || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'numbered'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="numbered">Numbered (default)</option>
+          <option value="timeline">Timeline (vertical with dots)</option>
+          <option value="cards">Cards (icon-forward grid)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Steps">
         {items.map((item, i) => (
@@ -215,6 +270,13 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
   const members = data.members || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="grid">Grid (default, photo cards)</option>
+          <option value="list">List (horizontal rows with photos)</option>
+          <option value="compact">Compact (names only, no photos)</option>
+        </select>
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Team Members">
         {members.map((m, i) => (
@@ -250,6 +312,13 @@ function NavSectionForm({ data, onChange }: FormProps<NavData>) {
   const links = data.links || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="default">Default (logo left, links right)</option>
+          <option value="centered">Centered (logo center, links split)</option>
+          <option value="transparent">Transparent (no background, overlay)</option>
+        </select>
+      </Field>
       <Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field>
       <Field label="Nav Links (leave empty to auto-generate from sections)">
         {links.map((link, i) => (
@@ -275,6 +344,13 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
   const links = data.links || []
   return (
     <>
+      <Field label="Layout Variant">
+        <select style={inputStyle} value={data.variant || 'simple'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="simple">Simple (default, centered text)</option>
+          <option value="columns">Columns (multi-column link groups)</option>
+          <option value="minimal">Minimal (copyright only)</option>
+        </select>
+      </Field>
       <Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field>
       <Field label="Footer Links">
         {links.map((link, i) => (

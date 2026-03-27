@@ -9,6 +9,8 @@ export interface HeroData {
   cta?: { text: string; url: string }
   backgroundImage?: string
   embed?: string
+  /** Layout variant: centered (default), split (text left + media right), video-bg (full-width bg), minimal (no CTA) */
+  variant?: 'centered' | 'split' | 'video-bg' | 'minimal'
 }
 
 export interface FeatureItem {
@@ -21,6 +23,8 @@ export interface FeaturesData {
   subheading?: string
   items: FeatureItem[]
   columns?: 2 | 3 | 4
+  /** Layout variant: grid (default), list (icon left + text right), alternating (zigzag rows) */
+  variant?: 'grid' | 'list' | 'alternating'
 }
 
 export interface PricingPlan {
@@ -36,6 +40,8 @@ export interface PricingData {
   heading?: string
   subheading?: string
   plans: PricingPlan[]
+  /** Layout variant: cards (default), simple (horizontal row compact), highlight-center (center plan elevated) */
+  variant?: 'cards' | 'simple' | 'highlight-center'
 }
 
 export interface Testimonial {
@@ -48,6 +54,8 @@ export interface Testimonial {
 export interface TestimonialsData {
   heading?: string
   items: Testimonial[]
+  /** Layout variant: cards (default), single (one large quote centered), minimal (text-only, no avatars) */
+  variant?: 'cards' | 'single' | 'minimal'
 }
 
 export interface FaqItem {
@@ -57,6 +65,8 @@ export interface FaqItem {
 export interface FaqData {
   heading?: string
   items: FaqItem[]
+  /** Layout variant: accordion (default, details/summary), two-column (Q left, A right), simple (all expanded) */
+  variant?: 'accordion' | 'two-column' | 'simple'
 }
 
 export interface CtaData {
@@ -77,6 +87,8 @@ export interface StatItem {
 export interface StatsData {
   heading?: string
   items: StatItem[]
+  /** Layout variant: row (default), cards (each stat in a card), large (big numbers vertical stack) */
+  variant?: 'row' | 'cards' | 'large'
 }
 
 export interface StepItem {
@@ -89,6 +101,8 @@ export interface HowItWorksData {
   heading?: string
   subheading?: string
   items: StepItem[]
+  /** Layout variant: numbered (default), timeline (vertical with dots/lines), cards (step cards in a grid) */
+  variant?: 'numbered' | 'timeline' | 'cards'
 }
 
 export interface TeamMember {
@@ -102,6 +116,8 @@ export interface TeamData {
   heading?: string
   subheading?: string
   members: TeamMember[]
+  /** Layout variant: grid (default), list (horizontal list with small photos), compact (names only, no photos) */
+  variant?: 'grid' | 'list' | 'compact'
 }
 
 export interface LogoWallData {
@@ -113,11 +129,17 @@ export interface NavData {
   brandName?: string
   /** Custom nav links — if empty, auto-generated from enabled sections */
   links?: Array<{ label: string; href: string }>
+  /** Layout variant: default (logo left, links right), centered (logo center, links split), transparent (no background overlay) */
+  variant?: 'default' | 'centered' | 'transparent'
 }
 
 export interface FooterData {
   text?: string
   links?: Array<{ label: string; href: string }>
+  /** Layout variant: simple (default, centered text), columns (multi-column with link groups), minimal (just copyright) */
+  variant?: 'simple' | 'columns' | 'minimal'
+  /** Column groups for columns variant — array of { heading, links[] } */
+  columns?: Array<{ heading: string; links: Array<{ label: string; href: string }> }>
 }
 
 export interface VideoData {

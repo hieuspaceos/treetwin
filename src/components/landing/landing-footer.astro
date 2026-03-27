@@ -1,6 +1,9 @@
 ---
 /**
- * Landing page footer section — minimal footer with optional text and links.
+ * Landing page footer with 3 layout variants:
+ * - simple (default): centered text + links
+ * - columns: multi-column with link groups
+ * - minimal: just copyright line
  */
 import type { FooterData } from '@/lib/landing/landing-types'
 
@@ -8,19 +11,62 @@ interface Props extends FooterData {
   pageTitle?: string
 }
 
-const { text, links = [], pageTitle } = Astro.props
+const { text, links = [], columns = [], pageTitle, variant = 'simple' } = Astro.props
 const year = new Date().getFullYear()
+const copyright = text || `© ${year} ${pageTitle || ''}`
 ---
 
-<footer class="landing-footer py-8 text-center text-sm">
-  {links.length > 0 && (
-    <div class="mb-4 flex justify-center gap-4">
-      {links.map(link => (
-        <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">
-          {link.label}
-        </a>
-      ))}
+{/* Simple: centered text + links */}
+{variant === 'simple' && (
+  <footer class="landing-footer py-8 text-center text-sm">
+    {links.length > 0 && (
+      <div class="mb-4 flex justify-center gap-4">
+        {links.map(link => (
+          <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+        ))}
+      </div>
+    )}
+    <p style="color: var(--lp-text-muted)">{copyright}</p>
+  </footer>
+)}
+
+{/* Columns: multi-column with link groups */}
+{variant === 'columns' && (
+  <footer class="landing-footer py-12 text-sm">
+    <div class="mx-auto max-w-5xl px-6">
+      {columns.length > 0 && (
+        <div style={`display: grid; grid-template-columns: repeat(${Math.min(columns.length, 4)}, 1fr); gap: 2rem; margin-bottom: 2.5rem`}>
+          {columns.map(col => (
+            <div>
+              <p class="mb-3 font-semibold text-xs uppercase tracking-wider" style="color: var(--lp-text)">{col.heading}</p>
+              <ul style="display: flex; flex-direction: column; gap: 0.5rem">
+                {col.links.map(link => (
+                  <li>
+                    <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style="border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); padding-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem">
+        <p style="color: var(--lp-text-muted)">{copyright}</p>
+        {links.length > 0 && (
+          <div class="flex gap-4">
+            {links.map(link => (
+              <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  )}
-  <p style="color: var(--lp-text-muted)">{text || `© ${year} ${pageTitle || ''}`}</p>
-</footer>
+  </footer>
+)}
+
+{/* Minimal: just copyright line */}
+{variant === 'minimal' && (
+  <footer class="landing-footer py-4 text-center text-xs" style="color: var(--lp-text-muted)">
+    {copyright}
+  </footer>
+)}

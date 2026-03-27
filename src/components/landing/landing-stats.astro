@@ -1,20 +1,61 @@
 ---
+/**
+ * Stats section with 3 layout variants:
+ * - row (default): horizontal flex row
+ * - cards: each stat in its own card
+ * - large: big numbers, vertical stack
+ */
 import type { StatsData } from '@/lib/landing/landing-types'
 
 interface Props extends StatsData {}
-const { heading, items } = Astro.props
+const { heading, items, variant = 'row' } = Astro.props
 ---
 
-<section class="landing-section">
-  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  <div class="landing-grid-4">
-    {items.map((stat) => (
-      <div class="glass-card p-6 text-center">
-        <p class="landing-stat-value">
-          {stat.prefix}{stat.value}{stat.suffix}
-        </p>
-        <p class="mt-2 text-sm text-slate-500">{stat.label}</p>
-      </div>
-    ))}
-  </div>
-</section>
+{/* Row: default horizontal flex */}
+{variant === 'row' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+    <div class="landing-grid-4">
+      {items.map((stat) => (
+        <div class="glass-card p-6 text-center">
+          <p class="landing-stat-value">{stat.prefix}{stat.value}{stat.suffix}</p>
+          <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Cards: each stat in an elevated card */}
+{variant === 'cards' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+    <div class="landing-grid-4">
+      {items.map((stat) => (
+        <div style="padding: 1.75rem 1.25rem; text-align: center; background: var(--lp-surface); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 15%, transparent); box-shadow: 0 4px 16px color-mix(in srgb, var(--lp-primary) 8%, transparent)">
+          <p style="font-size: 2.25rem; font-weight: 800; color: var(--lp-primary); line-height: 1">
+            {stat.prefix}{stat.value}{stat.suffix}
+          </p>
+          <p class="mt-2 text-sm font-medium" style="color: var(--lp-text-muted)">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Large: big numbers, vertical stack centered */}
+{variant === 'large' && (
+  <section class="landing-section text-center">
+    {heading && <h2 class="mb-8 text-3xl font-bold">{heading}</h2>}
+    <div style="display: flex; flex-direction: column; gap: 2.5rem; max-width: 480px; margin: 0 auto">
+      {items.map((stat) => (
+        <div>
+          <p style="font-size: 4rem; font-weight: 900; color: var(--lp-primary); line-height: 1; letter-spacing: -0.02em">
+            {stat.prefix}{stat.value}{stat.suffix}
+          </p>
+          <p class="mt-2 text-lg" style="color: var(--lp-text-muted)">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
