@@ -166,20 +166,55 @@ export async function analyzeSiteCompatibility(url: string): Promise<SiteAnalysi
   const details: string[] = []
   let score = 50 // start neutral
 
-  // 1. Detect framework from HTML markers
+  // 1. Detect framework/platform from HTML patterns (30+ detectors)
+  const detectors: Array<{ name: string; tier: 1 | 2 | 3 | 4; patterns: string[]; boost: number }> = [
+    // Tier 1 — SSR/SSG (best compatibility)
+    { name: 'Astro', tier: 1, patterns: ['astro-island', 'astro-slot', '<astro-'], boost: 20 },
+    { name: 'Hugo', tier: 1, patterns: ['gohugo.io', 'hugo-', '/hugo/'], boost: 18 },
+    { name: 'Jekyll', tier: 1, patterns: ['jekyll', 'github.io'], boost: 15 },
+    { name: 'Eleventy', tier: 1, patterns: ['eleventy', '11ty'], boost: 15 },
+    { name: 'Next.js (SSR)', tier: 1, patterns: ['/_next/', '__NEXT_DATA__', 'next/dist'], boost: 15 },
+    { name: 'Remix', tier: 1, patterns: ['remix', '__remixContext'], boost: 15 },
+    { name: 'Nuxt (SSR)', tier: 1, patterns: ['__nuxt', '/_nuxt/', 'nuxt-link'], boost: 15 },
+    { name: 'SvelteKit', tier: 1, patterns: ['__sveltekit', 'svelte-'], boost: 15 },
+    { name: 'Gatsby', tier: 1, patterns: ['gatsby-', '___gatsby'], boost: 12 },
+    // Tier 2 — Server-rendered with heavier HTML
+    { name: 'Webflow', tier: 2, patterns: ['webflow.com', 'w-webflow', 'wf-page'], boost: 8 },
+    { name: 'Ghost', tier: 2, patterns: ['ghost.org', 'ghost-', 'content/themes'], boost: 10 },
+    { name: 'WordPress', tier: 2, patterns: ['wp-content', 'wp-includes', 'wordpress', 'wp-json'], boost: 5 },
+    { name: 'Shopify', tier: 2, patterns: ['cdn.shopify.com', 'shopify-section', 'Shopify.theme'], boost: 5 },
+    { name: 'Squarespace', tier: 2, patterns: ['squarespace.com', 'sqsp-', 'sqs-'], boost: 5 },
+    { name: 'Wix', tier: 2, patterns: ['wix.com', 'wixsite.com', 'wix-', 'x-wix-'], boost: 3 },
+    { name: 'Drupal', tier: 2, patterns: ['drupal', 'sites/default/files', 'drupal.js'], boost: 5 },
+    { name: 'Joomla', tier: 2, patterns: ['joomla', '/media/system/', 'option=com_'], boost: 5 },
+    { name: 'Laravel', tier: 2, patterns: ['laravel', 'csrf-token', '_token'], boost: 8 },
+    { name: 'Rails', tier: 2, patterns: ['csrf-token', 'turbolinks', 'rails-ujs'], boost: 8 },
+    { name: 'Django', tier: 2, patterns: ['csrfmiddlewaretoken', 'django'], boost: 8 },
+    // Tier 3 — Heavy/complex
+    { name: 'WooCommerce', tier: 3, patterns: ['woocommerce', 'wc-blocks', 'add-to-cart'], boost: 0 },
+    { name: 'Magento', tier: 3, patterns: ['magento', 'mage/', 'Magento_'], boost: -5 },
+    { name: 'BigCommerce', tier: 3, patterns: ['bigcommerce', 'stencil-'], boost: 0 },
+    { name: 'Framer', tier: 3, patterns: ['framer.com', 'framerusercontent', '__framer'], boost: 0 },
+    { name: 'Bubble', tier: 3, patterns: ['bubble.io', 'bubbleapps'], boost: -5 },
+    { name: 'Carrd', tier: 3, patterns: ['carrd.co', 'crd.co'], boost: 3 },
+    // Tier 4 — SPA/CSR (lowest compatibility)
+    { name: 'React SPA', tier: 4, patterns: ['<div id="root"></div>', 'react-root', 'reactDOM'], boost: -15 },
+    { name: 'Angular', tier: 4, patterns: ['ng-version', 'ng-app', '<app-root', 'angular'], boost: -20 },
+    { name: 'Vue SPA', tier: 4, patterns: ['<div id="app"></div>', '__VUE__', 'vue-app'], boost: -15 },
+    { name: 'Cloudflare Protected', tier: 4, patterns: ['cf-challenge', 'cloudflare-static', 'cf_clearance', 'jschl_answer'], boost: -30 },
+  ]
+
   let framework = 'Unknown'
-  if (html.includes('/_next/')) { framework = 'Next.js'; score += 15 }
-  else if (html.includes('astro')) { framework = 'Astro'; score += 20 }
-  else if (html.includes('__nuxt') || html.includes('/_nuxt/')) { framework = 'Nuxt'; score += 15 }
-  else if (html.includes('wp-content') || html.includes('wordpress')) { framework = 'WordPress'; score += 5 }
-  else if (html.includes('shopify') || html.includes('cdn.shopify')) { framework = 'Shopify'; score += 5 }
-  else if (html.includes('squarespace')) { framework = 'Squarespace'; score += 5 }
-  else if (html.includes('wix.com') || html.includes('wixsite')) { framework = 'Wix'; score += 3 }
-  else if (html.includes('webflow')) { framework = 'Webflow'; score += 8 }
-  else if (html.includes('ghost')) { framework = 'Ghost'; score += 10 }
-  else if (html.includes('hugo') || html.includes('gohugo')) { framework = 'Hugo'; score += 18 }
-  else if (html.includes('jekyll')) { framework = 'Jekyll'; score += 15 }
-  details.push(`Framework: ${framework}`)
+  let frameworkTier: 1 | 2 | 3 | 4 = 2
+  for (const det of detectors) {
+    if (det.patterns.some(p => html.includes(p))) {
+      framework = det.name
+      frameworkTier = det.tier
+      score += det.boost
+      break
+    }
+  }
+  details.push(`Framework: ${framework} (Tier ${frameworkTier})`)
 
   // 2. Check content density (after cleaning)
   const cleaned = html
