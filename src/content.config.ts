@@ -99,13 +99,13 @@ const landingPages = defineCollection({
     design: z.object({
       preset: z.string().optional(),
       colors: z.object({
-        primary: z.string().optional(),
-        secondary: z.string().optional(),
-        accent: z.string().optional(),
-        background: z.string().optional(),
-        surface: z.string().optional(),
-        text: z.string().optional(),
-        textMuted: z.string().optional(),
+        primary: z.string().nullable().optional(),
+        secondary: z.string().nullable().optional(),
+        accent: z.string().nullable().optional(),
+        background: z.string().nullable().optional(),
+        surface: z.string().nullable().optional(),
+        text: z.string().nullable().optional(),
+        textMuted: z.string().nullable().optional(),
       }).optional(),
       fonts: z.object({
         heading: z.string().optional(),
