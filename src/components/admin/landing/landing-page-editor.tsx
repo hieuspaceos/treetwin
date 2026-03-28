@@ -224,14 +224,12 @@ export function LandingPageEditor({ slug }: Props) {
         <h1 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b', flex: 1 }}>
           {isNew ? 'New Landing Page' : `Edit: ${config.title}`}
         </h1>
-        {!isNew && (
-          <button
-            className={`admin-btn ${splitView ? 'admin-btn-primary' : ''}`}
-            onClick={() => setSplitView((v) => !v)}
-            style={{ fontSize: '0.8rem' }}
-            title="Toggle split preview"
-          >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
-        )}
+        <button
+          className={`admin-btn ${splitView ? 'admin-btn-primary' : ''}`}
+          onClick={() => setSplitView((v) => !v)}
+          style={{ fontSize: '0.8rem' }}
+          title="Toggle split preview"
+        >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         {!isNew && slug && <a href={`/${slug}`} target="_blank" rel="noopener" className="admin-btn" style={{ fontSize: '0.8rem' }}>View Page ↗</a>}
         <button className="admin-btn" onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem' }} title="Clone from URL">
           Clone URL
