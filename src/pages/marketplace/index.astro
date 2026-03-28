@@ -1,10 +1,86 @@
 ---
-/** Marketplace landing — SSR (no prerender, needs auth context in future) */
+/** Marketplace catalog — SSR, shows products from Supabase or local SQLite fallback. */
 import BaseLayout from '@/layouts/base-layout.astro'
+import { getMarketplaceClient } from '@/lib/supabase/client'
+import { listProducts } from '@/lib/supabase/marketplace-queries'
+
+const category = Astro.url.searchParams.get('category') || undefined
+
+let products: any[] = []
+try {
+  const client = await getMarketplaceClient()
+  products = await listProducts(client, category)
+} catch {
+  // Silently fall back to empty list on error
+}
+
+const categories = ['all', 'tool', 'template', 'service', 'plugin']
+const activeCategory = category || 'all'
+
+function formatPrice(vnd: number): string {
+  return new Intl.NumberFormat('vi-VN').format(vnd) + '₫'
+}
 ---
 <BaseLayout title="Marketplace">
-  <div style="max-width: 800px; margin: 4rem auto; text-align: center; padding: 2rem">
-    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem">Marketplace</h1>
-    <p style="color: #64748b">Coming soon — digital products for Vietnamese SMBs</p>
+  <div style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2.5rem">
+      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem">Marketplace</h1>
+      <p style="color: #64748b; max-width: 500px; margin: 0 auto">
+        Digital products for Vietnamese SMBs — buy once, own forever
+      </p>
+    </div>
+
+    <!-- Category tabs -->
+    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap">
+      {categories.map(cat => (
+        <a
+          href={cat === 'all' ? '/marketplace' : `/marketplace?category=${cat}`}
+          style={`padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.85rem; text-decoration: none; font-weight: 500; ${activeCategory === cat ? 'background: #1e293b; color: white' : 'background: #f1f5f9; color: #475569'}`}
+        >
+          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+        </a>
+      ))}
+    </div>
+
+    <!-- Product grid -->
+    {products.length > 0 ? (
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem">
+        {products.map((p: any) => (
+          <a href={`/marketplace/${p.slug}`} style="text-decoration: none; color: inherit">
+            <div class="glass-card" style="overflow: hidden; transition: transform 0.2s; cursor: pointer">
+              {p.cover_image && (
+                <img src={p.cover_image} alt={p.title} style="width: 100%; height: 180px; object-fit: cover" />
+              )}
+              <div style="padding: 1.25rem">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem">
+                  <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0">{p.title}</h3>
+                  <span style="font-size: 0.75rem; padding: 0.2rem 0.6rem; background: #f1f5f9; border-radius: 999px; color: #475569; white-space: nowrap; margin-left: 0.5rem">
+                    {p.category}
+                  </span>
+                </div>
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5">
+                  {p.short_description || (p.description ? p.description.slice(0, 100) : '')}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                  <span style="font-size: 1.1rem; font-weight: 700; color: #1e293b">
+                    {formatPrice(p.price_vnd)}
+                  </span>
+                  {p.price_usd > 0 && (
+                    <span style="font-size: 0.8rem; color: #94a3b8">
+                      ${(p.price_usd / 100).toFixed(0)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div style="text-align: center; padding: 3rem; color: #94a3b8">
+        <p>No products found</p>
+      </div>
+    )}
   </div>
 </BaseLayout>

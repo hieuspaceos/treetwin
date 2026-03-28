@@ -1,0 +1,22 @@
+---
+/** OAuth callback — Supabase handles token exchange from URL hash, then redirects to intended page. */
+const redirect = Astro.url.searchParams.get('redirect') || '/dashboard'
+---
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Signing in...</title>
+  </head>
+  <body>
+    <script is:inline define:vars={{ redirect }}>
+      // Supabase Auth exchanges the token from the URL hash automatically on page load.
+      // Redirect after a short delay to allow the exchange to complete.
+      setTimeout(() => {
+        window.location.href = redirect
+      }, 1000)
+    </script>
+    <p style="text-align: center; margin-top: 4rem; color: #64748b; font-family: sans-serif">
+      Signing in...
+    </p>
+  </body>
+</html>

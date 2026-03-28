@@ -1,0 +1,91 @@
+---
+/** Product detail page — SSR, loads product from Supabase or local SQLite fallback. */
+import BaseLayout from '@/layouts/base-layout.astro'
+import { getMarketplaceClient } from '@/lib/supabase/client'
+import { getProduct } from '@/lib/supabase/marketplace-queries'
+
+const { slug } = Astro.params
+if (!slug) return Astro.redirect('/marketplace')
+
+let product: any = null
+try {
+  const client = await getMarketplaceClient()
+  product = await getProduct(client, slug)
+} catch {
+  // Product not found or client error — redirect to catalog
+}
+
+if (!product) return Astro.redirect('/marketplace')
+
+const features: string[] = Array.isArray(product.features) ? product.features : []
+
+function formatPrice(vnd: number): string {
+  return new Intl.NumberFormat('vi-VN').format(vnd) + '₫'
+}
+---
+<BaseLayout title={product.title}>
+  <div style="max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem">
+    <!-- Back link -->
+    <a href="/marketplace" style="color: #64748b; font-size: 0.85rem; text-decoration: none; margin-bottom: 1.5rem; display: inline-block">
+      &larr; Back to Marketplace
+    </a>
+
+    <!-- Hero section -->
+    <div style="margin-bottom: 2rem">
+      {product.cover_image && (
+        <img
+          src={product.cover_image}
+          alt={product.title}
+          style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem"
+        />
+      )}
+
+      <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1.5rem">
+        <!-- Product info -->
+        <div style="flex: 1; min-width: 280px">
+          <span style="font-size: 0.75rem; padding: 0.2rem 0.6rem; background: #f1f5f9; border-radius: 999px; color: #475569; margin-bottom: 0.5rem; display: inline-block">
+            {product.category}
+          </span>
+          <h1 style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0">{product.title}</h1>
+          <p style="color: #64748b; font-size: 1rem; line-height: 1.6">{product.description}</p>
+        </div>
+
+        <!-- Purchase card -->
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; min-width: 200px; text-align: center; border: 1px solid #e2e8f0; flex-shrink: 0">
+          <p style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; margin-top: 0">
+            {formatPrice(product.price_vnd)}
+          </p>
+          {product.price_usd > 0 && (
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem; margin-top: 0">
+              ${(product.price_usd / 100).toFixed(0)} USD
+            </p>
+          )}
+          <a
+            href={`/checkout/${product.slug}`}
+            style="display: block; padding: 0.75rem 2rem; background: #1e293b; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; text-align: center"
+          >
+            Buy Now
+          </a>
+          <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.75rem; margin-bottom: 0">
+            One-time purchase &middot; Own forever
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features list -->
+    {features.length > 0 && (
+      <div style="margin-bottom: 2rem">
+        <h2 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 1rem">What's Included</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem">
+          {features.map((f: string) => (
+            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background: #f8fafc; border-radius: 8px">
+              <span style="color: #22c55e; font-weight: 700">&#10003;</span>
+              <span style="font-size: 0.9rem">{f}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>

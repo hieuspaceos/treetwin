@@ -97,3 +97,6 @@ worktrees/
 
 # Release manifest
 release-manifest.json
+
+# Local SQLite fallback (generated at runtime)
+data/
