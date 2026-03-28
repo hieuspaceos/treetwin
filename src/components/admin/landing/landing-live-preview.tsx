@@ -658,13 +658,30 @@ function PreviewMap({ data }: { data: MapData }) {
   )
 }
 
+/** Minimal Markdown→HTML for preview (mirrors landing-rich-text.astro parser) */
+function parseMd(md: string): string {
+  return md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/^---$/gm, '<hr/>')
+    .replace(/^(?!<)(.+)$/gm, '<p>$1</p>')
+    .replace(/<p>(<h[1-6]>)/g, '$1').replace(/(<\/h[1-6]>)<\/p>/g, '$1')
+    .replace(/<p>(<li>)/g, '$1').replace(/(<\/li>)<\/p>/g, '$1')
+    .replace(/<p>(<hr\/>)<\/p>/g, '$1')
+}
+
 function PreviewRichText({ data }: { data: RichTextData }) {
-  // Strip tags for safe preview text
-  const text = data.content.replace(/<[^>]+>/g, ' ').trim().slice(0, 200)
+  const isHtml = data.content.trimStart().startsWith('<')
+  const html = isHtml ? data.content : parseMd(data.content)
+  const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
   return (
-    <div style={{ padding: '1rem' }}>
-      <p style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.6 }}>{text}{text.length >= 200 ? '…' : ''}</p>
-    </div>
+    <div style={{ padding: '1rem', fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--lp-text)' }}
+      dangerouslySetInnerHTML={{ __html: safe }} />
   )
 }
 
