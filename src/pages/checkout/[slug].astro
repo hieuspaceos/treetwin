@@ -1,0 +1,186 @@
+---
+/** Checkout page — SSR, shows product summary and payment options.
+ * In local mode: shows "Local Dev Mode" notice with simulated payment flow.
+ */
+import BaseLayout from '@/layouts/base-layout.astro'
+import { getMarketplaceClient } from '@/lib/supabase/client'
+import { getProduct } from '@/lib/supabase/marketplace-queries'
+
+const { slug } = Astro.params
+if (!slug) return Astro.redirect('/marketplace')
+
+let product: any = null
+let isLocalMode = false
+
+try {
+  const url = import.meta.env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL
+  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+  isLocalMode = !(url && key)
+  const client = await getMarketplaceClient()
+  product = await getProduct(client, slug)
+} catch {
+  // Silently handle — redirect below
+}
+
+if (!product) return Astro.redirect('/marketplace')
+
+function formatPrice(vnd: number): string {
+  return new Intl.NumberFormat('vi-VN').format(vnd) + '₫'
+}
+---
+
+<BaseLayout title={`Checkout — ${product.title}`}>
+  <div style="max-width: 640px; margin: 0 auto; padding: 2rem 1.5rem">
+    <!-- Back link -->
+    <a href={`/marketplace/${product.slug}`} style="color: #64748b; font-size: 0.85rem; text-decoration: none; margin-bottom: 1.5rem; display: inline-block">
+      &larr; Back to Product
+    </a>
+
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem">Checkout</h1>
+
+    <!-- Local dev mode notice -->
+    {isLocalMode && (
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #92400e">
+        <strong>Local Dev Mode</strong> — Supabase not configured. Payment will be simulated locally.
+      </div>
+    )}
+
+    <!-- Product summary -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem">
+      <h2 style="font-size: 1rem; font-weight: 600; margin: 0 0 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em">Order Summary</h2>
+      <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem">
+        <div>
+          <p style="font-size: 1.1rem; font-weight: 600; margin: 0 0 0.25rem">{product.title}</p>
+          <p style="font-size: 0.85rem; color: #64748b; margin: 0">
+            {product.short_description || product.description?.slice(0, 80)}
+          </p>
+        </div>
+        <div style="text-align: right; flex-shrink: 0">
+          <p style="font-size: 1.2rem; font-weight: 700; margin: 0">{formatPrice(product.price_vnd)}</p>
+          {product.price_usd > 0 && (
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 0.1rem 0 0">${(product.price_usd / 100).toFixed(0)} USD</p>
+          )}
+        </div>
+      </div>
+      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 1rem 0" />
+      <div style="display: flex; justify-content: space-between; font-weight: 700">
+        <span>Total</span>
+        <span>{formatPrice(product.price_vnd)}</span>
+      </div>
+    </div>
+
+    <!-- Payment options -->
+    <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem">Choose Payment Method</h2>
+
+    {isLocalMode ? (
+      <!-- Local mode: simulated payment -->
+      <div>
+        <div style="border: 2px dashed #d1d5db; border-radius: 10px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; color: #6b7280">
+          <p style="margin: 0 0 0.5rem; font-weight: 600">VietQR (SePay)</p>
+          <p style="margin: 0; font-size: 0.85rem">Unavailable in local mode</p>
+        </div>
+        <div style="border: 2px dashed #d1d5db; border-radius: 10px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; color: #6b7280">
+          <p style="margin: 0 0 0.5rem; font-weight: 600">Credit / Debit Card (Stripe)</p>
+          <p style="margin: 0; font-size: 0.85rem">Unavailable in local mode</p>
+        </div>
+        <button
+          id="simulate-btn"
+          data-slug={product.slug}
+          data-product-id={product.id}
+          style="width: 100%; padding: 0.9rem; background: #1e293b; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer"
+        >
+          Simulate Successful Payment (Dev)
+        </button>
+        <p style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 0.75rem">
+          This creates a local order and license for development testing.
+        </p>
+      </div>
+    ) : (
+      <!-- Production mode: real payment buttons -->
+      <div style="display: flex; flex-direction: column; gap: 1rem">
+        <button
+          id="vietqr-btn"
+          data-slug={product.slug}
+          style="width: 100%; padding: 0.9rem; background: #059669; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer"
+        >
+          Pay with VietQR (SePay)
+        </button>
+        <button
+          id="stripe-btn"
+          data-slug={product.slug}
+          style="width: 100%; padding: 0.9rem; background: #6366f1; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer"
+        >
+          Pay with Card (Stripe)
+        </button>
+      </div>
+    )}
+
+    <!-- Status message -->
+    <div id="status-msg" style="display: none; margin-top: 1.5rem; padding: 1rem; border-radius: 8px; text-align: center; font-size: 0.9rem"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  const statusMsg = document.getElementById('status-msg') as HTMLDivElement
+
+  function showStatus(text: string, isError = false) {
+    statusMsg.textContent = text
+    statusMsg.style.display = 'block'
+    statusMsg.style.background = isError ? '#fee2e2' : '#dcfce7'
+    statusMsg.style.color = isError ? '#991b1b' : '#166534'
+  }
+
+  async function simulatePayment(slug: string, productId: string) {
+    const btn = document.getElementById('simulate-btn') as HTMLButtonElement
+    btn.disabled = true
+    btn.textContent = 'Processing...'
+
+    try {
+      // Create order
+      const createRes = await fetch('/api/checkout/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productSlug: slug }),
+      })
+      const createData = await createRes.json()
+      if (!createRes.ok || createData.error) throw new Error(createData.error || 'Order creation failed')
+
+      const orderId = createData.order?.id || createData.order?.order_number
+      const resolvedProductId = productId || createData.order?.product_id
+
+      // Confirm payment
+      const confirmRes = await fetch('/api/checkout/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, productId: resolvedProductId }),
+      })
+      const confirmData = await confirmRes.json()
+      if (!confirmRes.ok || !confirmData.success) throw new Error('Payment confirmation failed')
+
+      showStatus(`Payment successful! License key: ${confirmData.licenseKey}. Redirecting...`)
+      setTimeout(() => (window.location.href = '/dashboard'), 2500)
+    } catch (err: any) {
+      showStatus(err?.message || 'Something went wrong', true)
+      btn.disabled = false
+      btn.textContent = 'Simulate Successful Payment (Dev)'
+    }
+  }
+
+  // Wire simulate button
+  const simulateBtn = document.getElementById('simulate-btn')
+  if (simulateBtn) {
+    simulateBtn.addEventListener('click', () => {
+      const slug = simulateBtn.getAttribute('data-slug') || ''
+      const productId = simulateBtn.getAttribute('data-product-id') || ''
+      simulatePayment(slug, productId)
+    })
+  }
+
+  // VietQR / Stripe stubs (production wiring would go here)
+  document.getElementById('vietqr-btn')?.addEventListener('click', () => {
+    showStatus('VietQR payment coming soon — SePay integration pending', true)
+  })
+  document.getElementById('stripe-btn')?.addEventListener('click', () => {
+    showStatus('Card payment coming soon — Stripe integration pending', true)
+  })
+</script>

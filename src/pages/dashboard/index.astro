@@ -1,0 +1,152 @@
+---
+/**
+ * User dashboard — SSR, shows purchased products, license keys, and order history.
+ * In local mode: queries SQLite directly for local-user orders and licenses.
+ */
+import BaseLayout from '@/layouts/base-layout.astro'
+import { getMarketplaceClient } from '@/lib/supabase/client'
+import { listUserOrders, listUserLicenses } from '@/lib/supabase/marketplace-queries'
+
+const isLocalMode = !(
+  (import.meta.env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL) &&
+  (import.meta.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)
+)
+
+// In a real app this would come from session auth
+const userId = 'local-user'
+
+let orders: any[] = []
+let licenses: any[] = []
+
+try {
+  const client = await getMarketplaceClient()
+  orders = await listUserOrders(client, userId)
+  licenses = await listUserLicenses(client, userId)
+} catch {
+  // Silently degrade — show empty state
+}
+
+function formatPrice(vnd: number): string {
+  return new Intl.NumberFormat('vi-VN').format(vnd) + '₫'
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+const statusColors: Record<string, string> = {
+  fulfilled: '#166534',
+  paid: '#1e40af',
+  pending: '#92400e',
+  cancelled: '#991b1b',
+}
+const statusBg: Record<string, string> = {
+  fulfilled: '#dcfce7',
+  paid: '#dbeafe',
+  pending: '#fef3c7',
+  cancelled: '#fee2e2',
+}
+---
+
+<BaseLayout title="Dashboard">
+  <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem">
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem">Dashboard</h1>
+    <p style="color: #64748b; margin-bottom: 2rem; font-size: 0.9rem">Your purchases, licenses, and order history</p>
+
+    {isLocalMode && (
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 0.875rem 1.25rem; margin-bottom: 2rem; font-size: 0.85rem; color: #92400e">
+        <strong>Local Dev Mode</strong> — showing data for <code>local-user</code>. Connect Supabase for real auth.
+      </div>
+    )}
+
+    <!-- Licenses section -->
+    <section style="margin-bottom: 3rem">
+      <h2 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem">Your Licenses</h2>
+
+      {licenses.length > 0 ? (
+        <div style="display: flex; flex-direction: column; gap: 1rem">
+          {licenses.map((lic: any) => {
+            const prod = lic.products || {}
+            return (
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 200px">
+                  <p style="font-size: 1rem; font-weight: 600; margin: 0 0 0.25rem">{prod.title || 'Product'}</p>
+                  <p style="font-size: 0.8rem; color: #64748b; margin: 0">
+                    Activated {lic.activated_at ? formatDate(lic.activated_at) : '—'}
+                    {lic.expires_at ? ` · Expires ${formatDate(lic.expires_at)}` : ' · Lifetime'}
+                  </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap">
+                  <code style="font-size: 0.8rem; background: #e2e8f0; padding: 0.35rem 0.75rem; border-radius: 6px; letter-spacing: 0.05em; font-family: monospace">
+                    {lic.license_key}
+                  </code>
+                  {prod.download_url && (
+                    <a
+                      href={prod.download_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style="padding: 0.4rem 1rem; background: #1e293b; color: white; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none"
+                    >
+                      Download
+                    </a>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div style="text-align: center; padding: 2.5rem; color: #94a3b8; border: 1px dashed #d1d5db; border-radius: 10px">
+          <p style="margin: 0 0 1rem">No licenses yet.</p>
+          <a href="/marketplace" style="font-size: 0.9rem; color: #1e293b; font-weight: 600; text-decoration: underline">Browse Marketplace</a>
+        </div>
+      )}
+    </section>
+
+    <!-- Orders section -->
+    <section>
+      <h2 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem">Order History</h2>
+
+      {orders.length > 0 ? (
+        <div style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0">
+                <th style="text-align: left; padding: 0.6rem 0.75rem; color: #64748b; font-weight: 600">Order #</th>
+                <th style="text-align: left; padding: 0.6rem 0.75rem; color: #64748b; font-weight: 600">Product</th>
+                <th style="text-align: left; padding: 0.6rem 0.75rem; color: #64748b; font-weight: 600">Date</th>
+                <th style="text-align: right; padding: 0.6rem 0.75rem; color: #64748b; font-weight: 600">Total</th>
+                <th style="text-align: center; padding: 0.6rem 0.75rem; color: #64748b; font-weight: 600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((ord: any) => {
+                const items: any[] = ord.order_items || []
+                const firstProduct = items[0]?.products || {}
+                const color = statusColors[ord.status] || '#475569'
+                const bg = statusBg[ord.status] || '#f1f5f9'
+                return (
+                  <tr style="border-bottom: 1px solid #f1f5f9">
+                    <td style="padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #64748b">{ord.order_number}</td>
+                    <td style="padding: 0.75rem; font-weight: 500">{firstProduct.title || (items.length > 1 ? `${items.length} items` : '—')}</td>
+                    <td style="padding: 0.75rem; color: #64748b">{ord.created_at ? formatDate(ord.created_at) : '—'}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 600">{formatPrice(ord.total_vnd)}</td>
+                    <td style="padding: 0.75rem; text-align: center">
+                      <span style={`font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: ${bg}; color: ${color}; font-weight: 600`}>
+                        {ord.status}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div style="text-align: center; padding: 2.5rem; color: #94a3b8; border: 1px dashed #d1d5db; border-radius: 10px">
+          <p style="margin: 0">No orders yet.</p>
+        </div>
+      )}
+    </section>
+  </div>
+</BaseLayout>

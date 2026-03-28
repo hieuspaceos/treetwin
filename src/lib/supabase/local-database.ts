@@ -124,6 +124,24 @@ function parseJsonFields(row: Record<string, unknown>): void {
   }
 }
 
+/** Whitelisted table names — prevents SQL injection via table interpolation. */
+const VALID_TABLES = new Set(['profiles', 'products', 'orders', 'order_items', 'licenses', 'payment_events'])
+
+/** Whitelisted column names for WHERE conditions — prevents SQL injection via column interpolation. */
+const VALID_COLUMNS = new Set([
+  'id', 'slug', 'status', 'category', 'user_id', 'order_id', 'product_id',
+  'order_number', 'license_key', 'email',
+])
+
+/** Whitelisted column names for ORDER BY — superset of VALID_COLUMNS plus timestamp columns. */
+const VALID_ORDER_COLUMNS = new Set([
+  ...VALID_COLUMNS,
+  'created_at', 'updated_at', 'activated_at',
+])
+
+/** Operation mode for the builder — determines which SQL to run in `then()`. */
+type OpMode = 'select' | 'insert' | 'update' | 'upsert'
+
 /** Minimal Supabase-compatible query builder backed by SQLite. */
 class QueryBuilder {
   private table: string
@@ -131,19 +149,25 @@ class QueryBuilder {
   private orderCol?: string
   private orderAsc = true
   private isSingle = false
+  private opMode: OpMode = 'select'
+  private insertRows: Record<string, unknown>[] = []
+  private updateData: Record<string, unknown> = {}
 
   constructor(table: string) {
+    if (!VALID_TABLES.has(table)) throw new Error(`Invalid table: ${table}`)
     this.table = table
   }
 
   select(_cols = '*') { return this }
 
   eq(col: string, val: unknown) {
+    if (!VALID_COLUMNS.has(col)) throw new Error(`Invalid column: ${col}`)
     this.conditions.push({ col, val })
     return this
   }
 
   order(col: string, opts?: { ascending?: boolean }) {
+    if (!VALID_ORDER_COLUMNS.has(col)) throw new Error(`Invalid order column: ${col}`)
     this.orderCol = col
     this.orderAsc = opts?.ascending ?? true
     return this
@@ -154,70 +178,140 @@ class QueryBuilder {
     return this
   }
 
-  /** Allows `await queryBuilder` — makes the builder thenable. */
+  /** Stage an insert operation — returns `this` so `.select().single()` can be chained. */
+  insert(data: Record<string, unknown> | Record<string, unknown>[]) {
+    this.opMode = 'insert'
+    this.insertRows = Array.isArray(data) ? data : [data]
+    return this
+  }
+
+  /** Stage an update operation — returns `this` so `.eq().select().single()` can be chained. */
+  update(data: Record<string, unknown>) {
+    this.opMode = 'update'
+    this.updateData = data
+    return this
+  }
+
+  /** Allows `await queryBuilder` — executes the staged operation. */
   then(
     resolve: (v: { data: unknown; error: unknown }) => void,
     reject?: (e: unknown) => void
   ): void {
     try {
-      const database = getDb()
-      let sql = `SELECT * FROM ${this.table}`
-      const params: unknown[] = []
-
-      if (this.conditions.length) {
-        sql +=
-          ' WHERE ' +
-          this.conditions
-            .map((c) => {
-              params.push(c.val)
-              return `${c.col} = ?`
-            })
-            .join(' AND ')
+      if (this.opMode === 'insert') {
+        resolve(this._execInsert())
+        return
       }
-
-      if (this.orderCol) {
-        sql += ` ORDER BY ${this.orderCol} ${this.orderAsc ? 'ASC' : 'DESC'}`
+      if (this.opMode === 'update') {
+        resolve(this._execUpdate())
+        return
       }
-
-      if (this.isSingle) {
-        const row = database.prepare(sql).get(...(params as Parameters<Database.Statement['get']>)) as
-          | Record<string, unknown>
-          | undefined
-        if (row) parseJsonFields(row)
-        resolve({
-          data: row ?? null,
-          error: row ? null : { message: 'Not found' },
-        })
-      } else {
-        const rows = database
-          .prepare(sql)
-          .all(...(params as Parameters<Database.Statement['all']>)) as Record<string, unknown>[]
-        rows.forEach((r) => parseJsonFields(r))
-        resolve({ data: rows, error: null })
-      }
+      // Default: SELECT
+      resolve(this._execSelect())
     } catch (error) {
       if (reject) reject(error)
       else resolve({ data: null, error })
     }
   }
 
-  /** Insert one or more rows into the table. */
-  async insert(data: Record<string, unknown> | Record<string, unknown>[]) {
+  // ── Private execution helpers ─────────────────────────────────────────────
+
+  private _whereClause(params: unknown[]): string {
+    if (!this.conditions.length) return ''
+    return (
+      ' WHERE ' +
+      this.conditions
+        .map((c) => { params.push(c.val); return `${c.col} = ?` })
+        .join(' AND ')
+    )
+  }
+
+  private _serializeVal(v: unknown): unknown {
+    return typeof v === 'object' && v !== null ? JSON.stringify(v) : v
+  }
+
+  private _execSelect(): { data: unknown; error: unknown } {
+    const database = getDb()
+    const params: unknown[] = []
+    let sql = `SELECT * FROM ${this.table}` + this._whereClause(params)
+    if (this.orderCol) sql += ` ORDER BY ${this.orderCol} ${this.orderAsc ? 'ASC' : 'DESC'}`
+
+    if (this.isSingle) {
+      const row = database.prepare(sql).get(...(params as Parameters<Database.Statement['get']>)) as
+        | Record<string, unknown>
+        | undefined
+      if (row) parseJsonFields(row)
+      return { data: row ?? null, error: row ? null : { message: 'Not found' } }
+    }
+    const rows = database
+      .prepare(sql)
+      .all(...(params as Parameters<Database.Statement['all']>)) as Record<string, unknown>[]
+    rows.forEach((r) => parseJsonFields(r))
+    return { data: rows, error: null }
+  }
+
+  private _execInsert(): { data: unknown; error: unknown } {
     try {
       const database = getDb()
-      const rows = Array.isArray(data) ? data : [data]
-      for (const row of rows) {
+      const inserted: Record<string, unknown>[] = []
+      for (const row of this.insertRows) {
         const cols = Object.keys(row)
-        const vals = cols.map((c) =>
-          typeof row[c] === 'object' && row[c] !== null ? JSON.stringify(row[c]) : row[c]
+        const vals = cols.map((c) => this._serializeVal(row[c]))
+        const stmt = database.prepare(
+          `INSERT OR IGNORE INTO ${this.table} (${cols.join(',')}) VALUES (${cols.map(() => '?').join(',')})`
         )
-        database
-          .prepare(
-            `INSERT INTO ${this.table} (${cols.join(',')}) VALUES (${cols.map(() => '?').join(',')})`
-          )
-          .run(...(vals as Parameters<Database.Statement['run']>))
+        const info = stmt.run(...(vals as Parameters<Database.Statement['run']>))
+
+        if (this.isSingle) {
+          // Re-fetch via rowid (works even when `id` is a TEXT DEFAULT generated value)
+          const rowid = info.lastInsertRowid
+          let fetched: Record<string, unknown> | undefined
+          if (rowid) {
+            fetched = database.prepare(`SELECT * FROM ${this.table} WHERE rowid = ?`).get(rowid) as
+              | Record<string, unknown>
+              | undefined
+          }
+          // Fallback: lookup by a unique column present in insert data
+          if (!fetched) {
+            const uniqueCols = ['order_number', 'license_key', 'slug', 'id'].filter((c) => cols.includes(c))
+            if (uniqueCols.length) {
+              const uc = uniqueCols[0]
+              fetched = database
+                .prepare(`SELECT * FROM ${this.table} WHERE ${uc} = ?`)
+                .get(row[uc] as Parameters<Database.Statement['get']>[0]) as Record<string, unknown> | undefined
+            }
+          }
+          if (fetched) { parseJsonFields(fetched); inserted.push(fetched) }
+        } else {
+          inserted.push(row)
+        }
       }
-      return { data: rows, error: null }
+      const result = this.isSingle ? (inserted[0] ?? null) : inserted
+      return { data: result, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
+  private _execUpdate(): { data: unknown; error: unknown } {
+    try {
+      const database = getDb()
+      const setCols = Object.keys(this.updateData)
+      const setVals = setCols.map((c) => this._serializeVal(this.updateData[c]))
+      const whereParams: unknown[] = []
+      const where = this._whereClause(whereParams)
+      const sql = `UPDATE ${this.table} SET ${setCols.map((c) => `${c} = ?`).join(', ')}${where}`
+      database.prepare(sql).run(...([...setVals, ...whereParams] as Parameters<Database.Statement['run']>))
+
+      if (this.isSingle && this.conditions.length) {
+        const fetchParams: unknown[] = []
+        const fetchWhere = ' WHERE ' + this.conditions.map((c) => { fetchParams.push(c.val); return `${c.col} = ?` }).join(' AND ')
+        const row = database.prepare(`SELECT * FROM ${this.table}${fetchWhere}`)
+          .get(...(fetchParams as Parameters<Database.Statement['get']>)) as Record<string, unknown> | undefined
+        if (row) parseJsonFields(row)
+        return { data: row ?? null, error: null }
+      }
+      return { data: this.updateData, error: null }
     } catch (error) {
       return { data: null, error }
     }

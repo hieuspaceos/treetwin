@@ -1,6 +1,8 @@
 ---
 /** OAuth callback — Supabase handles token exchange from URL hash, then redirects to intended page. */
-const redirect = Astro.url.searchParams.get('redirect') || '/dashboard'
+const rawRedirect = Astro.url.searchParams.get('redirect') || '/dashboard'
+// Prevent open redirect: must be a relative path, not a protocol-relative URL
+const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard'
 ---
 <html>
   <head>
@@ -11,8 +13,12 @@ const redirect = Astro.url.searchParams.get('redirect') || '/dashboard'
     <script is:inline define:vars={{ redirect }}>
       // Supabase Auth exchanges the token from the URL hash automatically on page load.
       // Redirect after a short delay to allow the exchange to complete.
+      // `redirect` is already validated server-side to be a safe relative path.
       setTimeout(() => {
-        window.location.href = redirect
+        // Re-validate client-side in case define:vars is tampered with via devtools
+        let target = redirect
+        if (!target.startsWith('/') || target.startsWith('//')) target = '/dashboard'
+        window.location.href = target
       }, 1000)
     </script>
     <p style="text-align: center; margin-top: 4rem; color: #64748b; font-family: sans-serif">

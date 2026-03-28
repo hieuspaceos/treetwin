@@ -2,7 +2,9 @@
 /** Login page — Google OAuth via Supabase Auth, or local-mode notice when Supabase is not configured. */
 import BaseLayout from '@/layouts/base-layout.astro'
 
-const redirect = Astro.url.searchParams.get('redirect') || '/dashboard'
+const rawRedirect = Astro.url.searchParams.get('redirect') || '/dashboard'
+// Prevent open redirect: must be a relative path, not a protocol-relative URL
+const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard'
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 ---
