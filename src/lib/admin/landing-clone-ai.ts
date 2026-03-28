@@ -132,6 +132,24 @@ export interface CloneResult {
   usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
 }
 
+/** Rewrite external image URLs in cloned sections to use /api/proxy-image */
+function proxyExternalImages(result: CloneResult) {
+  const rewrite = (val: unknown): unknown => {
+    if (typeof val === 'string' && /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|avif)/i.test(val)) {
+      return `/api/proxy-image?url=${encodeURIComponent(val)}`
+    }
+    if (Array.isArray(val)) return val.map(rewrite)
+    if (val && typeof val === 'object') {
+      const obj = val as Record<string, unknown>
+      for (const k of Object.keys(obj)) obj[k] = rewrite(obj[k])
+    }
+    return val
+  }
+  for (const section of result.sections) {
+    section.data = rewrite(section.data) as Record<string, unknown>
+  }
+}
+
 /** Fetch HTML from URL with timeout and size limit */
 async function fetchPageHtml(url: string): Promise<string> {
   const controller = new AbortController()
