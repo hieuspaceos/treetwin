@@ -257,12 +257,11 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
               </div>
             )}
 
-            {/* AI usage cost */}
+            {/* AI usage cost + chunks info */}
             {(result as any).usage && (
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.6rem', padding: '0.5rem 0.85rem', background: '#f0fdf4', borderRadius: '10px', alignItems: 'center', fontSize: '0.7rem', color: '#16a34a' }}>
-                <span>⚡ Tokens: <strong>{((result as any).usage.totalTokens as number).toLocaleString()}</strong></span>
-                <span>📥 Input: {((result as any).usage.promptTokens as number).toLocaleString()}</span>
-                <span>📤 Output: {((result as any).usage.outputTokens as number).toLocaleString()}</span>
+              <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.6rem', padding: '0.5rem 0.85rem', background: '#f0fdf4', borderRadius: '10px', alignItems: 'center', fontSize: '0.7rem', color: '#16a34a', flexWrap: 'wrap' }}>
+                {(result as any).chunks > 1 && <span>📦 {(result as any).chunks} chunks</span>}
+                <span>⚡ {((result as any).usage.totalTokens as number).toLocaleString()} tokens</span>
                 <span style={{ marginLeft: 'auto', fontWeight: 600 }}>💰 ~${((result as any).usage.estimatedCostUsd as number).toFixed(4)}</span>
               </div>
             )}
