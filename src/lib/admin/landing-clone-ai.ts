@@ -168,33 +168,48 @@ async function fetchPageHtml(url: string): Promise<string> {
   }
 }
 
-/** Attempt to repair truncated JSON by closing unclosed brackets/braces */
+/** Attempt to repair malformed/truncated JSON from AI response */
 function repairJson(text: string): string {
-  // Strip markdown code fences if present
+  // Strip markdown code fences
   let json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
 
-  // Try parsing as-is first
+  // Try as-is first
   try { JSON.parse(json); return json } catch {}
 
-  // Count unclosed brackets/braces and close them
-  let braces = 0, brackets = 0, inString = false, escape = false
-  for (const ch of json) {
-    if (escape) { escape = false; continue }
-    if (ch === '\\') { escape = true; continue }
-    if (ch === '"') { inString = !inString; continue }
-    if (inString) continue
-    if (ch === '{') braces++
-    else if (ch === '}') braces--
-    else if (ch === '[') brackets++
-    else if (ch === ']') brackets--
+  // Fix common issues: unescaped newlines/tabs inside strings
+  json = json.replace(/(?<=": ")((?:[^"\\]|\\.)*)(?=")/g, (match) =>
+    match.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
+  )
+
+  // Try again after string escaping
+  try { JSON.parse(json); return json } catch {}
+
+  // Truncation repair: find last valid structure point and close
+  // Try progressively shorter substrings
+  for (let cutback = 0; cutback < 500; cutback += 10) {
+    let attempt = json.slice(0, json.length - cutback)
+    // Remove partial key-value at the end
+    attempt = attempt.replace(/,\s*"[^"]*"?\s*:?\s*"?[^"]*$/, '')
+    attempt = attempt.replace(/,\s*$/, '')
+
+    // Count and close unclosed brackets/braces
+    let braces = 0, brackets = 0, inStr = false, esc = false
+    for (const ch of attempt) {
+      if (esc) { esc = false; continue }
+      if (ch === '\\') { esc = true; continue }
+      if (ch === '"') { inStr = !inStr; continue }
+      if (inStr) continue
+      if (ch === '{') braces++; else if (ch === '}') braces--
+      if (ch === '[') brackets++; else if (ch === ']') brackets--
+    }
+    // Close unclosed string if inside one
+    if (inStr) attempt += '"'
+
+    while (brackets > 0) { attempt += ']'; brackets-- }
+    while (braces > 0) { attempt += '}'; braces-- }
+
+    try { JSON.parse(attempt); return attempt } catch {}
   }
-
-  // Remove trailing comma before closing
-  json = json.replace(/,\s*$/, '')
-
-  // Close unclosed structures
-  while (brackets > 0) { json += ']'; brackets-- }
-  while (braces > 0) { json += '}'; braces-- }
 
   return json
 }
@@ -223,7 +238,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   const html = cleanHtml(rawHtml)
 
   if (html.length < 100) {
-    throw new Error('Page content too short — may be a JavaScript-only SPA that requires a browser to render')
+    throw new Error('Page content too short — this site is likely a JavaScript SPA (React/Angular/Vue) that renders client-side. Try using "Paste Code" mode instead: open the page in your browser → right-click → View Page Source → copy all → paste into the code tab.')
   }
 
   const intentContext = intent
