@@ -4,21 +4,20 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-28)
 
-**Phase:** v2.7.0 — Landing Page v2 Upgrades
-**Completion:** v2.6.0 complete + 3 new section types + enhanced admin features
+**Phase:** v3.0.0 — Marketplace Evolution
+**Completion:** v2.7.0 complete + Marketplace backbone implementation
 **Active Team:** Solo (HieuSpace)
-**Key Features Added (v2.7.0):**
-- New Section Types: social-proof, comparison, ai-search (25 total)
-- Icon Picker: Browse/select icons for nav and footer items
-- Multi-CTA Buttons: Support multiple buttons per section with individual styles
-- Testimonials Carousel: Auto-rotating carousel with pagination
-- Footer Columns Editor: Visual multi-column footer builder
-- Pricing Badges: Support for badge labels (Popular, Best Value, etc.)
-- Rich Text Markdown: Full Markdown support in rich text sections
-- Video Auto-Detect: YouTube/Vimeo/custom URL auto-embedding
-- Design Token Enhancements: glass-card, btn-secondary, btn-outline, gradient-text
-- Scroll-to-Highlight: Auto-highlight sections during page scroll
-- AI Clone Improvements: Anti-duplication rules + better design inference
+**Key Features Added (v3.0.0):**
+- Astro Hybrid SSR: `output: 'server'` enables on-demand SSR for marketplace
+- Supabase Integration: 6-table schema (profiles, products, orders, order_items, licenses, payment_events)
+- SQLite Fallback: better-sqlite3 for local dev without API keys
+- Google OAuth: Supabase Auth integration with `/api/auth/callback` handler
+- Marketplace Pages: `/marketplace`, `/marketplace/[slug]`, `/checkout/[slug]`, `/dashboard`
+- AI Intent Search: Gemini 2.5-flash powered product search with confidence scoring
+- License Key Delivery: Auto-generated keys with activation tracking
+- Payment Skeleton: `/api/checkout/create` and `/api/checkout/confirm` (local simulation)
+- Database Schema: Full SQL for Supabase + SQLite fallback
+- New Dependencies: @supabase/supabase-js, better-sqlite3
 
 ---
 
@@ -406,6 +405,90 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
+## Phase 13 — Marketplace Evolution (In Progress — 2026-03-28)
+
+**Timeline:** 2026-03-28 onwards
+**Status:** In Progress
+**Plan Location:** TBD (marketplace implementation)
+**Effort:** ~16 hours (estimated)
+
+### Deliverables (Complete)
+
+**Astro Hybrid SSR:**
+- [x] Switch `output` from 'static' to 'server' for on-demand SSR
+- [x] Landing pages remain static (pre-rendered); marketplace routes rendered on-demand
+
+**Supabase Database Layer:**
+- [x] 6 core tables: profiles, products, orders, order_items, licenses, payment_events
+- [x] Supabase client setup with connection pooling
+- [x] Row-level security (RLS) policies for data isolation
+- [x] Migrations + schema initialization
+
+**SQLite Fallback (Dev):**
+- [x] better-sqlite3 integration for local development
+- [x] Auto-initialize schema on server start
+- [x] Fallback flag: `USE_SQLITE_FALLBACK=true`
+- [x] Zero Supabase keys needed for offline development
+
+**Google OAuth Integration:**
+- [x] Supabase Auth client configuration
+- [x] OAuth flow: `/api/auth/callback` handler
+- [x] JWT token generation + session cookies
+- [x] Logout endpoint: `/api/auth/logout`
+
+**Marketplace Pages:**
+- [x] `/marketplace` — Product catalog with AI search UI
+- [x] `/marketplace/[slug]` — Product detail page
+- [x] `/checkout/[slug]` — Checkout form (skeleton)
+- [x] `/dashboard` — User dashboard with purchases + licenses
+
+**AI Intent Search:**
+- [x] `POST /api/marketplace/search` endpoint
+- [x] Gemini 2.5-flash prompt for intent matching
+- [x] Confidence scoring + explanation generation
+- [x] Fallback to keyword search if Gemini unavailable
+
+**License Key Delivery:**
+- [x] Auto-generate unique license keys on order confirmation
+- [x] Store in `licenses` table with activation status
+- [x] Dashboard display with activation tokens
+- [x] API: `GET /api/dashboard/licenses`
+
+**Payment Skeleton:**
+- [x] `POST /api/checkout/create` — Create order session
+- [x] `POST /api/checkout/confirm` — Confirm payment (local: auto-success)
+- [x] License key generation on confirmation
+- [x] Ready for Stripe integration
+
+### Files Created
+- **Supabase layer:** 4 files (client, fallback, types, queries)
+- **Marketplace services:** 4 files (products, orders, licenses, AI search)
+- **Auth:** 3 files (supabase-auth, jwt-utils, session)
+- **Pages:** 4 files (marketplace catalog/detail, checkout, dashboard)
+- **API routes:** 8 files (marketplace, checkout, dashboard, auth)
+
+### Architecture Decisions
+- **Hybrid mode:** Astro SSR on-demand for auth + commerce; static for content
+- **Database:** Supabase PostgreSQL primary; SQLite fallback for dev
+- **Auth:** Supabase Auth + custom JWT middleware
+- **Payment:** Skeleton with local simulation; production-ready for Stripe
+- **Search:** Gemini-powered semantic search with keyword fallback
+
+### Success Criteria (Complete)
+- [x] Can list products and perform AI intent search
+- [x] Users can authenticate with Google OAuth
+- [x] Checkout creates orders and generates license keys
+- [x] Dashboard shows purchases + activation tokens
+- [x] Local dev works with SQLite (no Supabase needed)
+
+### Next Steps
+- Stripe integration for production payments
+- Email confirmations for orders + license keys
+- Advanced marketplace features (reviews, ratings, cart system)
+- User profile customization
+
+---
+
 ## Phase 12 — Landing Page v2 Upgrades ✓ COMPLETE
 
 **Timeline:** 2026-03-28
@@ -738,11 +821,13 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 10.5 — Product-Scoped API + Entity Rendering | 2026-03-27 | 6h | HieuSpace | ✓ Complete |
 | 11 — Landing Design System + AI Clone + FB Phase 3 | 2026-03-27 | 12h | HieuSpace | ✓ Complete |
 | 12 — Landing Page v2 Upgrades | 2026-03-28 | 8h | HieuSpace | ✓ Complete |
-| 13 — Feature Builder Phase 4 | 2026-Q2 | 8h | — | Backlog |
-| 14A — Landing Advanced | TBD | 12h | — | Proposed |
-| 14B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 14C — Media+ | TBD | 8h | — | Proposed |
-| 14D — Collaboration | TBD | 20h | — | Proposed |
+| 13 — Marketplace Evolution | 2026-03-28+ | 16h | HieuSpace | In Progress |
+| 14 — Feature Builder Phase 4 | 2026-Q2 | 8h | — | Backlog |
+| 15A — Stripe Integration | TBD | 8h | — | Proposed |
+| 15B — Landing Advanced | TBD | 12h | — | Proposed |
+| 15C — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 15D — Media+ | TBD | 8h | — | Proposed |
+| 15E — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -750,11 +835,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.7.0 | 2026-03-28 | Landing Page v2 Upgrades (3 new sections, icon picker, multi-CTA, carousel, Markdown, video auto-detect) | Complete |
-| Planned | v2.8.0 | 2026-Q2 | Feature Builder Phase 4 (integration + module installation) | Backlog |
-| Planned | v2.9.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
-| Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Content Versioning + Media Features | Backlog |
-| Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
+| Current | v3.0.0 | 2026-03-28+ | Marketplace Evolution (Supabase, hybrid SSR, Google OAuth, AI search, license delivery) | In Progress |
+| Planned | v3.1.0 | 2026-Q2 | Stripe Integration + Email Confirmations | Backlog |
+| Planned | v3.2.0 | 2026-Q2 | Feature Builder Phase 4 (integration + module installation) | Backlog |
+| Planned | v3.3.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
+| Planned | v4.0.0 | 2026-Q3 | Analytics Dashboard + Content Versioning + Media Features | Backlog |
+| Planned | v4.5.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
 ---
 

@@ -1,16 +1,19 @@
 # System Architecture
 
-Tree Identity is a **static-first content engine** with zero database, zero JavaScript by default.
+Tree Identity is a **hybrid static + SSR platform** for content + commerce.
+- **Content:** Static-first, zero JS by default (git-tracked Markdown/YAML)
+- **Marketplace:** SSR-enabled for auth + database queries
 
 **Quick Facts:**
-- **Framework:** Astro 5 (SSG)
+- **Framework:** Astro 5 (hybrid: static + on-demand SSR)
 - **CMS:** Keystatic (git-based)
 - **Content:** Markdown + YAML (git-tracked)
-- **Database:** None (git is the database)
+- **Database:** Supabase PostgreSQL (marketplace) + SQLite fallback (dev)
+- **Auth:** Google OAuth via Supabase Auth
 - **Deploy:** Vercel
 - **Admin:** Custom React SPA at `/admin`
-- **Search:** Pagefind (static, zero runtime)
-- **Design Philosophy:** Simple, fast, maintainable
+- **Search:** Pagefind (static) + Gemini AI (intent search)
+- **Design Philosophy:** Content-first, performance-optimized, DX-focused
 
 ## Contents
 
@@ -18,6 +21,9 @@ Tree Identity is a **static-first content engine** with zero database, zero Java
 - [Content Pipeline](./content-pipeline.md) — Build flow, SSG, SSR endpoints, data flow
 - [Theme System](./theme-system.md) — CSS variables, theme registry, customization
 - [Search Architecture](./search.md) — Pagefind indexing, client-side search
+
+### Marketplace (NEW — v3.0.0)
+- [Marketplace Architecture](./marketplace.md) — Hybrid SSR, Supabase database, Google OAuth, AI intent search, license delivery
 
 ### Admin Dashboard
 - [Admin Dashboard](./admin-dashboard.md) — React SPA, CRUD operations, CodeMirror editor, media browser
@@ -48,5 +54,5 @@ Tree Identity is a **static-first content engine** with zero database, zero Java
 
 ---
 
-**Last updated:** 2026-03-27
-**Version:** v2.6.0
+**Last updated:** 2026-03-28
+**Version:** v3.0.0 (Marketplace Evolution)

@@ -1,39 +1,45 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
-**Last Updated:** 2026-03-27
-**Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
+**Status:** v3.0.0 — Marketplace Evolution (Supabase, Hybrid SSR, Google OAuth, AI Intent Search)
+**Last Updated:** 2026-03-28
+**Stack:** Astro 5 (hybrid SSR) + Keystatic + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
 ## Overview
 
-Tree Identity is a personal content engine with optional landing page builder — zero database, git-tracked content, zero JS by default. Built with Astro 5 (SSG), Keystatic (git-based CMS), Pagefind (static search), and Vercel.
+Tree Identity is a **hybrid platform** combining static content engine with digital marketplace. Content (articles/landing pages) remains static-first and zero-database, while marketplace (products/orders/licenses) uses Supabase PostgreSQL with Google OAuth and AI-powered search. Built with Astro 5 (hybrid SSG+SSR), Keystatic (git-based CMS), Pagefind (static search), Gemini AI (intent search), Supabase Auth, and Vercel.
 
-**Why Astro + Keystatic:**
-- No database overhead (was: PostgreSQL + Supabase)
-- Content tracked in git (Markdown + YAML)
-- Admin UI at `/keystatic` (dev only, not production)
-- Static search (Pagefind, zero runtime cost)
-- Faster builds, zero JS by default
-- Better for RAG/AI (Markdown > Lexical JSON)
+**Why Hybrid Static + SSR:**
+- **Content layer:** No database, git-tracked Markdown/YAML, fully static (zero JS by default)
+- **Marketplace layer:** Supabase PostgreSQL for user state, orders, licenses (SSR-enabled routes only)
+- **Search:** Pagefind for static indexing (zero runtime) + Gemini AI for semantic product search
+- **Auth:** Supabase Google OAuth for checkout + dashboard (server-side JWT + session cookies)
+- **Dev experience:** SQLite fallback for local development (no Supabase keys needed)
+- **Performance:** Content pages pre-rendered (cache-hit), marketplace pages rendered on-demand
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| Framework | Astro 5 | SSG, content-first, zero JS by default |
+| Framework | Astro 5 | Hybrid SSG + SSR, content-first |
 | CMS | Keystatic | Git-based admin UI + content file storage |
+| Database | Supabase (PostgreSQL) | User profiles, products, orders, licenses, payments |
+| Database (Dev) | SQLite via better-sqlite3 | Local fallback when Supabase unavailable |
+| Auth | Supabase Auth | Google OAuth + JWT token management |
 | Content Format | Markdoc (articles) + YAML (notes/records) | Type-safe, semantic |
-| Search | Pagefind | Static index, zero runtime cost |
+| Search | Pagefind (static) + Gemini (AI intent) | Static index + AI product matching |
 | Storage | Cloudflare R2 | Optional, for video manifests + media |
 | Styling | Tailwind CSS 4 | Utility-first, theme variables |
-| Deploy | Vercel | Serverless, ISR-ready |
+| Payments | Checkout/Confirm APIs | Skeleton with local dev simulation |
+| Deploy | Vercel | Serverless, hybrid SSR-ready |
 
 ## Key Design Decisions
 
-- **No database** — Content is git-tracked Markdown/YAML in `src/content/`
-- **Git-based CMS** — Keystatic edits save as files, no DB writes
-- **Static by default** — `output: 'static'`; SSR endpoints use `prerender: false`
+- **Git-tracked content** — Articles/notes in Markdown/YAML at `src/content/`
+- **Hybrid mode** — `output: 'server'` for SSR-capable endpoints (auth, marketplace, checkout)
+- **Supabase backend** — PostgreSQL for user state, orders, licenses; Google OAuth integration
+- **Local dev fallback** — SQLite via better-sqlite3 when Supabase unavailable (no API key needed)
+- **Git-based CMS** — Keystatic edits save as files, no product DB writes
 - **Custom admin dashboard** — Full-featured React UI at `/admin`, not Keystatic
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
 - **Island architecture** — Astro by default, React only for interactive components
@@ -41,6 +47,8 @@ Tree Identity is a personal content engine with optional landing page builder �
 - **AI landing cloner** — Paste URL, AI extracts sections + design, auto-generates landing config
 - **Feature builder** — AI-assisted feature generation with hybrid code generation engine (Gemini + templates)
 - **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
+- **Marketplace** — Product catalog with AI intent search, Google OAuth required for checkout
+- **Payment skeleton** — `/checkout/[slug]` and `/dashboard` with license key delivery
 - **Self-hosted assets** — Fonts in `public/fonts/`, Google Fonts auto-load, no external CDN dependencies
 - **Shared head component** — `base-head.astro` for OG/Twitter/accessibility metadata
 
@@ -77,6 +85,13 @@ tree-id/
 │   ├── pages/                       # Astro page routes
 │   │   ├── index.astro             # Home page
 │   │   ├── [landing-slug].astro    # Dynamic landing page renderer
+│   │   ├── marketplace/            # NEW: Marketplace pages
+│   │   │   ├── index.astro         # Product catalog with AI search
+│   │   │   └── [slug].astro        # Product detail page
+│   │   ├── checkout/               # NEW: Checkout flow
+│   │   │   └── [slug].astro        # Checkout for product
+│   │   ├── dashboard/              # NEW: User dashboard
+│   │   │   └── index.astro         # Purchases, license keys
 │   │   ├── [product-slug]/         # NEW v2.4.0: Per-product routes
 │   │   │   └── admin/[...path].astro  # Per-product admin shell
 │   │   ├── admin/
@@ -95,6 +110,19 @@ tree-id/
 │   │   │   ├── templates/
 │   │   │   └── setup/
 │   │   ├── api/
+│   │   │   ├── marketplace/        # NEW: Marketplace API
+│   │   │   │   ├── products.ts     # GET /api/marketplace/products
+│   │   │   │   ├── search.ts       # POST /api/marketplace/search (AI intent)
+│   │   │   │   └── [slug].ts       # GET /api/marketplace/[slug]
+│   │   │   ├── checkout/           # NEW: Payment API
+│   │   │   │   ├── create.ts       # POST /api/checkout/create
+│   │   │   │   └── confirm.ts      # POST /api/checkout/confirm
+│   │   │   ├── dashboard/          # NEW: User dashboard API
+│   │   │   │   ├── purchases.ts    # GET /api/dashboard/purchases
+│   │   │   │   └── licenses.ts     # GET /api/dashboard/licenses
+│   │   │   ├── auth/               # NEW: Supabase auth
+│   │   │   │   ├── callback.ts     # Google OAuth callback
+│   │   │   │   └── logout.ts       # Session cleanup
 │   │   │   ├── products/           # NEW v2.4.0: Per-product API
 │   │   │   │   └── [slug]/[...].ts # Per-product content/media
 │   │   │   ├── admin/
@@ -160,6 +188,20 @@ tree-id/
 │   │   │   └── ... (existing)
 │   │   └── ...
 │   ├── lib/
+│   │   ├── supabase/               # NEW: Database layer
+│   │   │   ├── client.ts           # Supabase client (server-side)
+│   │   │   ├── db-fallback.ts      # SQLite fallback for local dev
+│   │   │   ├── types.ts            # Database schema types (profiles, orders, licenses, etc.)
+│   │   │   └── queries.ts          # Database query helpers
+│   │   ├── marketplace/            # NEW: Marketplace business logic
+│   │   │   ├── product-service.ts  # Product queries + AI search
+│   │   │   ├── order-service.ts    # Order creation + management
+│   │   │   ├── license-service.ts  # License key generation + validation
+│   │   │   └── ai-intent-search.ts # Gemini-powered product matching
+│   │   ├── auth/                   # NEW: Authentication
+│   │   │   ├── supabase-auth.ts    # Supabase Auth client
+│   │   │   ├── jwt-utils.ts        # JWT token management
+│   │   │   └── session.ts          # Session/cookie handling
 │   │   ├── landing/                # NEW: Landing page system
 │   │   │   ├── landing-types.ts    # TypeScript types
 │   │   │   ├── landing-config-reader.ts   # YAML read/write
@@ -324,7 +366,99 @@ role: Product Manager
 | `status` | select | — | `draft` |
 | `publishedAt` | date | — | Optional |
 
+## Database Schema (NEW — Marketplace)
+
+**Tables in Supabase PostgreSQL:**
+
+### profiles
+```
+- id: UUID (primary key, auth.users.id)
+- email: TEXT (unique)
+- name: TEXT
+- avatar_url: TEXT (optional)
+- created_at: TIMESTAMP
+```
+
+### products
+```
+- id: UUID (primary key)
+- slug: TEXT (unique)
+- title: TEXT
+- description: TEXT
+- price: DECIMAL
+- product_config: JSONB (metadata)
+- created_at: TIMESTAMP
+```
+
+### orders
+```
+- id: UUID (primary key)
+- user_id: UUID (foreign key → profiles.id)
+- product_id: UUID (foreign key → products.id)
+- total_amount: DECIMAL
+- status: TEXT (pending, completed, failed)
+- created_at: TIMESTAMP
+```
+
+### order_items
+```
+- id: UUID (primary key)
+- order_id: UUID (foreign key → orders.id)
+- product_id: UUID (foreign key → products.id)
+- quantity: INT
+- price: DECIMAL
+```
+
+### licenses
+```
+- id: UUID (primary key)
+- order_id: UUID (foreign key → orders.id)
+- product_id: UUID (foreign key → products.id)
+- user_id: UUID (foreign key → profiles.id)
+- key: TEXT (unique, generated)
+- activated_at: TIMESTAMP (optional)
+```
+
+### payment_events
+```
+- id: UUID (primary key)
+- order_id: UUID (foreign key → orders.id)
+- event_type: TEXT (checkout_created, confirm_received, etc.)
+- payload: JSONB
+- created_at: TIMESTAMP
+```
+
+**SQLite Fallback (Local Dev):**
+Same schema mapped to better-sqlite3 in-memory or file-based database. Auto-initializes on server start.
+
 ## Pages & Routes
+
+### Marketplace Pages (NEW)
+
+**`/marketplace`** — Product catalog with AI intent search
+- GET /api/marketplace/products — List all products
+- POST /api/marketplace/search — AI intent search (Gemini-powered)
+  - Request: `{ query: string, limit?: int }`
+  - Response: `{ products: [], confidence: float }`
+- Requires `GEMINI_API_KEY` for AI search
+
+**`/marketplace/[slug]`** — Product detail page
+- GET /api/marketplace/[slug] — Product details + reviews
+- Shows pricing, features, CTA to checkout
+- Requires Google login to proceed
+
+**`/checkout/[slug]`** — Checkout page
+- POST /api/checkout/create — Create order (skeleton)
+  - Requires auth (Google OAuth)
+- POST /api/checkout/confirm — Confirm payment (skeleton)
+  - Local dev: simulates payment success
+  - Production: would integrate Stripe/payment provider
+- Generates license key on success
+
+**`/dashboard`** — User dashboard (auth required)
+- GET /api/dashboard/purchases — User's orders
+- GET /api/dashboard/licenses — License keys with status
+- Shows activation tokens, download links, support CTA
 
 ### Home Page (`src/pages/index.astro`)
 
@@ -358,6 +492,45 @@ role: Product Manager
 - `/admin/setup` — AI setup wizard (Gemini-powered)
 
 ## API Routes
+
+### Marketplace API Routes (NEW — Marketplace Evolution)
+
+**Product Endpoints:**
+- `GET /api/marketplace/products` — List all products with filtering
+- `GET /api/marketplace/[slug]` — Get product details (price, description, reviews)
+- `POST /api/marketplace/search` — AI intent search
+  - Body: `{ query: string, limit?: int }`
+  - Returns: `{ products: Product[], confidence: float, explanation: string }`
+  - Powered by Gemini 2.5-flash
+
+**Checkout Endpoints:**
+- `POST /api/checkout/create` — Create order session
+  - Requires: Auth header + product slug
+  - Body: `{ productId: string, quantity?: int }`
+  - Returns: `{ orderId: string, sessionUrl?: string }`
+  - Status: Skeleton (returns draft order)
+- `POST /api/checkout/confirm` — Confirm payment
+  - Requires: Auth header + order ID
+  - Body: `{ orderId: string, paymentToken?: string }`
+  - Returns: `{ confirmed: boolean, licenseKey: string, downloadUrl?: string }`
+  - Status: Local dev simulates success; production requires payment provider
+
+**Dashboard Endpoints:**
+- `GET /api/dashboard/purchases` — User's order history
+  - Requires: Auth header
+  - Returns: `{ orders: Order[] }`
+- `GET /api/dashboard/licenses` — User's license keys
+  - Requires: Auth header
+  - Returns: `{ licenses: License[] }`
+
+**Auth Endpoints (NEW):**
+- `GET /api/auth/callback` — Google OAuth callback handler
+  - Receives: `code` + `state` from Google
+  - Sets: Session cookie + JWT token
+  - Redirects: `/dashboard`
+- `POST /api/auth/logout` — Clear session
+  - Clears: Session cookie + JWT
+  - Redirects: `/`
 
 ### Admin API Routes (New — 2026-03-26)
 
@@ -530,22 +703,39 @@ Optional features managed via registry:
 
 ## Environment Variables
 
-### New in v2.3.0
+### Marketplace (NEW)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| (No new env vars) | — | Landing system uses file-based config + settings toggles |
+| `SUPABASE_URL` | Yes | Supabase project URL (https://xxx.supabase.co) |
+| `SUPABASE_ANON_KEY` | Yes | Supabase anonymous key for client-side auth |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role key for server-side admin operations |
+| `GOOGLE_OAUTH_CLIENT_ID` | Yes (for auth) | Google OAuth client ID from Google Cloud Console |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Yes (for auth) | Google OAuth client secret |
 
-**Feature flags:** Toggled via `enabledFeatures` in site settings (no env vars needed).
+### Dev Environment (Fallback)
 
-### All Optional Features
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `USE_SQLITE_FALLBACK` | No (default: false) | Set to `true` to use SQLite instead of Supabase |
+| `SQLITE_PATH` | No | Path to SQLite database file (default: `.db/dev.sqlite`) |
+
+**Note:** When `USE_SQLITE_FALLBACK=true`, Supabase env vars are ignored and SQLite is used via better-sqlite3.
+
+### Hybrid SSR Mode
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| (Astro auto) | — | `output: 'server'` enables SSR on-demand for auth + marketplace routes |
+
+### All Features (Optional & Required)
 
 | Variable | Feature | Description |
 |----------|---------|-------------|
 | `RESEND_API_KEY` | email | Email newsletter via Resend |
 | `GA_MEASUREMENT_ID` | analytics | Google Analytics 4 |
 | `GOCLAW_API_KEY` | goclaw | GoClaw API adapter |
-| `GEMINI_API_KEY` | all | AI features (voice, setup wizard, content distribution) |
+| `GEMINI_API_KEY` | all | AI features (voice, setup wizard, content distribution, AI intent search) |
 | `R2_*` variables | media | Cloudflare R2 for media storage |
 
 See `.env.example` for full details.

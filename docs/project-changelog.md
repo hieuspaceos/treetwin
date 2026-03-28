@@ -4,6 +4,108 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v3.0.0 — Marketplace Evolution (2026-03-28)
+
+**Status:** In Progress
+
+Digital marketplace implementation: Astro hybrid SSR mode, Supabase backend with 6 core tables, Google OAuth authentication, product catalog with AI intent search, checkout flow skeleton, and license key delivery system.
+
+#### Astro Hybrid SSR (New)
+- **Mode switch:** `output: 'server'` enables on-demand SSR for auth + marketplace routes
+- **Benefits:** Static site + dynamic auth/commerce on-demand
+- **Trade-off:** Some routes now server-rendered; landing pages remain static
+
+#### Supabase Integration (New)
+- **Core tables:** profiles, products, orders, order_items, licenses, payment_events
+- **Auth:** Google OAuth via Supabase Auth (redirects to `/api/auth/callback`)
+- **JWT:** Server-side token management + session cookies
+- **Fallback:** SQLite via better-sqlite3 for local dev (no Supabase key required)
+
+#### Marketplace Pages (New)
+- **`/marketplace`** — Product catalog with AI-powered search
+- **`/marketplace/[slug]`** — Product details, pricing, reviews
+- **`/checkout/[slug]`** — Checkout form (skeleton with local dev simulation)
+- **`/dashboard`** — User purchases, license keys, activation tokens
+
+#### AI Intent Search (New)
+- **Feature:** `/api/marketplace/search` — Gemini 2.5-flash analyzes natural language queries
+- **Request:** `{ query: "I need a tool for X", limit: 5 }`
+- **Response:** Matched products ranked by intent confidence
+- **Example:** "email marketing software" → suggests email/newsletter products
+- **Requires:** `GEMINI_API_KEY`
+
+#### Payment Skeleton (New)
+- **Endpoints:**
+  - `POST /api/checkout/create` — Create order (returns draft)
+  - `POST /api/checkout/confirm` — Confirm payment (local: simulates success)
+- **Status:** Not yet integrated with Stripe/payment provider
+- **Local dev:** Payments auto-succeed; license keys generated
+- **Production:** Ready for Stripe integration
+
+#### License Key Delivery (New)
+- **Auto-generation:** On order confirmation, generates unique license key
+- **Activation:** Keys stored in `licenses` table with optional activation timestamp
+- **Dashboard:** `/dashboard` shows all licenses with status + download links
+- **API:** `GET /api/dashboard/licenses` returns user's active/inactive keys
+
+#### Dependencies Added
+- `@supabase/supabase-js` — Supabase client SDK
+- `better-sqlite3` — SQLite fallback for local dev
+
+#### Environment Variables (New)
+| Variable | Description |
+|----------|-------------|
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_ANON_KEY` | Anonymous key for client auth |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side admin operations |
+| `GOOGLE_OAUTH_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth secret |
+| `USE_SQLITE_FALLBACK` | Set to `true` for local SQLite (dev only) |
+
+#### Files Created
+**Marketplace Core:**
+- `src/lib/supabase/client.ts` — Supabase client + connection pooling
+- `src/lib/supabase/db-fallback.ts` — SQLite fallback initialization
+- `src/lib/supabase/types.ts` — Database schema TypeScript types
+- `src/lib/supabase/queries.ts` — Reusable database query helpers
+
+**Marketplace Services:**
+- `src/lib/marketplace/product-service.ts` — Product queries + filtering
+- `src/lib/marketplace/order-service.ts` — Order creation + management
+- `src/lib/marketplace/license-service.ts` — License key generation + validation
+- `src/lib/marketplace/ai-intent-search.ts` — Gemini intent search integration
+
+**Authentication:**
+- `src/lib/auth/supabase-auth.ts` — Supabase Auth client wrapper
+- `src/lib/auth/jwt-utils.ts` — JWT token encoding/decoding
+- `src/lib/auth/session.ts` — Session middleware + cookie management
+
+**Pages:**
+- `src/pages/marketplace/index.astro` — Product catalog + search UI
+- `src/pages/marketplace/[slug].astro` — Product detail page
+- `src/pages/checkout/[slug].astro` — Checkout form
+- `src/pages/dashboard/index.astro` — User dashboard (auth required)
+
+**API Routes:**
+- `src/pages/api/marketplace/products.ts` — List/filter products
+- `src/pages/api/marketplace/search.ts` — AI intent search
+- `src/pages/api/marketplace/[slug].ts` — Product details
+- `src/pages/api/checkout/create.ts` — Create order
+- `src/pages/api/checkout/confirm.ts` — Confirm payment + generate license
+- `src/pages/api/dashboard/purchases.ts` — User orders
+- `src/pages/api/dashboard/licenses.ts` — User licenses
+- `src/pages/api/auth/callback.ts` — Google OAuth callback
+- `src/pages/api/auth/logout.ts` — Session cleanup
+
+#### Architecture Notes
+- **SSR requirement:** Marketplace routes need server context for Supabase queries + auth
+- **Static optimization:** Landing pages remain fully static (prerendered)
+- **Dev experience:** SQLite fallback allows offline development without Supabase credentials
+- **Security:** Service role key kept server-side; client uses anon key + RLS policies
+- **Payment:** Skeleton ready for Stripe; local dev simulates successful transactions
+
+---
+
 ### v2.7.0 — Landing Page v2 Upgrades (2026-03-28)
 
 **Status:** Complete
