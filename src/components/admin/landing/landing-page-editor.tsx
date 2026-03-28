@@ -231,9 +231,6 @@ export function LandingPageEditor({ slug }: Props) {
           title="Toggle split preview"
         >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         {!isNew && slug && <a href={`/${slug}`} target="_blank" rel="noopener" className="admin-btn" style={{ fontSize: '0.8rem' }}>View Page ↗</a>}
-        <button onClick={() => setCloneOpen(true)} style={{ fontSize: '0.82rem', padding: '0.45rem 1.2rem', borderRadius: '10px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 12px rgba(99,102,241,0.35)', letterSpacing: '0.01em' }} title="AI Wizard — analyze URL, paste code, or upload file">
-          ✨ AI Wizard
-        </button>
         <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving…' : 'Save'}
         </button>
@@ -258,6 +255,25 @@ export function LandingPageEditor({ slug }: Props) {
 
       {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{error}</div>}
       {success && <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{success}</div>}
+
+      {/* AI Wizard banner */}
+      <div onClick={() => setCloneOpen(true)} style={{
+        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem',
+        borderRadius: '14px', marginBottom: '1rem', cursor: 'pointer',
+        background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08))',
+        border: '1px solid rgba(99,102,241,0.15)', transition: 'all 0.15s',
+      }}>
+        <div style={{ fontSize: '1.8rem', flexShrink: 0 }}>✨</div>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.15rem' }}>AI Wizard</p>
+          <p style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.4 }}>
+            Don't know where to start? Provide a URL, paste code, or upload a file — AI builds your landing page instantly.
+          </p>
+        </div>
+        <div style={{ padding: '0.4rem 1rem', borderRadius: '10px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', fontSize: '0.78rem', fontWeight: 600, flexShrink: 0, boxShadow: '0 2px 8px rgba(99,102,241,0.25)' }}>
+          Launch →
+        </div>
+      </div>
 
       {/* Page Settings + Design — side by side */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem', alignItems: 'start' }}>
