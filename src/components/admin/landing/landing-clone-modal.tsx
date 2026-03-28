@@ -207,12 +207,15 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
               onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && canAnalyze) handleAnalyze() }}
               style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.85rem', minHeight: '70px', resize: 'vertical', marginBottom: '1rem', boxSizing: 'border-box', background: '#fafafa' }} />
 
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button onClick={onClose} style={{ padding: '0.5rem 1.1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>Cancel</button>
-              <button onClick={handleAnalyze} disabled={!canAnalyze}
-                style={{ padding: '0.5rem 1.5rem', borderRadius: '10px', border: 'none', background: canAnalyze ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : '#cbd5e1', color: 'white', cursor: canAnalyze ? 'pointer' : 'not-allowed', fontSize: '0.82rem', fontWeight: 600 }}>
-                Analyze →
-              </button>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: '0.68rem', color: '#94a3b8' }}>💰 Est. cost: ~$0.001–0.005 per analysis (Gemini Flash)</p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={onClose} style={{ padding: '0.5rem 1.1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>Cancel</button>
+                <button onClick={handleAnalyze} disabled={!canAnalyze}
+                  style={{ padding: '0.5rem 1.5rem', borderRadius: '10px', border: 'none', background: canAnalyze ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : '#cbd5e1', color: 'white', cursor: canAnalyze ? 'pointer' : 'not-allowed', fontSize: '0.82rem', fontWeight: 600 }}>
+                  Analyze →
+                </button>
+              </div>
             </div>
           </>)}
 
@@ -251,6 +254,16 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
                   </div>
                 ))}
                 {result.design?.fonts?.heading && <span style={{ fontSize: '0.65rem', color: '#94a3b8', marginLeft: '0.5rem' }}>Font: {result.design.fonts.heading}</span>}
+              </div>
+            )}
+
+            {/* AI usage cost */}
+            {(result as any).usage && (
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.6rem', padding: '0.5rem 0.85rem', background: '#f0fdf4', borderRadius: '10px', alignItems: 'center', fontSize: '0.7rem', color: '#16a34a' }}>
+                <span>⚡ Tokens: <strong>{((result as any).usage.totalTokens as number).toLocaleString()}</strong></span>
+                <span>📥 Input: {((result as any).usage.promptTokens as number).toLocaleString()}</span>
+                <span>📤 Output: {((result as any).usage.outputTokens as number).toLocaleString()}</span>
+                <span style={{ marginLeft: 'auto', fontWeight: 600 }}>💰 ~${((result as any).usage.estimatedCostUsd as number).toFixed(4)}</span>
               </div>
             )}
 

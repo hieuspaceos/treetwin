@@ -128,6 +128,8 @@ export interface CloneResult {
     enabled: boolean
     data: Record<string, unknown>
   }>
+  /** Token usage + estimated cost from Gemini API */
+  usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
 }
 
 /** Fetch HTML from URL with timeout and size limit */
@@ -234,13 +236,21 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Empty response from Gemini')
 
+  // Extract token usage for cost display
+  const usageMeta = data?.usageMetadata
+  const promptTokens = usageMeta?.promptTokenCount || 0
+  const outputTokens = usageMeta?.candidatesTokenCount || 0
+  const totalTokens = promptTokens + outputTokens
+  // Gemini 2.5 Flash pricing: $0.15/1M input, $0.60/1M output (as of 2025)
+  const estimatedCostUsd = (promptTokens * 0.00000015) + (outputTokens * 0.0000006)
+
   // Parse JSON response — repair truncated JSON if needed
   try {
     const result = JSON.parse(repairJson(text)) as CloneResult
-    // Validate minimum structure
     if (!result.sections || !Array.isArray(result.sections)) {
       throw new Error('Invalid response: missing sections array')
     }
+    result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd }
     return result
   } catch (e) {
     throw new Error(`Failed to parse AI response: ${(e as Error).message}`)
