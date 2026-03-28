@@ -231,7 +231,7 @@ export function LandingPageEditor({ slug }: Props) {
           title="Toggle split preview"
         >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         {!isNew && slug && <a href={`/${slug}`} target="_blank" rel="noopener" className="admin-btn" style={{ fontSize: '0.8rem' }}>View Page ↗</a>}
-        <button onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }} title="AI Wizard — analyze URL, paste code, or upload file">
+        <button onClick={() => setCloneOpen(true)} style={{ fontSize: '0.82rem', padding: '0.45rem 1.2rem', borderRadius: '10px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 12px rgba(99,102,241,0.35)', letterSpacing: '0.01em' }} title="AI Wizard — analyze URL, paste code, or upload file">
           ✨ AI Wizard
         </button>
         <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
@@ -371,6 +371,21 @@ export function LandingPageEditor({ slug }: Props) {
           </div>
         )}
       </div>
+
+      {/* AI Wizard intro — shown when no sections exist */}
+      {config.sections.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem', margin: '0.5rem 0 1rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06))', border: '1px dashed rgba(99,102,241,0.2)' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✨</div>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.4rem' }}>Start with AI Wizard</h3>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '360px', margin: '0 auto 1.25rem', lineHeight: 1.5 }}>
+            Don't know where to start? Just provide a URL and AI will build your landing page automatically.
+          </p>
+          <button onClick={() => setCloneOpen(true)} style={{ fontSize: '0.9rem', padding: '0.6rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}>
+            ✨ Launch AI Wizard
+          </button>
+          <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.75rem' }}>Or add sections manually using the picker above</p>
+        </div>
+      )}
 
       {/* Sections — drag-and-drop sortable */}
       <div style={{ marginBottom: '1rem' }}>
