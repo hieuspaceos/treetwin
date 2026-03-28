@@ -82,6 +82,10 @@ Rules:
 - Extract colors from the page's CSS/inline styles — find the dominant brand color
 - Keep content in the ORIGINAL language of the page
 
+IMAGE URL HANDLING:
+- Extract image URLs as direct paths. If you see Next.js optimized URLs like "/_next/image?url=%2F..." decode them to the actual file path (e.g. "/_next/image?url=%2Fassets%2Fphoto.jpg&w=3840&q=75" → "/assets/photo.jpg")
+- Always prefer the original image URL, not the processed/optimized version
+
 ICON HANDLING:
 - SVG icons CANNOT be extracted. When you see SVG elements in HTML, replace them with a matching EMOJI character instead.
 - For icon fields, ALWAYS use emoji (e.g. ✨ 🚀 🔒 ⚡ 💡 🛡️ ✅ 📦 🎯 💰 ☁️ 📧 🔧 📊 🏆 ❤️). NEVER output "[SVG]" or raw SVG markup.
