@@ -240,8 +240,8 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     : await fetchPageHtml(url)
   const html = cleanHtml(rawHtml)
 
-  if (html.length < 100) {
-    throw new Error('Page content too short — this site is likely a JavaScript SPA (React/Angular/Vue) that renders client-side. Try using "Paste Code" mode instead: open the page in your browser → right-click → View Page Source → copy all → paste into the code tab.')
+  if (html.length < 500) {
+    throw new Error('Page has too little visible content — this site likely renders via JavaScript (SPA/WordPress with JS themes). Try "📋 Paste Code" mode: open the page in Chrome → right-click → Inspect → select the <body> element → Copy → Copy outerHTML → paste into Code tab.')
   }
 
   const intentContext = intent
