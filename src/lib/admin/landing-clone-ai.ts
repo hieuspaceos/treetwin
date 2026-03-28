@@ -1,63 +1,118 @@
 /**
- * AI landing page cloner — chunked analysis for large sites.
- * Splits HTML into chunks, calls Gemini per chunk, merges sections.
- * Supports: URL fetch, pasted code, file upload.
+ * AI landing page cloner — fetches a URL, sends HTML to Gemini,
+ * returns structured sections + design config matching our builder schema.
+ * Requires GEMINI_API_KEY env var.
  */
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-/** Max chars per chunk sent to Gemini */
-const CHUNK_SIZE = 20_000
-/** Max total HTML to process */
-const MAX_HTML = 100_000
+/** Section types and variants available in the landing page builder */
+const SECTION_SCHEMA = `
+Available section types, their variants, and fields:
 
-/** Section schema for Gemini prompt */
-const SECTION_SCHEMA = `Section types and their data fields:
-- nav: { brandName, links:[{label,href}], variant:"default"|"centered" }
-- hero: { headline, subheadline, cta:[{text,url}], backgroundImage, embed, variant:"centered"|"split" }
-- features: { heading, items:[{icon,title,description}], columns:3, variant:"grid"|"list" }
-- pricing: { heading, plans:[{name,price,period,features:[],cta:{text,url},highlighted,badge}] }
-- testimonials: { heading, items:[{quote,name,role,avatar,image}], variant:"cards"|"carousel" }
-- faq: { heading, items:[{question,answer}] }
-- cta: { headline, subheadline, cta:[{text,url}], variant:"default"|"banner" }
-- stats: { heading, items:[{value,label}] }
-- how-it-works: { heading, items:[{title,description,icon}] }
-- team: { heading, members:[{name,role,photo}] }
-- logo-wall: { heading, logos:[{name,image}] }
-- footer: { text, columns:[{heading,links:[{label,href}]}], variant:"columns" }
-- image: { src, alt, caption }
-- image-text: { image:{src,alt}, heading, text }
-- gallery: { heading, images:[{src,alt}] }
-- rich-text: { content:"short markdown text, max 300 chars" }
-- social-proof: { text, icon }
-- banner: { text, variant:"info" }
-- video: { url }
-- contact-form: { heading, fields:[{label,type}] }
-- divider: { style:"line" }
+STRUCTURE:
+- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}], variant
+- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
 
-Rules: icons=emoji only. cta=ALWAYS array. text fields=max 200 chars, no HTML. Keep JSON compact.`
+HERO (exactly ONE per page):
+- hero: variants=[centered, split, video-bg, minimal].
+  Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL)
+  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
+  IMPORTANT: cta is always an ARRAY, even for a single button.
 
-/** Prompt for analyzing a chunk of HTML */
-function buildChunkPrompt(chunkHtml: string, chunkIndex: number, totalChunks: number, intent: string, url: string, isDesignChunk: boolean): string {
-  const designInstr = isDesignChunk
-    ? `\nAlso extract design: { colors: {primary,secondary,accent,background,surface,text,textMuted}, fonts: {heading,body}, borderRadius }`
-    : '\nDo NOT include "design" key — only return sections.'
+CONTENT:
+- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description}], columns(2|3|4)
+- stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
+- how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
+- team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
+- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
+- rich-text: Fields: content (HTML string)
 
-  return `You are a web designer. Analyze this HTML chunk (${chunkIndex + 1}/${totalChunks}) and extract landing page sections.
+CONVERSION:
+- pricing: variants=[cards, simple, highlight-center].
+  Fields: heading, subheading, plans[{name, price, period, description, features[], cta{text,url}, highlighted, badge}]
+  IMPORTANT: Only actual pricing plan CARDS go here. Do NOT confuse CTA buttons or bundle upsells with pricing plans.
+  Count the actual plan cards on the page — if there are 2 cards, output exactly 2 plans.
+  badge: optional label like "Most Popular" or "BEST VALUE" shown on the card.
+- testimonials: variants=[cards, single, minimal, carousel].
+  Fields: heading, subheading, items[{quote, name, role, company, avatar, image}]
+  avatar = small profile picture URL. image = screenshot of the original testimonial post.
+  Use "carousel" variant if testimonials scroll horizontally.
+- cta: variants=[default, split, banner, minimal, with-image].
+  Fields: headline, subheadline, backgroundImage
+  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
+  IMPORTANT: cta is always an ARRAY.
+- social-proof: variants=[inline, banner]. Fields: text, icon, link
+  Short trust line like "Join 500+ happy customers" shown between sections.
+- logo-wall: Fields: heading, logos[{name,url,image}]
+- banner: Fields: text, cta{text,url}, variant(info|warning|success)
+- countdown: Fields: targetDate, heading, expiredText
+- contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
+- comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
+
+MEDIA:
+- video: Fields: url, caption, autoplay
+- image: Fields: src, alt, caption, fullWidth
+- image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
+- gallery: Fields: heading, images[{src,alt,caption}]
+- map: Fields: address, embedUrl, height
+- divider: Fields: style(line|dots|space), height
+- layout: Fields: columns(number[]), gap, children[{column,sections[]}]
+`
+
+const SYSTEM_PROMPT = `You are an expert web designer. Analyze the HTML of a landing page and decompose it into structured sections matching our landing page builder schema.
 
 ${SECTION_SCHEMA}
-${designInstr}
 
-User intent: ${intent || 'Clone this landing page'}
-URL: ${url}
+For the design config, extract:
+- colors: primary (brand color), secondary, accent, background, surface (card bg), text, textMuted
+- fonts: heading font family, body font family
+- borderRadius: e.g. "12px", "8px", "16px"
 
-Return ONLY valid JSON:
-${isDesignChunk ? '{ "title": "...", "description": "...", "design": {...}, "sections": [...] }' : '{ "sections": [...] }'}
+Rules:
+- Map each visual section of the page to the BEST matching section type
+- Choose the variant that best matches the visual layout
+- Extract ALL text content (headlines, descriptions, button text, etc.)
+- Extract image URLs as-is (absolute URLs)
+- For nav: extract brand name and navigation links
+- For footer: extract copyright text and links
+- Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
+- If a section doesn't match any type, use rich-text with the HTML content
+- Extract colors from the page's CSS/inline styles — find the dominant brand color
+- Keep content in the ORIGINAL language of the page
 
-HTML chunk ${chunkIndex + 1}/${totalChunks}:
-${chunkHtml}`
-}
+IMAGE URL HANDLING:
+- Extract image URLs as direct paths. If you see Next.js optimized URLs like "/_next/image?url=%2F..." decode them to the actual file path (e.g. "/_next/image?url=%2Fassets%2Fphoto.jpg&w=3840&q=75" → "/assets/photo.jpg")
+- Always prefer the original image URL, not the processed/optimized version
+
+ICON HANDLING:
+- SVG icons CANNOT be extracted. When you see SVG elements in HTML, replace them with a matching EMOJI character instead.
+- For icon fields, ALWAYS use emoji (e.g. ✨ 🚀 🔒 ⚡ 💡 🛡️ ✅ 📦 🎯 💰 ☁️ 📧 🔧 📊 🏆 ❤️). NEVER output "[SVG]" or raw SVG markup.
+- For rich-text sections with inline SVG icons, replace each SVG with the closest emoji.
+
+CRITICAL — avoid these common mistakes:
+- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}], never a single object
+- PRICING: Count the actual pricing CARDS on the page. Do NOT create extra plans from CTA buttons, bundle links, or upsell text that appear elsewhere (hero, footer, CTA sections). If the page shows 2 pricing cards, output exactly 2 plans.
+- TESTIMONIALS: If testimonials scroll/slide horizontally, use variant "carousel". The "image" field is for screenshots of the original post, NOT avatar/profile pictures.
+- SOCIAL PROOF: Short trust lines like "Join 500+ happy customers" between sections should be "social-proof" type, NOT part of other sections.
+- Do NOT duplicate content across sections. Each piece of content belongs to exactly one section.
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{
+  "title": "Page title",
+  "description": "Meta description or first paragraph summary",
+  "design": {
+    "colors": { "primary": "#hex", "secondary": "#hex", "accent": "#hex", "background": "#hex", "surface": "#hex", "text": "#hex", "textMuted": "#hex" },
+    "fonts": { "heading": "Font Name", "body": "Font Name" },
+    "borderRadius": "12px"
+  },
+  "sections": [
+    { "type": "nav", "order": -1, "enabled": true, "data": { "brandName": "...", "links": [...], "variant": "default" } },
+    { "type": "hero", "order": 0, "enabled": true, "data": { "headline": "...", "variant": "centered", ... } },
+    ...
+  ]
+}`
 
 export interface CloneResult {
   title: string
@@ -73,338 +128,149 @@ export interface CloneResult {
     enabled: boolean
     data: Record<string, unknown>
   }>
+  /** Token usage + estimated cost from Gemini API */
   usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
-  /** Number of chunks processed */
-  chunks?: number
 }
 
-/** Fetch HTML from URL — tries direct fetch first, falls back to Jina Reader for JS-rendered pages */
+/** Rewrite external image URLs in cloned sections to use /api/proxy-image */
+function proxyExternalImages(result: CloneResult) {
+  const rewrite = (val: unknown): unknown => {
+    if (typeof val === 'string' && /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|avif)/i.test(val)) {
+      return `/api/proxy-image?url=${encodeURIComponent(val)}`
+    }
+    if (Array.isArray(val)) return val.map(rewrite)
+    if (val && typeof val === 'object') {
+      const obj = val as Record<string, unknown>
+      for (const k of Object.keys(obj)) obj[k] = rewrite(obj[k])
+    }
+    return val
+  }
+  for (const section of result.sections) {
+    section.data = rewrite(section.data) as Record<string, unknown>
+  }
+}
+
+/** Fetch HTML from URL with timeout and size limit */
 async function fetchPageHtml(url: string): Promise<string> {
-  // Try direct fetch first
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 15000)
   try {
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TreeID-Bot/1.0)' },
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const html = await res.text()
-
-    // Check if direct fetch has enough content
-    const cleaned = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '')
-    const words = cleaned.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2)
-    if (words.length >= 30) return html.slice(0, MAX_HTML)
-
-    // Not enough content — try Jina Reader for JS-rendered pages
-    return await fetchViaJina(url)
-  } catch (e) {
-    // Direct fetch failed — try Jina as fallback
-    try { return await fetchViaJina(url) } catch {}
-    throw e
+    // Limit to ~100K chars to stay within Gemini context
+    return html.slice(0, 100_000)
   } finally {
     clearTimeout(timeout)
   }
 }
 
-/** Fetch rendered HTML via Jina Reader API (handles SPA/JS sites) */
-async function fetchViaJina(url: string): Promise<string> {
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 30000)
-  try {
-    const res = await fetch(`https://r.jina.ai/${url}`, {
-      signal: controller.signal,
-      headers: { Accept: 'text/html', 'X-Return-Format': 'html' },
-    })
-    if (!res.ok) throw new Error(`Jina Reader error: ${res.status}`)
-    const html = await res.text()
-    return html.slice(0, MAX_HTML)
-  } finally {
-    clearTimeout(timeout)
+/** Attempt to repair truncated JSON by closing unclosed brackets/braces */
+function repairJson(text: string): string {
+  // Strip markdown code fences if present
+  let json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
+
+  // Try parsing as-is first
+  try { JSON.parse(json); return json } catch {}
+
+  // Count unclosed brackets/braces and close them
+  let braces = 0, brackets = 0, inString = false, escape = false
+  for (const ch of json) {
+    if (escape) { escape = false; continue }
+    if (ch === '\\') { escape = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+    if (ch === '{') braces++
+    else if (ch === '}') braces--
+    else if (ch === '[') brackets++
+    else if (ch === ']') brackets--
   }
+
+  // Remove trailing comma before closing
+  json = json.replace(/,\s*$/, '')
+
+  // Close unclosed structures
+  while (brackets > 0) { json += ']'; brackets-- }
+  while (braces > 0) { json += '}'; braces-- }
+
+  return json
 }
 
-/** Strip scripts, styles, non-visible content */
+/** Strip scripts, styles, and non-visible content to reduce token usage */
 function cleanHtml(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
-    .replace(/class="[^"]*"/gi, '') // strip class attrs to save tokens
-    .replace(/data-[a-z-]+="[^"]*"/gi, '') // strip data attrs
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '[SVG]')
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
 
-/** Split HTML into semantic chunks — tries to break at section/div boundaries */
-function splitIntoChunks(html: string): string[] {
-  if (html.length <= CHUNK_SIZE) return [html]
-
-  const chunks: string[] = []
-  let remaining = html
-
-  while (remaining.length > 0) {
-    if (remaining.length <= CHUNK_SIZE) {
-      chunks.push(remaining)
-      break
-    }
-    // Find a good break point near CHUNK_SIZE (closing tags)
-    let breakAt = CHUNK_SIZE
-    const searchArea = remaining.slice(CHUNK_SIZE - 500, CHUNK_SIZE + 500)
-    const sectionBreak = searchArea.lastIndexOf('</section>')
-    const divBreak = searchArea.lastIndexOf('</div>')
-    if (sectionBreak > 0) breakAt = CHUNK_SIZE - 500 + sectionBreak + 10
-    else if (divBreak > 0) breakAt = CHUNK_SIZE - 500 + divBreak + 6
-
-    chunks.push(remaining.slice(0, breakAt))
-    remaining = remaining.slice(breakAt)
-  }
-
-  return chunks
-}
-
-/** Call Gemini for a single chunk */
-async function analyzeChunk(apiKey: string, chunkHtml: string, chunkIndex: number, totalChunks: number, intent: string, url: string): Promise<{ sections: CloneResult['sections']; design?: CloneResult['design']; title?: string; description?: string; promptTokens: number; outputTokens: number }> {
-  const isFirst = chunkIndex === 0
-  const prompt = buildChunkPrompt(chunkHtml, chunkIndex, totalChunks, intent, url, isFirst)
-
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: 'You are a web design expert. Return ONLY valid JSON. Keep text short.' }] },
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.15, maxOutputTokens: 16384, responseMimeType: 'application/json' },
-    }),
-  })
-
-  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
-
-  const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) return { sections: [], promptTokens: 0, outputTokens: 0 }
-
-  const usage = data?.usageMetadata
-  const promptTokens = usage?.promptTokenCount || 0
-  const outputTokens = usage?.candidatesTokenCount || 0
-
-  try {
-    const repaired = repairJson(text)
-    const parsed = JSON.parse(repaired)
-    return {
-      sections: parsed.sections || [],
-      design: isFirst ? parsed.design : undefined,
-      title: isFirst ? parsed.title : undefined,
-      description: isFirst ? parsed.description : undefined,
-      promptTokens, outputTokens,
-    }
-  } catch {
-    // Try to extract sections array from partial/malformed JSON using regex
-    const sectionsMatch = text.match(/"sections"\s*:\s*\[([\s\S]*)/)?.[0]
-    if (sectionsMatch) {
-      try {
-        const wrapped = `{${sectionsMatch}}`
-        const fallback = JSON.parse(repairJson(wrapped))
-        if (fallback.sections?.length) return { sections: fallback.sections, promptTokens, outputTokens }
-      } catch {}
-    }
-    return { sections: [], promptTokens, outputTokens }
-  }
-}
-
-/** Merge sections from multiple chunks — deduplicate by type+content */
-function mergeSections(allSections: CloneResult['sections'][]): CloneResult['sections'] {
-  const merged: CloneResult['sections'] = []
-  const seen = new Set<string>()
-
-  for (const chunk of allSections) {
-    for (const section of chunk) {
-      // Ensure section has data object
-      if (!section.data) section.data = {}
-      const data = section.data as Record<string, unknown>
-      const contentHint = String(data?.headline || data?.heading || data?.text || data?.brandName || '').slice(0, 50)
-      const fingerprint = `${section.type}:${contentHint}`
-
-      // Allow multiple of same type if content differs (e.g. multiple CTA sections)
-      // But skip exact duplicates
-      if (seen.has(fingerprint)) continue
-      seen.add(fingerprint)
-      merged.push(section)
-    }
-  }
-
-  // Re-order: nav first, footer last, rest by original order
-  return merged.sort((a, b) => {
-    if (a.type === 'nav') return -1
-    if (b.type === 'nav') return 1
-    if (a.type === 'footer') return 1
-    if (b.type === 'footer') return -1
-    return a.order - b.order
-  })
-}
-
-/** Repair malformed/truncated JSON */
-function repairJson(text: string): string {
-  let json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
-  try { JSON.parse(json); return json } catch {}
-
-  // Fix unescaped newlines in strings
-  json = json.replace(/(?<=": ")((?:[^"\\]|\\.)*)(?=")/g, (m) =>
-    m.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
-  )
-  try { JSON.parse(json); return json } catch {}
-
-  // Progressive truncation repair
-  for (let cut = 0; cut < 2000; cut += 20) {
-    let attempt = json.slice(0, json.length - cut)
-    attempt = attempt.replace(/,\s*"[^"]*"?\s*:?\s*"?[^"]*$/, '').replace(/,\s*$/, '')
-
-    let braces = 0, brackets = 0, inStr = false, esc = false
-    for (const ch of attempt) {
-      if (esc) { esc = false; continue }
-      if (ch === '\\') { esc = true; continue }
-      if (ch === '"') { inStr = !inStr; continue }
-      if (inStr) continue
-      if (ch === '{') braces++; else if (ch === '}') braces--
-      if (ch === '[') brackets++; else if (ch === ']') brackets--
-    }
-    if (inStr) attempt += '"'
-    while (brackets > 0) { attempt += ']'; brackets-- }
-    while (braces > 0) { attempt += '}'; braces-- }
-
-    try { JSON.parse(attempt); return attempt } catch {}
-  }
-  return json
-}
-
-/** Capture viewport screenshots using thum.io, split into sections */
-async function captureScreenshots(url: string): Promise<Buffer[]> {
-  const screenshots: Buffer[] = []
-  const domain = url.replace(/^https?:\/\//, '')
-
-  // Capture 4 viewport sections (top, upper-mid, lower-mid, bottom)
-  for (let i = 0; i < 4; i++) {
-    const cropUrl = i === 0
-      ? `https://image.thum.io/get/width/1280/crop/900/https://${domain}`
-      : `https://image.thum.io/get/width/1280/crop/900/viewportHeight/900/scrollTo/${i * 800}/https://${domain}`
-
-    try {
-      const res = await fetch(cropUrl, { signal: AbortSignal.timeout(20000) })
-      if (res.ok) {
-        const buf = Buffer.from(await res.arrayBuffer())
-        if (buf.length > 1000) screenshots.push(buf) // skip empty/error images
-      }
-    } catch {}
-  }
-  return screenshots
-}
-
-/** Analyze screenshots with Gemini Vision */
-async function analyzeScreenshots(apiKey: string, screenshots: Buffer[], intent: string, url: string): Promise<CloneResult> {
-  const imageParts = screenshots.map(buf => ({
-    inlineData: { mimeType: 'image/png' as const, data: buf.toString('base64') }
-  }))
-
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: 'You are a web design expert. Analyze screenshots of a website and extract sections for a landing page builder. Return ONLY valid JSON.' }] },
-      contents: [{
-        parts: [
-          ...imageParts,
-          { text: `Analyze these ${screenshots.length} screenshots of ${url} and create a landing page structure.
-
-${SECTION_SCHEMA}
-
-User intent: ${intent || 'Clone this landing page'}
-
-Extract: title, description, design (colors from the screenshots, fonts, borderRadius), and all visible sections.
-Each section needs: type, order (0,1,2...), enabled:true, data:{...fields}.
-
-Return JSON: { "title":"...", "description":"...", "design":{...}, "sections":[...] }` }
-        ]
-      }],
-      generationConfig: { temperature: 0.15, maxOutputTokens: 16384, responseMimeType: 'application/json' },
-    }),
-  })
-
-  if (!res.ok) throw new Error(`Gemini Vision error: ${res.status}`)
-
-  const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) throw new Error('Empty Vision response')
-
-  const usage = data?.usageMetadata
-  const promptTokens = usage?.promptTokenCount || 0
-  const outputTokens = usage?.candidatesTokenCount || 0
-  const totalTokens = promptTokens + outputTokens
-
-  const result = JSON.parse(repairJson(text)) as CloneResult
-  result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) }
-  return result
-}
-
-/** Main entry — tries HTML chunked analysis first, falls back to screenshot-based */
+/** Send HTML to Gemini and get structured landing page config */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  const isDataUrl = url.startsWith('data:text/html,')
-
-  // For pasted code — always use HTML analysis
-  if (isDataUrl) {
-    const html = cleanHtml(decodeURIComponent(url.slice('data:text/html,'.length)))
-    if (html.length < 100) throw new Error('Pasted code is too short')
-    return await htmlChunkedAnalysis(apiKey, html, intent || '', url)
-  }
-
-  // For URLs — try HTML first, fallback to screenshot
-  const rawHtml = await fetchPageHtml(url)
+  // Fetch HTML from URL or decode pasted code (data: URL)
+  const rawHtml = url.startsWith('data:text/html,')
+    ? decodeURIComponent(url.slice('data:text/html,'.length))
+    : await fetchPageHtml(url)
   const html = cleanHtml(rawHtml)
-  const wordCount = html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
 
-  // Try HTML analysis if enough content
-  if (wordCount >= 30) {
-    const result = await htmlChunkedAnalysis(apiKey, html, intent || '', url)
-    if (result.sections.length > 0) return result
+  if (html.length < 100) {
+    throw new Error('Page content too short — may be a JavaScript-only SPA that requires a browser to render')
   }
 
-  // Fallback: screenshot-based analysis
-  const screenshots = await captureScreenshots(url)
-  if (screenshots.length === 0) {
-    throw new Error('Could not capture screenshots of this page. Try "📋 Paste Code" mode: open in Chrome → Inspect → select <body> → Copy outerHTML → paste.')
+  const intentContext = intent
+    ? `\n\nUser's intent: ${intent}\nUse this context to better understand what sections are important and how to categorize content.`
+    : ''
+
+  // Call Gemini
+  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:${intentContext}\n\nURL: ${url}\n\n${html}` }] }],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 32768,
+        responseMimeType: 'application/json',
+      },
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Gemini API error: ${res.status} — ${err.slice(0, 200)}`)
   }
 
-  return await analyzeScreenshots(apiKey, screenshots, intent || '', url)
-}
+  const data = await res.json()
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!text) throw new Error('Empty response from Gemini')
 
-/** HTML chunked analysis (extracted from main function) */
-async function htmlChunkedAnalysis(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
-  const chunks = splitIntoChunks(html)
-  let totalPrompt = 0, totalOutput = 0
-  const allSections: CloneResult['sections'][] = []
-  let design: CloneResult['design'] | undefined
-  let title = '', description = ''
+  // Extract token usage for cost display
+  const usageMeta = data?.usageMetadata
+  const promptTokens = usageMeta?.promptTokenCount || 0
+  const outputTokens = usageMeta?.candidatesTokenCount || 0
+  const totalTokens = promptTokens + outputTokens
+  // Gemini 2.5 Flash pricing: $0.15/1M input, $0.60/1M output (as of 2025)
+  const estimatedCostUsd = (promptTokens * 0.00000015) + (outputTokens * 0.0000006)
 
-  for (let i = 0; i < chunks.length; i++) {
-    const result = await analyzeChunk(apiKey, chunks[i], i, chunks.length, intent, url)
-    allSections.push(result.sections)
-    totalPrompt += result.promptTokens
-    totalOutput += result.outputTokens
-    if (result.design) design = result.design
-    if (result.title) title = result.title
-    if (result.description) description = result.description
-  }
-
-  const sections = mergeSections(allSections)
-  const totalTokens = totalPrompt + totalOutput
-
-  return {
-    title, description, design, sections,
-    usage: { promptTokens: totalPrompt, outputTokens: totalOutput, totalTokens, estimatedCostUsd: (totalPrompt * 0.00000015) + (totalOutput * 0.0000006) },
-    chunks: chunks.length,
+  // Parse JSON response — repair truncated JSON if needed
+  try {
+    const result = JSON.parse(repairJson(text)) as CloneResult
+    if (!result.sections || !Array.isArray(result.sections)) {
+      throw new Error('Invalid response: missing sections array')
+    }
+    result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd }
+    return result
+  } catch (e) {
+    throw new Error(`Failed to parse AI response: ${(e as Error).message}`)
   }
 }
