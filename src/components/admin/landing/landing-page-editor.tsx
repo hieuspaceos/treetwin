@@ -103,7 +103,7 @@ export function LandingPageEditor({ slug }: Props) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [newType, setNewType] = useState<SectionType>('hero')
-  const [splitView, setSplitView] = useState(!isNew)
+  const [splitView, setSplitView] = useState(true)
   const [previewKey, setPreviewKey] = useState(0)
   const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
   const [settingsOpen, setSettingsOpen] = useState(true)
