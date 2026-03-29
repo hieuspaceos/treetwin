@@ -39,17 +39,32 @@ html:has(.landing-nav) {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-width: 72rem;
+  width: 100%;
   margin: 0 auto;
   padding: 0;
-  overflow: visible; /* allow full-width children to break out */
+  overflow: hidden;
+}
+
+/* Every section wrapper is full-width — bg stretches edge to edge */
+.landing-sections > [id^="section-"] {
+  width: 100%;
 }
 
 .landing-section {
+  max-width: 72rem;
+  margin: 0 auto;
   padding: 4rem 2rem;
-  background: var(--lp-surface);
+  background: transparent; /* bg comes from wrapper or scoped CSS */
   border-radius: 0;
   color: var(--lp-text);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Sections WITHOUT explicit wrapper bg get the default surface color via scoped CSS or inline style.
+   The wrapper div [id^=section-] carries the bg so it stretches full width. */
+.landing-sections > [id^="section-"]:not([style*="background"]) {
+  background: var(--lp-bg, #ffffff);
 }
 
 .landing-section h1,
@@ -252,21 +267,18 @@ html:has(.landing-nav) {
 
 /* ─── FULL-WIDTH SECTIONS ────────────────────── */
 
+/* Full-width sections — bg already stretches since parent is 100% width */
 .lp-full-width {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+  width: 100%;
   color: var(--lp-text);
-  border-radius: 0;
 }
 .lp-full-width > .lp-section-content,
 .lp-full-width > div:not(.lp-section-bg-img):not(.lp-section-bg-overlay) {
   max-width: 72rem;
   margin: 0 auto;
 }
-/* Full-width sections: component's .landing-section should not add extra padding/bg */
+/* Inner .landing-section in full-width: no extra padding (wrapper handles it) */
 .lp-full-width .landing-section {
-  background: transparent;
-  border-radius: 0;
   padding: 0;
 }
 
