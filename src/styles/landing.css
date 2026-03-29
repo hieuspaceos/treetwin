@@ -12,6 +12,18 @@
   --lp-font-heading: system-ui;
   --lp-font-body: system-ui;
   --lp-radius: 12px;
+  /* Smooth type rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .lp-fade-up { opacity: 1; transform: none; transition: none; }
+  .lp-card-hover { transition: none; }
+  .lp-card-hover img { transition: none; }
+  .landing-btn-primary { transition: none; }
 }
 
 /* Smooth scroll for anchor navigation + offset for sticky nav */
@@ -26,17 +38,17 @@ html:has(.landing-nav) {
 .landing-sections {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0;
   max-width: 72rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
   overflow: visible; /* allow full-width children to break out */
 }
 
 .landing-section {
-  padding: 3rem 2rem;
+  padding: 4rem 2rem;
   background: var(--lp-surface);
-  border-radius: var(--lp-radius);
+  border-radius: 0;
   color: var(--lp-text);
 }
 
@@ -45,11 +57,32 @@ html:has(.landing-nav) {
 .landing-section h3 {
   font-family: var(--lp-font-heading), system-ui, sans-serif;
   color: var(--lp-text);
+  letter-spacing: -0.01em;
+}
+
+/* Typography hierarchy — consistent sizing across all sections */
+.landing-section h2 {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.landing-section h3 {
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .landing-section p,
 .landing-section li {
   color: var(--lp-text-muted);
+  line-height: 1.7;
+}
+
+/* Clickable elements — cursor + transition */
+.landing-section a,
+.landing-section button {
+  cursor: pointer;
 }
 
 /* Primary button style */
@@ -98,6 +131,40 @@ html:has(.landing-nav) {
   color: var(--lp-accent);
 }
 
+/* Section heading with decorative accent line */
+.lp-section-heading {
+  position: relative;
+  padding-bottom: 1rem;
+}
+.lp-section-heading::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--lp-accent, var(--lp-primary));
+  margin: 0.75rem auto 0;
+  border-radius: 2px;
+}
+
+/* Icon background circle */
+.lp-icon-bg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lp-primary) 12%, transparent);
+  font-size: 1.25rem;
+}
+
+/* Star ratings */
+.lp-stars {
+  color: var(--lp-accent, #f59e0b);
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+}
+
 /* CTA variants are now handled inline by landing-cta.astro per variant */
 
 /* Nav */
@@ -111,6 +178,12 @@ html:has(.landing-nav) {
 .landing-footer {
   color: var(--lp-text-muted);
   border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+}
+.landing-footer a {
+  transition: opacity 0.15s ease;
+}
+.landing-footer a:hover {
+  opacity: 0.75;
 }
 
 /* Footer columns grid — responsive: 2-col mobile, brand + links on desktop */
@@ -236,31 +309,47 @@ html:has(.landing-nav) {
   transform: translateY(0);
 }
 
-/* Card hover — scale image + lift shadow */
+/* Card hover — lift + shadow + scale image */
 .lp-card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   overflow: hidden;
+  cursor: pointer;
 }
 .lp-card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--lp-text) 12%, transparent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--lp-text) 10%, transparent);
 }
 .lp-card-hover img {
-  transition: transform 0.5s ease;
+  transition: transform 0.4s ease;
 }
 .lp-card-hover:hover img {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
 /* ─── BETTER BUTTON STATES ───────────────────── */
 
 .landing-btn-primary {
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  letter-spacing: 0.02em;
 }
 .landing-btn-primary:hover {
-  opacity: 0.9;
+  opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--lp-primary) 30%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--lp-primary) 25%, transparent);
+}
+.landing-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Secondary button */
+.landing-btn-secondary {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.landing-btn-secondary:hover {
+  opacity: 0.85;
 }
 
 /* ─── HERO GRADIENT OVERLAY ──────────────────── */
