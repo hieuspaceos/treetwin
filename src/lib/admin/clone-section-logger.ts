@@ -1,6 +1,6 @@
 /**
- * Clone section logger — tracks sections to CREATE or UPGRADE after each clone.
- * After ~10 clones, review the list → pick items → create plan → implement.
+ * Clone section backlog — tracks ALL sections from clones for improvement.
+ * Logs every section type + quality assessment → identifies what to CREATE or UPGRADE.
  * Data: data/clone-section-backlog.json
  */
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
@@ -8,27 +8,24 @@ import { join } from 'path'
 
 const LOG_PATH = join(process.cwd(), 'data', 'clone-section-backlog.json')
 
-interface BacklogItem {
-  /** Action needed */
-  action: 'create' | 'upgrade'
-  /** Section type (existing for upgrade, suggested name for create) */
-  sectionType: string
-  /** What's missing or needs improvement */
-  description: string
-  /** How many times this came up */
+interface SectionLog {
+  /** Section type used */
+  type: string
+  /** How well this section matches the original site */
+  quality: 'good' | 'partial' | 'poor' | 'missing'
+  /** What's wrong or could be improved */
+  issue: string
+  /** Count across clones */
   count: number
-  /** URLs where this was detected */
+  /** URLs */
   urls: string[]
-  /** AI confidence when detected */
-  confidence: number
-  /** First/last seen */
   firstSeen: string
   lastSeen: string
 }
 
 interface Backlog {
   totalClones: number
-  items: BacklogItem[]
+  sections: SectionLog[]
   lastReviewedAt: string | null
   updatedAt: string
 }
@@ -37,7 +34,7 @@ function readBacklog(): Backlog {
   try {
     if (existsSync(LOG_PATH)) return JSON.parse(readFileSync(LOG_PATH, 'utf8'))
   } catch {}
-  return { totalClones: 0, items: [], lastReviewedAt: null, updatedAt: new Date().toISOString() }
+  return { totalClones: 0, sections: [], lastReviewedAt: null, updatedAt: '' }
 }
 
 function saveBacklog(b: Backlog) {
@@ -46,72 +43,88 @@ function saveBacklog(b: Backlog) {
   writeFileSync(LOG_PATH, JSON.stringify(b, null, 2))
 }
 
-/** Log sections from a clone — detects what to CREATE or UPGRADE */
+/** Log ALL sections from a clone — assess quality of each */
 export function logCloneSections(
   url: string,
-  sections: Array<{ type: string; data?: Record<string, unknown> }>,
-  structure?: Array<{ type: string; confidence: number; note: string; variant?: string }>
+  sections: Array<{ type: string; data?: Record<string, unknown> }>
 ) {
   const b = readBacklog()
   b.totalClones++
   b.updatedAt = new Date().toISOString()
   const now = b.updatedAt
 
-  const items = structure || sections.map(s => ({
-    type: s.type,
-    confidence: (s as any).confidence ?? 100,
-    note: (s as any).note || '',
-    variant: (s.data as any)?.variant || '',
-  }))
+  for (const s of sections) {
+    const data = s.data || {}
+    const type = s.type
 
-  for (const s of items) {
-    const conf = (s as any).confidence ?? 100
-    const note = (s as any).note || ''
+    // Assess quality based on how much data was filled
+    let quality: SectionLog['quality'] = 'good'
+    let issue = ''
 
-    // CREATE: unknown type
-    if (s.type === 'unknown') {
-      addItem(b, 'create', note || 'unknown-section', `AI detected a section that doesn't match any existing type: ${note}`, conf, url, now)
+    if (type === 'rich-text') {
+      quality = 'partial'
+      issue = 'Used rich-text catch-all — may need dedicated section type'
+    } else if (type === 'unknown') {
+      quality = 'missing'
+      issue = 'No matching section type exists'
+    } else {
+      // Check if section data is mostly empty
+      const values = Object.values(data).filter(v => v != null && v !== '' && v !== undefined)
+      const hasContent = values.length > 0
+      const hasItems = Array.isArray(data.items) ? data.items.length > 0 : true
+      const hasHeading = !!(data.headline || data.heading || data.brandName || data.text)
+
+      if (!hasContent) {
+        quality = 'poor'
+        issue = 'Section created but NO content extracted'
+      } else if (!hasHeading && type !== 'divider' && type !== 'social-proof') {
+        quality = 'partial'
+        issue = 'Missing heading/title — content may be incomplete'
+      } else if (type === 'features' && Array.isArray(data.items) && data.items.length < 2) {
+        quality = 'partial'
+        issue = `Only ${data.items.length} items extracted — likely missing items`
+      } else if (type === 'testimonials' && Array.isArray(data.items) && data.items.length < 2) {
+        quality = 'partial'
+        issue = `Only ${data.items.length} testimonials — likely missing`
+      } else if (type === 'hero' && !data.backgroundImage && !data.embed) {
+        quality = 'partial'
+        issue = 'Hero without image or video — may need visual'
+      } else if (type === 'gallery' && Array.isArray(data.images) && data.images.length < 2) {
+        quality = 'partial'
+        issue = 'Gallery with few images — likely missing'
+      }
     }
-    // UPGRADE: rich-text used as catch-all (means we're missing a proper section type)
-    else if (s.type === 'rich-text') {
-      const desc = note || 'Rich-text used as catch-all — may need dedicated section type'
-      addItem(b, 'upgrade', 'rich-text', desc, conf, url, now)
-    }
-    // UPGRADE: low confidence
-    else if (conf < 60) {
-      addItem(b, 'upgrade', s.type, `Low confidence (${conf}%): ${note || 'section may not fit well'}`, conf, url, now)
+
+    // Only log partial/poor/missing (good sections don't need improvement)
+    if (quality !== 'good') {
+      const key = `${type}:${issue.slice(0, 40)}`
+      let entry = b.sections.find(e => `${e.type}:${e.issue.slice(0, 40)}` === key)
+      if (!entry) {
+        entry = { type, quality, issue, count: 0, urls: [], firstSeen: now, lastSeen: now }
+        b.sections.push(entry)
+      }
+      entry.count++
+      entry.lastSeen = now
+      entry.quality = quality
+      if (!entry.urls.includes(url) && entry.urls.length < 10) entry.urls.push(url)
     }
   }
 
   saveBacklog(b)
 }
 
-function addItem(b: Backlog, action: 'create' | 'upgrade', type: string, desc: string, conf: number, url: string, now: string) {
-  // Find existing or create new
-  const key = `${action}:${type}:${desc.slice(0, 50)}`
-  let item = b.items.find(i => `${i.action}:${i.sectionType}:${i.description.slice(0, 50)}` === key)
-  if (!item) {
-    item = { action, sectionType: type, description: desc, count: 0, urls: [], confidence: conf, firstSeen: now, lastSeen: now }
-    b.items.push(item)
-  }
-  item.count++
-  item.lastSeen = now
-  item.confidence = Math.round((item.confidence * (item.count - 1) + conf) / item.count)
-  if (!item.urls.includes(url) && item.urls.length < 10) item.urls.push(url)
-}
-
-/** Get backlog — sorted by count (most requested first) */
-export function getBacklog(): { totalClones: number; needsReview: boolean; items: BacklogItem[] } {
+/** Get backlog sorted by count */
+export function getBacklog(): { totalClones: number; needsReview: boolean; sections: SectionLog[] } {
   const b = readBacklog()
-  const sinceReview = b.items.filter(i => !b.lastReviewedAt || i.lastSeen > b.lastReviewedAt)
+  const sinceReview = b.sections.filter(s => !b.lastReviewedAt || s.lastSeen > b.lastReviewedAt)
   return {
     totalClones: b.totalClones,
-    needsReview: sinceReview.length >= 10,
-    items: b.items.sort((a, c) => c.count - a.count),
+    needsReview: sinceReview.length >= 5,
+    sections: b.sections.sort((a, c) => c.count - a.count),
   }
 }
 
-/** Mark backlog as reviewed */
+/** Mark reviewed */
 export function markReviewed() {
   const b = readBacklog()
   b.lastReviewedAt = new Date().toISOString()

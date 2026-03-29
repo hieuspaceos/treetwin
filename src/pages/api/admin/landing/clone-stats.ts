@@ -1,4 +1,4 @@
-/** Clone section backlog — view items to CREATE or UPGRADE */
+/** Clone section backlog — quality tracker for section improvements */
 import type { APIRoute } from 'astro'
 import { getBacklog, markReviewed } from '@/lib/admin/clone-section-logger'
 
@@ -8,7 +8,6 @@ export const GET: APIRoute = async () => {
   })
 }
 
-/** POST to mark backlog as reviewed */
 export const POST: APIRoute = async () => {
   markReviewed()
   return new Response(JSON.stringify({ ok: true }), {
