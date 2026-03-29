@@ -56,11 +56,21 @@ export async function firecrawlFetch(url: string, apiKey: string): Promise<strin
   return (data?.data?.html || '').slice(0, 100_000)
 }
 
-/** Clean HTML — basic (scripts/styles/SVGs) */
+/** Clean HTML — basic (scripts/SVGs, strips styles) */
 export function cleanBasic(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+    .replace(/\s{2,}/g, ' ').trim()
+}
+
+/** Clean HTML — keeps <style> blocks so Gemini can see CSS colors/backgrounds */
+export function cleanKeepStyles(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<svg[\s\S]*?<\/svg>/gi, '')

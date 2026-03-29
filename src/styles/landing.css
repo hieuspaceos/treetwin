@@ -30,6 +30,7 @@ html:has(.landing-nav) {
   max-width: 72rem;
   margin: 0 auto;
   padding: 1rem;
+  overflow: visible; /* allow full-width children to break out */
 }
 
 .landing-section {

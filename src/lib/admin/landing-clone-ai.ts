@@ -8,7 +8,7 @@
 import { logCloneSections } from './clone-section-logger'
 import {
   SECTION_TYPES, geminiCall, safeJsonParse, validateDesign, normalizeSections, addUsage,
-  cleanBasic, cleanForStructure, directFetch, firecrawlFetch, getLastMarkdown, setLastMarkdown,
+  cleanBasic, cleanKeepStyles, cleanForStructure, directFetch, firecrawlFetch, getLastMarkdown, setLastMarkdown,
   type CloneResult,
 } from './clone-ai-utils'
 export type { CloneResult } from './clone-ai-utils'
@@ -237,6 +237,41 @@ async function extractDesign(apiKey: string, html: string): Promise<{ design: Cl
   return { design: parsed || undefined, promptTokens, outputTokens }
 }
 
+/** Section styles prompt — uses HTML with CSS to determine per-section visual styling */
+const SECTION_STYLES_PROMPT = `You are a web design expert. I have already extracted these sections from a landing page. Now I need you to analyze the VISUAL STYLING of each section from the HTML/CSS.
+
+For each section listed below, determine:
+- "fullWidth": true if the section spans the full viewport width (no side margins, edge-to-edge)
+- "background": the ACTUAL background color/gradient of this section from CSS (NOT #ffffff unless it truly is white). Check CSS classes, inline styles, and style blocks. Dark nav bars are often #1a2e28 or #2d4a3e. CTA sections often use brand colors. Testimonial sections are often dark.
+- "backgroundOverlay": if the section has a background image with text overlay, what gradient is used (e.g. "linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3))")
+- "textColor": text color for this section. "#ffffff" for dark background sections, omit for light sections.
+- "textMutedColor": secondary text color for this section.
+- "padding": only if notably different from standard "3rem 2rem"
+
+CRITICAL: Do NOT default everything to #ffffff. Analyze the CSS classes used on each section element and trace them to their background-color/background definitions in the style blocks. Many landing pages alternate dark and light sections for visual rhythm.
+
+Return ONLY valid JSON: { "styles": [{ "index": 0, "fullWidth": true, "background": "#2d4a3e", "textColor": "#ffffff" }, ...] }
+Only include entries for sections that have non-default styling. Omit sections with plain white/light default backgrounds.`
+
+/** Separate Gemini call to extract per-section visual styles from HTML/CSS */
+async function extractSectionStyles(
+  apiKey: string, html: string, sections: Array<{ type: string; order: number; data: Record<string, unknown> }>
+): Promise<{ styles: Array<{ index: number } & Record<string, unknown>>; promptTokens: number; outputTokens: number }> {
+  const designHtml = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .slice(0, 40_000)
+  const sectionList = sections.map((s, i) => {
+    const heading = String((s.data as any)?.headline || (s.data as any)?.heading || (s.data as any)?.brandName || (s.data as any)?.text || '')
+    return `${i}. ${s.type}${heading ? `: "${heading.slice(0, 50)}"` : ''}`
+  }).join('\n')
+  const userPrompt = `Sections to analyze:\n${sectionList}\n\nHTML with CSS:\n${designHtml}`
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, SECTION_STYLES_PROMPT, userPrompt, 4096)
+  const parsed = safeJsonParse(text) as { styles?: Array<{ index: number } & Record<string, unknown>> } | null
+  return { styles: parsed?.styles || [], promptTokens, outputTokens }
+}
+
 /** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
 async function directClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
@@ -363,10 +398,13 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     throw new Error(`Page has too little content (${words} words). Use "📋 Paste Code" mode.`)
   }
 
-  // Step 2: Choose best input format
+  // Step 2: Choose best input format — keep <style> blocks so Gemini sees CSS colors
+  const htmlWithStyles = cleanKeepStyles(rawHtml)
   const lastMd = getLastMarkdown()
   let cloneInput: string
-  if (html.length <= 60_000) {
+  if (htmlWithStyles.length <= 80_000) {
+    cloneInput = htmlWithStyles
+  } else if (html.length <= 60_000) {
     cloneInput = html
   } else if (lastMd.length > 500) {
     cloneInput = lastMd.slice(0, 50_000)
@@ -391,6 +429,19 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
       }
       addUsage(r, designResult.promptTokens, designResult.outputTokens)
     } catch {} // Design extraction failure is non-critical
+
+    // Per-section style extraction — separate call with raw HTML + CSS
+    try {
+      const styleResult = await extractSectionStyles(apiKey, rawHtml, r.sections)
+      for (const styleDef of styleResult.styles) {
+        const section = r.sections[styleDef.index]
+        if (!section) continue
+        const { index: _, ...styleOverrides } = styleDef
+        // Merge: per-section style extraction takes priority over clone-prompt styles
+        section.style = { ...(section.style || {}), ...styleOverrides } as any
+      }
+      addUsage(r, styleResult.promptTokens, styleResult.outputTokens)
+    } catch {} // Section style extraction failure is non-critical
   }
 
   // Detect missing sections — compare page H2s vs cloned headings
