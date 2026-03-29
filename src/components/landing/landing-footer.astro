@@ -31,7 +31,7 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
         {socialLinks.map(sl => (
           <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
             class="transition-opacity hover:opacity-70" style="font-size:1.3rem;color:var(--lp-text-muted)"
-            aria-label={sl.label || sl.icon}>{sl.icon}</a>
+            aria-label={sl.label || sl.icon}>{sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}</a>
         ))}
       </div>
     )}
@@ -67,7 +67,7 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
           {socialLinks.map(sl => (
             <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
               class="transition-opacity hover:opacity-70" style="font-size:1.2rem;color:var(--lp-text-muted)"
-              aria-label={sl.label || sl.icon}>{sl.icon}</a>
+              aria-label={sl.label || sl.icon}>{sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}</a>
           ))}
         </div>
       </div>
@@ -83,7 +83,7 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
         {socialLinks.map(sl => (
           <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
             class="transition-opacity hover:opacity-70" style="font-size:1.1rem;color:var(--lp-text-muted)"
-            aria-label={sl.label || sl.icon}>{sl.icon}</a>
+            aria-label={sl.label || sl.icon}>{sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}</a>
         ))}
       </div>
     )}

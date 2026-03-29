@@ -146,7 +146,11 @@ const componentMap: Record<string, any> = {
 </div>
 
 {/* Footer at bottom */}
-{footerSection && <LandingFooter {...footerSection.data as any} pageTitle={pageTitle} />}
+{footerSection && (
+  <div id="section-footer" data-section="section-footer" class={footerSection.style?.fullWidth ? 'lp-full-width' : ''} style={buildSectionStyle(footerSection.style)}>
+    <LandingFooter {...footerSection.data as any} pageTitle={pageTitle} />
+  </div>
+)}
 
 {/* AI-generated scoped CSS for visual fidelity */}
 {scopedCss && scopedCss.length > 0 && (

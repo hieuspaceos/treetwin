@@ -121,6 +121,11 @@ html:has(.landing-nav) {
 }
 @media (min-width: 768px) {
   .lp-footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .lp-footer-grid {
     grid-template-columns: repeat(var(--lp-footer-cols, 5), 1fr);
   }
 }
