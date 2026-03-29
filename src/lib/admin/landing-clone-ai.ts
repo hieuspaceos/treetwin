@@ -925,7 +925,37 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 8: Testimonials with dark bg + cards variant → switch to light bg
+  // Fix 8: Ensure dark-bg sections have white text (contrast fix)
+  for (const s of r.sections) {
+    if (!s.style?.background) continue
+    const bg = String(s.style.background).toLowerCase()
+    // Detect dark backgrounds: hex starting with low values, or rgba with low lightness
+    const isDark = /^#[0-3]/.test(bg) || /^#[0-9a-f]{6}$/i.test(bg) && (() => {
+      const hex = bg.slice(1)
+      const r2 = parseInt(hex.slice(0, 2), 16), g2 = parseInt(hex.slice(2, 4), 16), b2 = parseInt(hex.slice(4, 6), 16)
+      return (r2 + g2 + b2) / 3 < 100 // average RGB < 100 = dark
+    })() || bg.includes('linear-gradient') && /rgb[a]?\(\s*\d{1,2}\s*,/.test(bg)
+    if (isDark && !s.style.textColor) {
+      s.style.textColor = '#ffffff'
+      if (!s.style.textMutedColor) s.style.textMutedColor = 'rgba(255,255,255,0.75)'
+    }
+  }
+
+  // Fix 9: Fix scoped CSS — ensure dark-bg selectors include white text
+  if (r.scopedCss) {
+    for (const css of r.scopedCss as Array<{ selector: string; css: string }>) {
+      if (!css.css) continue
+      const hasDarkBg = /background:\s*#[0-3][0-9a-f]{5}/i.test(css.css) ||
+        /background:\s*#1[0-9a-f]/i.test(css.css) ||
+        /background:\s*#2[0-9a-f]/i.test(css.css)
+      const hasTextColor = /color:\s*#fff/i.test(css.css) || /color:\s*#ffffff/i.test(css.css) || /color:\s*rgba\(255/i.test(css.css)
+      if (hasDarkBg && !hasTextColor) {
+        css.css += ` h1, h2, h3, h4, h5 { color: #fff; } p, li, span, a { color: rgba(255,255,255,0.8); }`
+      }
+    }
+  }
+
+  // Fix 10: Testimonials with dark bg + cards variant → switch to light bg
   // Dark bg with card layout causes white-text-on-invisible-card readability issues
   const testimonials = r.sections.find(s => s.type === 'testimonials')
   if (testimonials?.style) {
