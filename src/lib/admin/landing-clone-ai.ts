@@ -643,14 +643,17 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
 
   // Step 1: Get best HTML available
   let rawHtml: string
+  let originalHtml: string // Always keep the direct-fetch HTML for post-processing (has CSS/styles)
   if (isDataUrl) {
     rawHtml = decodeURIComponent(url.slice('data:text/html,'.length))
+    originalHtml = rawHtml
   } else {
     let fcHtml = ''
     if (firecrawlKey) {
       try { fcHtml = await firecrawlFetch(url, firecrawlKey) } catch {}
     }
     const directHtml = await directFetch(url)
+    originalHtml = directHtml // Always keep for post-processing (Firecrawl strips CSS)
     const fcWords = cleanBasic(fcHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     const directWords = cleanBasic(directHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     rawHtml = fcWords > directWords ? fcHtml : directHtml
@@ -788,7 +791,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   r.sectionQuality = r.sections.map((s, i) => assessSectionQuality(s, i))
 
   // Phase 3: Post-processing auto-fixes (lessons from clone optimization)
-  postProcessCloneResult(r, rawHtml, url)
+  postProcessCloneResult(r, originalHtml, url)
 
   try { logCloneSections(url, r.sections, words, pageHeadings) } catch {}
   return r
