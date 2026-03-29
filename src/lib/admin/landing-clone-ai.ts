@@ -19,53 +19,73 @@ const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze the HTML of
 Available section types, their variants, and fields:
 
 STRUCTURE:
-- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}], variant
+- nav: variants=[default, centered, transparent]. Fields: brandName, logo (image URL of site logo), topBar[{icon,text,href}] (phone/email/social info bar above nav), links[{label,href}], variant, socialLinks[{icon,url,label}]
+  IMPORTANT: Extract the site logo IMAGE URL (not text). Look for <img> inside header/nav with "logo" in class/src. Set variant="centered" if logo is centered with links split left/right.
+  If site has a top info bar (phone, email, social links), extract to topBar array.
 - footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
 
 HERO (exactly ONE per page):
 - hero: variants=[centered, split, video-bg, minimal]. Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL). cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]. IMPORTANT: cta is always an ARRAY.
 
 CONTENT:
-- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description}], columns(2|3|4)
+- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description,image,url}], columns(2|3|4|5)
+  IMPORTANT: When items have PHOTOS (not icons), set "image" field with the photo URL. For travel/portfolio cards, use image + title + url (makes clickable image overlay cards). Use "icon" only for emoji/small icons. Set columns to match the visual grid (3 for 3-col, 4 for 4-col, 5 for icon bars).
 - stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
 - how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
 - team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
 - faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
-- rich-text: Fields: content (markdown string, max 300 chars)
+- rich-text: Fields: heading, subheading, content (HTML string — can include <p>, <a>, <img>, <div> with inline styles for custom layouts)
 
 CONVERSION:
-- pricing: variants=[cards, simple, highlight-center]. Fields: heading, subheading, plans[{name, price, period, description, features[], cta{text,url}, highlighted, badge}]. Count actual plan CARDS only.
+- pricing: variants=[cards, simple, highlight-center]. Fields: heading, subheading, plans[{name, price, period, description, image (cover photo URL), features[], cta{text,url}, highlighted, badge}]. Count actual plan CARDS only. IMPORTANT: Extract cover images for travel/product cards.
 - testimonials: variants=[cards, single, minimal, carousel]. Fields: heading, items[{quote, name, role, company, avatar, image}]. Use "carousel" if they scroll horizontally.
-- cta: variants=[default, split, banner, minimal, with-image]. Fields: headline, subheadline, backgroundImage. cta: ARRAY of buttons [{text, url, variant}].
+- cta: variants=[default, split, banner, minimal, with-image]. Fields: headline, subheadline, backgroundImage, variant. cta: ARRAY of buttons [{text, url, variant}].
+  IMPORTANT: Most pages have a CTA section before the footer. Always add one with variant="with-image" if a background image is available.
 - social-proof: variants=[inline, banner]. Fields: text, icon, link
 - logo-wall: Fields: heading, logos[{name,url,image}]
+  IMPORTANT: If testimonials section has trust logos (Google, TripAdvisor, etc.), add a logo-wall section BEFORE the testimonials section.
 - banner: Fields: text, cta{text,url}, variant(info|warning|success)
 - contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
 - comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
 
 MEDIA:
-- video: Fields: url, caption, autoplay
+- video: Fields: url, caption, autoplay, heading, subheading, cta{text,url}, items[{url,caption}]
+  IMPORTANT: If page has multiple videos, use "items" array for 2x2 grid. Extract ALL video embed URLs.
 - image: Fields: src, alt, caption, fullWidth
 - image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
 - gallery: Fields: heading, images[{src,alt,caption}]
 
-LAYOUT (multi-column):
-- layout: For side-by-side content blocks (e.g. stats next to testimonials, image next to form, multi-card grids).
-  Fields: columns (array of column widths, e.g. [1,1] for equal 2-col, [2,1] for 2:1 ratio), children (array of {column: 0|1, sections: [{type,data}]}).
-  Example: { "columns":[1,1], "children":[{"column":0, "sections":[{"type":"stats","data":{...}}]}, {"column":1, "sections":[{"type":"testimonials","data":{...}}]}] }
-  Use layout when: original page shows 2+ content blocks side-by-side in the same row. Do NOT use layout for simple single-column sections stacked vertically.
+LAYOUT (multi-column) — USE THIS AGGRESSIVELY:
+- layout: For side-by-side content blocks (e.g. text next to gallery, stats next to testimonials, multi-row grids).
+  Fields: columns (array of column widths, e.g. [1,1] for equal 2-col, [2,1] for 2:1 ratio), gap (CSS gap value), children (array of {column: 0|1, sections: [{type,order,enabled,data}]}).
+  Example: { "columns":[1,1], "gap":"2rem", "children":[{"column":0, "sections":[{"type":"rich-text","order":0,"enabled":true,"data":{"heading":"About","content":"..."}}]}, {"column":1, "sections":[{"type":"gallery","order":0,"enabled":true,"data":{"images":[...]}}]}] }
+
+  CRITICAL LAYOUT RULES:
+  1. Use layout for ANY section where original shows 2+ content blocks side-by-side
+  2. "About us" sections with text + photos → layout [1,1]: rich-text left + gallery right
+  3. Sections with different column counts per row → layout [1] with nested features of different column counts
+  4. Icon bars with 5+ items → use features with columns:5
+  5. Text + image pairs that aren't simple image-text → use layout with rich-text + image sections
+  Do NOT default to image-text for complex layouts — use layout + nested sections instead.
 
 Rules:
 - Map each visual section to the BEST matching section type
+- PREFER layout sections over image-text for complex multi-column content
 - When original page has multi-column sections (e.g. 2 content blocks side-by-side), use layout section with nested sections in columns
 - Extract ALL text content, image URLs as absolute URLs
 - CRITICAL: ONLY use image URLs that ACTUALLY EXIST in the HTML source. NEVER invent or fabricate image URLs. If no image URL found for a section, omit the image field entirely — do NOT make up a URL.
+- For features with photos (travel cards, portfolio items): use "image" field (not "icon"). This renders as image overlay cards with title on photo.
+- For icon bars (small icons with labels): use "icon" field with the icon IMAGE URL (not emoji) if an icon image exists in the HTML.
+- Find the REAL hero background image — look for CSS background-image URLs in the hero area, NOT small logos/icons. The hero bg should be a large photo.
+- Find the site LOGO image URL — look for <img> in the header/nav area with "logo" in the class/alt/src.
 - Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
 - Extract colors from CSS/inline styles — find dominant brand color
 - Keep content in ORIGINAL language
-- SVG icons → replace with matching emoji. NEVER output "[SVG]"
+- SVG icons → use the icon's image URL if available, otherwise matching emoji. NEVER output "[SVG]"
 - Decode /_next/image URLs to actual file paths
 - Do NOT duplicate content across sections
+- ALWAYS add a CTA section (order=last-1) before footer with backgroundImage if available
+- If page has trust logos (Google, TripAdvisor, etc.) near testimonials, add a logo-wall section before testimonials
 
 Per-section styling:
 For EACH section, extract its visual style from the original page as a "style" object:
@@ -99,7 +119,7 @@ const STRUCTURE_PROMPT = `You are a web design expert. Analyze this HTML and ide
 Available section types: ${SECTION_TYPES.join(', ')}
 
 For each visible section on the page, return:
-- type: best matching section type, or "unknown" if no match. Use "layout" when 2+ content blocks appear side-by-side in the same row.
+- type: best matching section type, or "unknown" if no match. Use "layout" AGGRESSIVELY when 2+ content blocks appear side-by-side in the same row (text+gallery, text+form, multi-column grids).
 - variant: layout variant (e.g. "centered", "split", "grid", "cards", "carousel")
 - confidence: 0-100 how sure you are this mapping is correct
 - itemCount: number of items (for lists, grids, testimonials, pricing plans)
