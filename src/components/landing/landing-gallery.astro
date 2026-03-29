@@ -2,7 +2,7 @@
 import type { GalleryData } from '@/lib/landing/landing-types'
 
 interface Props extends GalleryData {}
-const { heading, images } = Astro.props
+const { heading, images = [] } = Astro.props
 ---
 
 <section class="landing-section">

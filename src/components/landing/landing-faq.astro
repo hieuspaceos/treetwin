@@ -8,7 +8,7 @@
 import type { FaqData } from '@/lib/landing/landing-types'
 
 interface Props extends FaqData {}
-const { heading, items, variant = 'accordion' } = Astro.props
+const { heading, items = [], variant = 'accordion' } = Astro.props
 ---
 
 {/* Accordion: details/summary native HTML */}

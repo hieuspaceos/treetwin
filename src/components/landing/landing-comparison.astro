@@ -7,7 +7,7 @@
 import type { ComparisonData } from '@/lib/landing/landing-types'
 
 interface Props extends ComparisonData {}
-const { heading, subheading, columns, rows } = Astro.props
+const { heading, subheading, columns = [], rows = [] } = Astro.props
 const gridCols = `1fr ${'1fr '.repeat(columns.length).trim()}`
 ---
 
@@ -32,7 +32,7 @@ const gridCols = `1fr ${'1fr '.repeat(columns.length).trim()}`
         <div style={`padding: 1.125rem 1.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; font-weight: ${row.highlight ? '600' : '400'}${row.highlight ? '; color: var(--lp-accent, var(--lp-primary))' : ''}`}>
           {row.label}
         </div>
-        {row.values.map((val, i) => {
+        {(row.values ?? []).map((val, i) => {
           const isCheck = val === '✓'
           const isCross = val === '✗'
           return (

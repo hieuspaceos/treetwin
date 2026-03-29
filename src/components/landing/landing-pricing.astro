@@ -8,7 +8,7 @@
 import type { PricingData } from '@/lib/landing/landing-types'
 
 interface Props extends PricingData {}
-const { heading, subheading, plans, variant = 'cards' } = Astro.props
+const { heading, subheading, plans = [], variant = 'cards' } = Astro.props
 ---
 
 {/* Cards: default grid */}
@@ -29,13 +29,13 @@ const { heading, subheading, plans, variant = 'cards' } = Astro.props
           </div>
           {plan.description && <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{plan.description}</p>}
           <ul class="mt-4 flex-1 space-y-2 text-sm">
-            {plan.features.map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
+            {(plan.features ?? []).map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
           </ul>
           <a
-            href={plan.cta.url}
+            href={plan.cta?.url}
             class={`mt-6 block px-4 py-2.5 text-center text-sm font-semibold transition-colors ${plan.highlighted ? 'landing-btn-primary' : ''}`}
             style={plan.highlighted ? undefined : `background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)`}
-          >{plan.cta.text}</a>
+          >{plan.cta?.text}</a>
         </div>
       ))}
     </div>
@@ -55,9 +55,9 @@ const { heading, subheading, plans, variant = 'cards' } = Astro.props
             <p class="text-sm" style="color: var(--lp-text-muted)">{plan.price}{plan.period ? ` / ${plan.period}` : ''}</p>
           </div>
           <a
-            href={plan.cta.url}
+            href={plan.cta?.url}
             style={`padding: 0.4rem 1rem; border-radius: var(--lp-radius); font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; background: ${plan.highlighted ? 'var(--lp-primary)' : 'color-mix(in srgb, var(--lp-text) 8%, transparent)'}; color: ${plan.highlighted ? '#fff' : 'var(--lp-text)'}`}
-          >{plan.cta.text}</a>
+          >{plan.cta?.text}</a>
         </div>
       ))}
     </div>
@@ -82,13 +82,13 @@ const { heading, subheading, plans, variant = 'cards' } = Astro.props
             </div>
             {plan.description && <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{plan.description}</p>}
             <ul class="mt-4 flex-1 space-y-2 text-sm">
-              {plan.features.map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
+              {(plan.features ?? []).map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
             </ul>
             <a
-              href={plan.cta.url}
+              href={plan.cta?.url}
               class={isCenter ? 'landing-btn-primary mt-6' : ''}
               style={isCenter ? 'display: block; text-align: center' : `margin-top: 1.5rem; display: block; text-align: center; padding: 0.5rem; border-radius: var(--lp-radius); font-size: 0.85rem; font-weight: 600; text-decoration: none; background: color-mix(in srgb, var(--lp-text) 8%, transparent)`}
-            >{plan.cta.text}</a>
+            >{plan.cta?.text}</a>
           </div>
         )
       })}

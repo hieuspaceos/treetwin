@@ -8,7 +8,7 @@ const { image, heading, text, imagePosition = 'left', cta } = Astro.props
 <section class="landing-section glass-panel rounded-2xl">
   <div class={`flex flex-col gap-8 md:flex-row ${imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
     <div class="flex-1">
-      <img src={image.src} alt={image.alt || ''} class="w-full rounded-xl object-cover" loading="lazy" />
+      {image?.src && <img src={image.src} alt={image.alt || ''} class="w-full rounded-xl object-cover" loading="lazy" />}
     </div>
     <div class="flex flex-1 flex-col justify-center">
       {heading && <h2 class="mb-4 text-3xl font-bold text-slate-900">{heading}</h2>}

@@ -8,7 +8,7 @@
 import type { StatsData } from '@/lib/landing/landing-types'
 
 interface Props extends StatsData {}
-const { heading, items, variant = 'row' } = Astro.props
+const { heading, items = [], variant = 'row' } = Astro.props
 ---
 
 {/* Row: default horizontal flex */}

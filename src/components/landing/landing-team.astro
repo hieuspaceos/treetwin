@@ -8,7 +8,7 @@
 import type { TeamData } from '@/lib/landing/landing-types'
 
 interface Props extends TeamData {}
-const { heading, subheading, members, variant = 'grid' } = Astro.props
+const { heading, subheading, members = [], variant = 'grid' } = Astro.props
 ---
 
 {/* Grid: default photo grid */}

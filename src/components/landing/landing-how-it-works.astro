@@ -8,7 +8,7 @@
 import type { HowItWorksData } from '@/lib/landing/landing-types'
 
 interface Props extends HowItWorksData {}
-const { heading, subheading, items, variant = 'numbered' } = Astro.props
+const { heading, subheading, items = [], variant = 'numbered' } = Astro.props
 ---
 
 {/* Numbered: default grid with numbered badges */}

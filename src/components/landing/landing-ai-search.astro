@@ -1,0 +1,400 @@
+---
+/**
+ * AI search input section — interactive textarea with hint chips,
+ * thinking animation, and suggestion cards based on intent matching.
+ * Pure Astro + inline JS (no React island needed).
+ * Intent matching is client-side keyword-based; can be upgraded to API later.
+ */
+import type { AiSearchData } from '@/lib/landing/landing-types'
+
+interface Props extends AiSearchData {}
+const {
+  placeholder = 'Tôi cần website cho tiệm cà phê của tôi...',
+  thinkingText = 'Đang phân tích nhu cầu của bạn...',
+  resultsHeader = 'Gợi ý cho bạn',
+  hints = [],
+  defaultSuggestions = [],
+  intents = [],
+} = Astro.props
+
+// Serialize data for client-side JS
+const clientData = JSON.stringify({ defaultSuggestions, intents })
+---
+
+<div class="ai-search-container">
+  {/* Input wrapper */}
+  <div class="ai-search-input-wrapper">
+    <textarea
+      id="ai-search-input"
+      placeholder={placeholder}
+      rows="1"
+    ></textarea>
+    <button class="ai-search-send-btn" id="ai-search-send" aria-label="Gửi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+
+  {/* Hint chips */}
+  {hints.length > 0 && (
+    <div class="ai-search-hints" id="ai-search-hints">
+      {hints.map(hint => (
+        <button class="ai-search-hint-chip" data-text={hint.text}>
+          {hint.icon && <span>{hint.icon}</span>} {hint.label}
+        </button>
+      ))}
+    </div>
+  )}
+
+  {/* Results area */}
+  <div class="ai-search-results" id="ai-search-results">
+    {/* Thinking state */}
+    <div class="ai-search-thinking" id="ai-search-thinking">
+      <div class="ai-search-thinking-dots">
+        <span></span><span></span><span></span>
+      </div>
+      {thinkingText}
+    </div>
+
+    {/* Suggestion card */}
+    <div class="ai-search-suggestions" id="ai-search-suggestions">
+      <div class="ai-search-suggestions-header">{resultsHeader}</div>
+      <div class="ai-search-suggestions-items" id="ai-search-suggestions-items"></div>
+    </div>
+  </div>
+</div>
+
+{/* Scoped data for JS */}
+<script is:inline define:vars={{ clientData }}>
+(function() {
+  const data = JSON.parse(clientData)
+  const input = document.getElementById('ai-search-input')
+  const sendBtn = document.getElementById('ai-search-send')
+  const hintsEl = document.getElementById('ai-search-hints')
+  const resultsEl = document.getElementById('ai-search-results')
+  const thinkingEl = document.getElementById('ai-search-thinking')
+  const suggestionsEl = document.getElementById('ai-search-suggestions')
+  const itemsEl = document.getElementById('ai-search-suggestions-items')
+
+  // Auto-resize textarea
+  input.addEventListener('input', function() {
+    this.style.height = 'auto'
+    this.style.height = Math.min(this.scrollHeight, 160) + 'px'
+  })
+
+  // Enter to submit
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
+    }
+  })
+
+  sendBtn.addEventListener('click', handleSubmit)
+
+  // Hint chips fill input
+  document.querySelectorAll('.ai-search-hint-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      input.value = this.dataset.text
+      input.style.height = 'auto'
+      input.style.height = Math.min(input.scrollHeight, 160) + 'px'
+      input.focus()
+    })
+  })
+
+  function detectIntent(text) {
+    const t = text.toLowerCase()
+    for (const intent of data.intents) {
+      if (intent.keywords.some(kw => t.includes(kw))) return intent.suggestions
+    }
+    return data.defaultSuggestions
+  }
+
+  function renderSuggestions(items) {
+    itemsEl.innerHTML = items.map(item => `
+      <a class="ai-search-suggestion-item" href="${item.url || '#'}">
+        <div class="ai-search-item-left">
+          ${item.icon ? `<div class="ai-search-item-icon">${item.icon}</div>` : ''}
+          <div class="ai-search-item-info">
+            <div class="ai-search-item-name">${item.name}</div>
+            <div class="ai-search-item-desc">${item.description}</div>
+          </div>
+        </div>
+        ${item.price ? `
+          <div class="ai-search-item-price">
+            <div class="ai-search-price-amount">${item.price}</div>
+            ${item.priceType ? `<div class="ai-search-price-label">${item.priceType}</div>` : ''}
+          </div>
+        ` : ''}
+      </a>
+    `).join('')
+  }
+
+  async function handleSubmit() {
+    const text = input.value.trim()
+    if (!text) return
+
+    resultsEl.classList.add('visible')
+    thinkingEl.style.display = 'flex'
+    suggestionsEl.style.display = 'none'
+    if (hintsEl) hintsEl.style.display = 'none'
+
+    await new Promise(r => setTimeout(r, 1200))
+
+    const items = detectIntent(text)
+    renderSuggestions(items)
+
+    thinkingEl.style.display = 'none'
+    suggestionsEl.style.display = 'block'
+  }
+})()
+</script>
+
+<style>
+  /* Container */
+  .ai-search-container {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* Input wrapper */
+  .ai-search-input-wrapper {
+    position: relative;
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: 20px;
+    padding: 4px 4px 4px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .ai-search-input-wrapper:focus-within {
+    border-color: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 30%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 6%, transparent),
+                0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .ai-search-input-wrapper textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--lp-text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.6;
+    resize: none;
+    padding: 18px 0;
+    min-height: 56px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .ai-search-input-wrapper textarea::placeholder {
+    color: color-mix(in srgb, var(--lp-text) 25%, transparent);
+  }
+
+  .ai-search-input-wrapper textarea::-webkit-scrollbar { display: none; }
+
+  /* Send button */
+  .ai-search-send-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: var(--lp-accent, var(--lp-primary));
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+  }
+
+  .ai-search-send-btn:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+
+  .ai-search-send-btn:active { transform: scale(0.97); }
+
+  .ai-search-send-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--lp-bg, #0a0a0a);
+  }
+
+  /* Hint chips */
+  .ai-search-hints {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ai-search-hint-chip {
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: 100px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    color: color-mix(in srgb, var(--lp-text) 45%, transparent);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .ai-search-hint-chip:hover {
+    border-color: color-mix(in srgb, var(--lp-text) 15%, transparent);
+    color: var(--lp-text);
+    background: color-mix(in srgb, var(--lp-text) 4%, transparent);
+  }
+
+  /* Results area */
+  .ai-search-results {
+    width: 100%;
+    margin-top: 16px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .ai-search-results.visible {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Thinking state */
+  .ai-search-thinking {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: 16px;
+    font-size: 14px;
+    color: color-mix(in srgb, var(--lp-text) 45%, transparent);
+  }
+
+  .ai-search-thinking-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .ai-search-thinking-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--lp-accent, var(--lp-primary));
+    animation: ai-search-blink 1.2s ease infinite;
+  }
+
+  .ai-search-thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .ai-search-thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes ai-search-blink {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Suggestion card */
+  .ai-search-suggestions {
+    display: none;
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ai-search-suggestions-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    font-size: 13px;
+    color: color-mix(in srgb, var(--lp-text) 25%, transparent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .ai-search-suggestions-items {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Suggestion item (rendered via JS) */
+  :global(.ai-search-suggestion-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  :global(.ai-search-suggestion-item:hover) {
+    background: color-mix(in srgb, var(--lp-text) 4%, transparent);
+  }
+
+  :global(.ai-search-item-left) {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  :global(.ai-search-item-icon) {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--lp-primary) 10%, var(--lp-surface));
+  }
+
+  :global(.ai-search-item-info) { text-align: left; }
+
+  :global(.ai-search-item-name) {
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 3px;
+  }
+
+  :global(.ai-search-item-desc) {
+    font-size: 13px;
+    color: color-mix(in srgb, var(--lp-text) 45%, transparent);
+    font-weight: 300;
+  }
+
+  :global(.ai-search-item-price) {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  :global(.ai-search-price-amount) {
+    font-size: 15px;
+    color: var(--lp-accent, var(--lp-primary));
+    font-weight: 500;
+  }
+
+  :global(.ai-search-price-label) {
+    font-size: 12px;
+    color: color-mix(in srgb, var(--lp-text) 25%, transparent);
+  }
+</style>

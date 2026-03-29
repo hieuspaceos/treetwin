@@ -11,7 +11,7 @@
 import type { TestimonialsData } from '@/lib/landing/landing-types'
 
 interface Props extends TestimonialsData {}
-const { heading, items, variant = 'cards' } = Astro.props
+const { heading, items = [], variant = 'cards' } = Astro.props
 
 /* Carousel duplicates items for seamless infinite scroll */
 const carouselItems = variant === 'carousel' ? [...items, ...items] : items

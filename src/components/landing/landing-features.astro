@@ -8,7 +8,7 @@
 import type { FeaturesData } from '@/lib/landing/landing-types'
 
 interface Props extends FeaturesData {}
-const { heading, subheading, items, columns = 3, variant = 'grid' } = Astro.props
+const { heading, subheading, items = [], columns = 3, variant = 'grid' } = Astro.props
 const gridClass = `landing-grid-${columns}` as const
 ---
 

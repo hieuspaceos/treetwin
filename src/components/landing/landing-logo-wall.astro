@@ -2,7 +2,7 @@
 import type { LogoWallData } from '@/lib/landing/landing-types'
 
 interface Props extends LogoWallData {}
-const { heading, logos } = Astro.props
+const { heading, logos = [] } = Astro.props
 ---
 
 <section class="landing-section">
