@@ -1,50 +1,59 @@
 ---
 /**
  * Hero section with 4 layout variants:
- * - centered (default): centered headline + CTA, optional background image
+ * - centered (default): centered headline + CTA, optional background image with gradient overlay
  * - split: text left + image/embed right (50/50)
- * - video-bg: full-width background image with overlay
- * - minimal: just headline + subheadline, no CTA button
+ * - video-bg: full-width background with animated zoom + gradient overlay
+ * - minimal: just headline + subheadline, no CTA
  *
- * cta accepts single {text,url} (legacy) or an array — first item = primary style.
- * embed: if URL ends in .mp4/.webm, auto-renders as <video> tag.
+ * Supports: eyebrow label, cta array, embed (video/iframe), background image.
  */
 import type { HeroData } from '@/lib/landing/landing-types'
 
 interface Props extends HeroData {}
 const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered' } = Astro.props
 
-// Normalize cta to array for consistent rendering
 const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
-
-// Determine if embed is a video file — render <video> instead of set:html
 const isVideoEmbed = embed ? /\.(mp4|webm)(\?.*)?$/i.test(embed) : false
+const hasBg = !!backgroundImage
 
 function ctaClass(index: number, ctaVariant?: string): string {
   if (ctaVariant === 'secondary') return 'landing-btn-secondary'
   if (ctaVariant === 'outline') return 'landing-btn-outline'
-  return index === 0 ? 'landing-btn-primary' : 'landing-btn-secondary'
+  return index === 0 ? 'landing-btn-primary' : 'landing-btn-outline'
 }
 ---
 
-{/* Centered: default layout */}
+{/* Centered: default — with optional bg image + gradient overlay */}
 {variant === 'centered' && (
   <section
     class="landing-section text-center"
-    style={backgroundImage ? `background-image: url(${backgroundImage}); background-size: cover; background-position: center;` : undefined}
+    style={hasBg
+      ? 'position: relative; overflow: hidden; padding: 6rem 2rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center'
+      : 'padding: 5rem 2rem'}
   >
-    <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">{headline}</h1>
-    {subheadline && (
-      <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
-    )}
-    {ctaList.length > 0 && (
-      <div class="flex flex-wrap items-center justify-center gap-3 mt-8">
-        {ctaList.map((item, i) => (
-          <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
-        ))}
-      </div>
-    )}
-    {embed && (
+    {hasBg && <div class="lp-hero-bg" style={`background-image: url(${backgroundImage})`} />}
+    {hasBg && <div class="lp-hero-overlay" />}
+    <div style={hasBg ? 'position: relative; z-index: 2; max-width: 720px' : 'max-width: 720px; margin: 0 auto'}>
+      <h1
+        class="font-bold tracking-tight"
+        style={`font-family: var(--lp-font-heading), serif; font-size: clamp(2.4rem, 5.5vw, 4.5rem); line-height: 1.1; letter-spacing: -0.01em; ${hasBg ? 'color: #fff' : ''}`}
+      >{headline}</h1>
+      {subheadline && (
+        <p
+          class="mx-auto mt-5 max-w-xl text-lg"
+          style={`line-height: 1.7; font-weight: 300; ${hasBg ? 'color: rgba(255,255,255,0.85)' : 'color: var(--lp-text-muted)'}`}
+        >{subheadline}</p>
+      )}
+      {ctaList.length > 0 && (
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-8">
+          {ctaList.map((item, i) => (
+            <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
+          ))}
+        </div>
+      )}
+    </div>
+    {embed && !hasBg && (
       <div class="mt-8">
         {isVideoEmbed ? (
           <video src={embed} autoplay muted loop playsinline style="max-width: 100%; border-radius: var(--lp-radius)" />
@@ -58,21 +67,24 @@ function ctaClass(index: number, ctaVariant?: string): string {
 
 {/* Split: text left, image/embed right */}
 {variant === 'split' && (
-  <section class="landing-section" style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap">
-    <div style="flex: 1; min-width: 260px">
-      <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{headline}</h1>
+  <section class="landing-section" style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; padding: 4rem 2rem">
+    <div style="flex: 1; min-width: 280px">
+      <h1
+        class="font-bold tracking-tight"
+        style="font-family: var(--lp-font-heading), serif; font-size: clamp(2rem, 4.5vw, 3.5rem); line-height: 1.12; letter-spacing: -0.01em"
+      >{headline}</h1>
       {subheadline && (
-        <p class="mt-4 text-lg" style="color: var(--lp-text-muted)">{subheadline}</p>
+        <p class="mt-4 text-lg" style="color: var(--lp-text-muted); line-height: 1.75; font-weight: 300">{subheadline}</p>
       )}
       {ctaList.length > 0 && (
         <div class="flex flex-wrap items-center gap-3 mt-8">
           {ctaList.map((item, i) => (
-            <a href={item.url} class={ctaClass(i, item.variant)} style="display: inline-block">{item.text}</a>
+            <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
           ))}
         </div>
       )}
     </div>
-    <div style="flex: 1; min-width: 260px; display: flex; align-items: center; justify-content: center">
+    <div style="flex: 1; min-width: 280px; display: flex; align-items: center; justify-content: center">
       {embed && (
         isVideoEmbed ? (
           <video src={embed} autoplay muted loop playsinline style="max-width: 100%; border-radius: var(--lp-radius)" poster={backgroundImage || undefined} />
@@ -81,7 +93,7 @@ function ctaClass(index: number, ctaVariant?: string): string {
         )
       )}
       {backgroundImage && !embed && (
-        <img src={backgroundImage} alt={headline} style="max-width: 100%; border-radius: var(--lp-radius); object-fit: cover" />
+        <img src={backgroundImage} alt={headline} style="max-width: 100%; border-radius: var(--lp-radius); object-fit: cover; box-shadow: 0 16px 48px rgba(0,0,0,0.15)" loading="lazy" />
       )}
       {!embed && !backgroundImage && (
         <div style="width: 100%; aspect-ratio: 16/9; background: color-mix(in srgb, var(--lp-primary) 10%, var(--lp-surface)); border-radius: var(--lp-radius); display: flex; align-items: center; justify-content: center; color: var(--lp-text-muted); font-size: 0.875rem">
@@ -92,17 +104,21 @@ function ctaClass(index: number, ctaVariant?: string): string {
   </section>
 )}
 
-{/* Video-bg: full-width background with overlay */}
+{/* Video-bg: full-width with animated zoom + gradient overlay */}
 {variant === 'video-bg' && (
   <section
     class="landing-section text-center"
-    style={`position: relative; background-image: url(${backgroundImage || ''}); background-size: cover; background-position: center; padding: 5rem 2rem; overflow: hidden`}
+    style="position: relative; overflow: hidden; padding: 6rem 2rem; min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center"
   >
-    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55)"></div>
-    <div style="position: relative; z-index: 1">
-      <h1 class="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl" style="color: #fff">{headline}</h1>
+    <div class="lp-hero-bg" style={`background-image: url(${backgroundImage || ''})`} />
+    <div class="lp-hero-overlay" />
+    <div style="position: relative; z-index: 2; max-width: 720px">
+      <h1
+        class="font-bold tracking-tight"
+        style="font-family: var(--lp-font-heading), serif; font-size: clamp(2.6rem, 6vw, 5rem); line-height: 1.08; color: #fff; letter-spacing: -0.01em"
+      >{headline}</h1>
       {subheadline && (
-        <p class="mx-auto mt-4 max-w-2xl text-lg" style="color: rgba(255,255,255,0.85)">{subheadline}</p>
+        <p class="mx-auto mt-5 max-w-xl text-lg" style="color: rgba(255,255,255,0.82); line-height: 1.7; font-weight: 300">{subheadline}</p>
       )}
       {ctaList.length > 0 && (
         <div class="flex flex-wrap items-center justify-center gap-3 mt-8">
@@ -124,12 +140,15 @@ function ctaClass(index: number, ctaVariant?: string): string {
   </section>
 )}
 
-{/* Minimal: headline + subheadline only, no CTA button */}
+{/* Minimal: headline + subheadline only */}
 {variant === 'minimal' && (
-  <section class="landing-section text-center" style="background: transparent; padding: 3rem 2rem">
-    <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{headline}</h1>
+  <section class="landing-section text-center" style="background: transparent; padding: 4rem 2rem">
+    <h1
+      class="font-bold tracking-tight"
+      style="font-family: var(--lp-font-heading), serif; font-size: clamp(2rem, 4.5vw, 3.5rem); line-height: 1.15"
+    >{headline}</h1>
     {subheadline && (
-      <p class="mx-auto mt-4 max-w-2xl text-xl" style="color: var(--lp-text-muted)">{subheadline}</p>
+      <p class="mx-auto mt-4 max-w-2xl text-xl" style="color: var(--lp-text-muted); line-height: 1.7; font-weight: 300">{subheadline}</p>
     )}
   </section>
 )}

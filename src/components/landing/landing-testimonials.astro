@@ -18,19 +18,24 @@ const carouselItems = variant === 'carousel' ? [...items, ...items] : items
 const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
 ---
 
-{/* Cards: default grid with avatars */}
+{/* Cards: grid with quote marks, stars, avatars */}
 {variant === 'cards' && (
-  <section class="landing-section">
-    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
-    <div class="landing-grid-2">
+  <section class="landing-section lp-fade-up">
+    {heading && <h2 class="lp-section-heading text-center mb-8">{heading}</h2>}
+    <div class={items.length <= 2 ? 'landing-grid-2' : 'landing-grid-3'}>
       {items.map((t) => (
-        <div class="glass-card p-6">
+        <div class="lp-card-hover" style="padding: 1.75rem; background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)">
+          <div class="lp-stars mb-3">★★★★★</div>
           {t.image && (
             <img src={t.image} alt={t.name} class="mb-4 w-full rounded-lg object-cover" style="max-height: 200px" loading="lazy" />
           )}
-          <p class="mb-4 italic" style="color: var(--lp-text-muted)">"{t.quote}"</p>
-          <div class="flex items-center gap-3">
-            {t.avatar && <img src={t.avatar} alt={t.name} class="h-10 w-10 rounded-full object-cover" />}
+          <p style="font-family: var(--lp-font-heading), serif; font-size: 1rem; line-height: 1.7; color: var(--lp-text-muted); font-style: italic; margin-bottom: 1.25rem">"{t.quote}"</p>
+          <div class="flex items-center gap-3" style="border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent); padding-top: 1rem">
+            {t.avatar ? <img src={t.avatar} alt={t.name} class="lp-avatar" /> : (
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--lp-primary) 15%, var(--lp-surface)); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--lp-primary); flex-shrink: 0">
+                {t.name?.split(' ').map(w => w[0]).join('').slice(0, 2)}
+              </div>
+            )}
             <div>
               <p class="text-sm font-semibold">{t.name}</p>
               {(t.role || t.company) && (
@@ -83,13 +88,15 @@ const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
   </section>
 )}
 
-{/* Single: one large centered quote */}
+{/* Single: one large centered quote with quote mark */}
 {variant === 'single' && (
-  <section class="landing-section text-center">
-    {heading && <h2 class="mb-8 text-3xl font-bold">{heading}</h2>}
+  <section class="landing-section text-center lp-fade-up">
+    {heading && <h2 class="lp-section-heading mb-8">{heading}</h2>}
     {items.length > 0 && (
-      <div style="max-width: 680px; margin: 0 auto; padding: 2.5rem; background: var(--lp-surface); border-radius: var(--lp-radius)">
-        <p style="font-size: 1.35rem; font-style: italic; line-height: 1.7; color: var(--lp-text); margin-bottom: 1.5rem">
+      <div style="max-width: 680px; margin: 0 auto; padding: 2.5rem; background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface)); border-radius: var(--lp-radius); position: relative">
+        <div class="lp-quote-mark" style="position: absolute; top: 0.5rem; left: 1.5rem">❝</div>
+        <div class="lp-stars mb-3">★★★★★</div>
+        <p style="font-family: var(--lp-font-heading), serif; font-size: 1.25rem; font-style: italic; line-height: 1.7; color: var(--lp-text); margin-bottom: 1.5rem">
           "{items[0].quote}"
         </p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem">

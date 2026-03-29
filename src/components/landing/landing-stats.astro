@@ -1,8 +1,8 @@
 ---
 /**
  * Stats section with 3 layout variants:
- * - row (default): horizontal flex row
- * - cards: each stat in its own card
+ * - row (default): horizontal flex row with dividers
+ * - cards: each stat in its own elevated card
  * - large: big numbers, vertical stack
  */
 import type { StatsData } from '@/lib/landing/landing-types'
@@ -11,46 +11,48 @@ interface Props extends StatsData {}
 const { heading, items = [], variant = 'row' } = Astro.props
 ---
 
-{/* Row: default horizontal flex */}
+{/* Row: horizontal with subtle dividers */}
 {variant === 'row' && (
-  <section class="landing-section">
-    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+  <section class="landing-section lp-fade-up">
+    {heading && <h2 class="lp-section-heading text-center mb-8">{heading}</h2>}
     <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'} style={items.length <= 2 ? 'max-width: 540px; margin: 0 auto' : undefined}>
       {items.map((stat) => (
-        <div class="glass-card p-6 text-center">
-          <p class="landing-stat-value">{stat.prefix}{stat.value}{stat.suffix}</p>
-          <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{stat.label}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-)}
-
-{/* Cards: each stat in an elevated card */}
-{variant === 'cards' && (
-  <section class="landing-section">
-    {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
-    <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'} style={items.length <= 2 ? 'max-width: 540px; margin: 0 auto' : undefined}>
-      {items.map((stat) => (
-        <div style="padding: 1.75rem 1.25rem; text-align: center; background: var(--lp-surface); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 15%, transparent); box-shadow: 0 4px 16px color-mix(in srgb, var(--lp-primary) 8%, transparent)">
-          <p style="font-size: 2.25rem; font-weight: 800; color: var(--lp-primary); line-height: 1">
+        <div class="p-6 text-center" style="border-radius: var(--lp-radius); background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface))">
+          <p style="font-family: var(--lp-font-heading), serif; font-size: 2.8rem; font-weight: 700; line-height: 1; color: var(--lp-primary); font-variant-numeric: tabular-nums">
             {stat.prefix}{stat.value}{stat.suffix}
           </p>
-          <p class="mt-2 text-sm font-medium" style="color: var(--lp-text-muted)">{stat.label}</p>
+          <p class="mt-2 text-sm font-medium" style="color: var(--lp-text-muted); letter-spacing: 0.02em">{stat.label}</p>
         </div>
       ))}
     </div>
   </section>
 )}
 
-{/* Large: big numbers, vertical stack centered */}
+{/* Cards: elevated with border accent */}
+{variant === 'cards' && (
+  <section class="landing-section lp-fade-up">
+    {heading && <h2 class="lp-section-heading text-center mb-8">{heading}</h2>}
+    <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'} style={items.length <= 2 ? 'max-width: 540px; margin: 0 auto' : undefined}>
+      {items.map((stat) => (
+        <div class="lp-card-hover" style="padding: 2rem 1.5rem; text-align: center; background: var(--lp-surface); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 12%, transparent); border-top: 3px solid var(--lp-primary)">
+          <p style="font-family: var(--lp-font-heading), serif; font-size: 2.5rem; font-weight: 800; color: var(--lp-primary); line-height: 1; font-variant-numeric: tabular-nums">
+            {stat.prefix}{stat.value}{stat.suffix}
+          </p>
+          <p class="mt-3 text-sm font-medium" style="color: var(--lp-text-muted)">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Large: big numbers, vertical centered */}
 {variant === 'large' && (
-  <section class="landing-section text-center">
-    {heading && <h2 class="mb-8 text-3xl font-bold">{heading}</h2>}
+  <section class="landing-section text-center lp-fade-up">
+    {heading && <h2 class="lp-section-heading mb-8">{heading}</h2>}
     <div style="display: flex; flex-direction: column; gap: 2.5rem; max-width: 480px; margin: 0 auto">
       {items.map((stat) => (
         <div>
-          <p style="font-size: 4rem; font-weight: 900; color: var(--lp-primary); line-height: 1; letter-spacing: -0.02em">
+          <p style="font-family: var(--lp-font-heading), serif; font-size: 4.5rem; font-weight: 700; color: var(--lp-primary); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">
             {stat.prefix}{stat.value}{stat.suffix}
           </p>
           <p class="mt-2 text-lg" style="color: var(--lp-text-muted)">{stat.label}</p>

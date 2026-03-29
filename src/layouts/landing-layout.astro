@@ -100,5 +100,14 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
     </div>
     <Analytics />
     <SpeedInsights />
+    <!-- Fade-up animation observer for .lp-fade-up elements -->
+    <script>
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target) }
+        })
+      }, { threshold: 0.1 })
+      document.querySelectorAll('.lp-fade-up').forEach(el => obs.observe(el))
+    </script>
   </body>
 </html>

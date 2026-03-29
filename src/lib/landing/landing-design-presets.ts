@@ -122,6 +122,42 @@ export const LANDING_DESIGN_PRESETS: DesignPreset[] = [
       borderRadius: '14px',
     },
   },
+  {
+    id: 'editorial-luxury',
+    name: 'Editorial Luxury',
+    description: 'Earthy serif elegance for travel & lifestyle',
+    design: {
+      colors: {
+        primary: '#2d4a3e',
+        secondary: '#b85c38',
+        accent: '#d4a853',
+        background: '#f5f0e8',
+        surface: '#faf8f4',
+        text: '#2a1f14',
+        textMuted: '#7a6b58',
+      },
+      fonts: { heading: 'Cormorant Garamond', body: 'DM Sans' },
+      borderRadius: '3px',
+    },
+  },
+  {
+    id: 'modern-saas',
+    name: 'Modern SaaS',
+    description: 'Vibrant gradients for tech products',
+    design: {
+      colors: {
+        primary: '#6366f1',
+        secondary: '#8b5cf6',
+        accent: '#06b6d4',
+        background: '#fafafa',
+        surface: '#ffffff',
+        text: '#18181b',
+        textMuted: '#71717a',
+      },
+      fonts: { heading: 'Space Grotesk', body: 'DM Sans' },
+      borderRadius: '12px',
+    },
+  },
 ]
 
 /** Resolve a design config by merging preset defaults with custom overrides */

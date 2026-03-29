@@ -19,10 +19,10 @@ const gridClass = `landing-grid-${columns}` as const
     {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
     <div class={gridClass}>
       {items.map((item) => (
-        <div class="p-6" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius)">
-          {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <span class="mb-3 block text-2xl">{item.icon}</span>)}
+        <div class="lp-card-hover p-6" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)">
+          {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
           <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
-          <p class="text-sm" style="color: var(--lp-text-muted)">{item.description}</p>
+          <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>
           {item.price && (
             <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
               <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
