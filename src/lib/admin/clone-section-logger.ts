@@ -47,21 +47,38 @@ function saveBacklog(b: Backlog) {
 export function logCloneSections(
   url: string,
   sections: Array<{ type: string; data?: Record<string, unknown> }>,
-  /** HTML word count — used to estimate expected sections */
-  wordCount?: number
+  /** HTML word count */
+  wordCount?: number,
+  /** Page headings (H2) from original — used to detect specific missing sections */
+  pageHeadings?: string[]
 ) {
   const b = readBacklog()
   b.totalClones++
   b.updatedAt = new Date().toISOString()
   const now = b.updatedAt
 
-  // Estimate expected sections based on page size
+  // Detect specific missing sections by comparing page headings vs cloned section headings
+  if (pageHeadings && pageHeadings.length > 0) {
+    const clonedHeadings = sections.map(s => {
+      const d = s.data || {}
+      return String(d.headline || d.heading || d.text || d.brandName || '').toLowerCase()
+    }).filter(Boolean)
+
+    for (const h of pageHeadings) {
+      const hLower = h.toLowerCase()
+      const found = clonedHeadings.some(ch => ch.includes(hLower.slice(0, 15)) || hLower.includes(ch.slice(0, 15)))
+      if (!found) {
+        addEntry(b, 'missing', 'section', `Section "${h}" from original page was NOT cloned — may need new section type or clone improvement`, url, now)
+      }
+    }
+  }
+
+  // General gap check
   const sectionCount = sections.filter(s => s.type !== 'nav' && s.type !== 'footer' && s.type !== 'divider').length
   const wc = wordCount || 500
-  const expectedMin = Math.max(3, Math.floor(wc / 150)) // ~1 section per 150 words
+  const expectedMin = Math.max(3, Math.floor(wc / 150))
   if (sectionCount < expectedMin) {
-    const gap = expectedMin - sectionCount
-    addEntry(b, 'missing', 'gap', `Page has ~${wc} words but only ${sectionCount} sections extracted (expected ~${expectedMin}). ${gap} sections likely missing from clone.`, url, now)
+    addEntry(b, 'missing', 'gap', `${sectionCount} sections extracted from ~${wc} words (expected ~${expectedMin})`, url, now)
   }
 
   for (const s of sections) {

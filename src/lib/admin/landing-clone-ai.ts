@@ -375,6 +375,11 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   // For large HTML: use sanitize-html to strip noise, keeps semantic content
   const cloneHtml = html.length > 60_000 ? cleanForStructure(rawHtml).slice(0, 80_000) : html
   const r = await directClone(apiKey, cloneHtml, intent || '', url)
-  try { logCloneSections(url, r.sections, words) } catch {}
+  // Extract H2 headings from markdown/HTML for missing section detection
+  const headingSource = _lastMarkdown || html
+  const pageHeadings = [...headingSource.matchAll(/^##\s+(.+)/gm)].map(m => m[1].trim())
+    .concat([...headingSource.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)].map(m => m[1].trim()))
+    .filter(h => h.length > 3 && h.length < 100)
+  try { logCloneSections(url, r.sections, words, pageHeadings) } catch {}
   return r
 }
