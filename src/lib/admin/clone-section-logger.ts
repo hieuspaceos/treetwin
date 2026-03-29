@@ -68,17 +68,18 @@ export function logCloneSections(
     const conf = (s as any).confidence ?? 100
     const note = (s as any).note || ''
 
-    // CREATE: unknown type or type not in our builder
+    // CREATE: unknown type
     if (s.type === 'unknown') {
       addItem(b, 'create', note || 'unknown-section', `AI detected a section that doesn't match any existing type: ${note}`, conf, url, now)
     }
-    // UPGRADE: rich-text used as catch-all (means we're missing a proper section)
-    else if (s.type === 'rich-text' && note) {
-      addItem(b, 'upgrade', 'rich-text', `Rich-text used instead of dedicated section: ${note}`, conf, url, now)
+    // UPGRADE: rich-text used as catch-all (means we're missing a proper section type)
+    else if (s.type === 'rich-text') {
+      const desc = note || 'Rich-text used as catch-all — may need dedicated section type'
+      addItem(b, 'upgrade', 'rich-text', desc, conf, url, now)
     }
-    // UPGRADE: low confidence means section exists but doesn't fit well
-    else if (conf < 60 && note) {
-      addItem(b, 'upgrade', s.type, `Low confidence (${conf}%): ${note}`, conf, url, now)
+    // UPGRADE: low confidence
+    else if (conf < 60) {
+      addItem(b, 'upgrade', s.type, `Low confidence (${conf}%): ${note || 'section may not fit well'}`, conf, url, now)
     }
   }
 
