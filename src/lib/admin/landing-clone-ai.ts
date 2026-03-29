@@ -8,6 +8,7 @@
  */
 import { jsonrepair } from 'jsonrepair'
 import sanitizeHtml from 'sanitize-html'
+import { logCloneSections } from './clone-section-logger'
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
@@ -357,8 +358,9 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
         if (fcHtml.length > 500) {
           const fcAnalysis = analyzeHtml(fcHtml)
           if (fcAnalysis.score >= 20) {
-            // Firecrawl saved us — use 2-step
-            return await structureFirstClone(apiKey, fcHtml, intent || '', url)
+            const r = await structureFirstClone(apiKey, fcHtml, intent || '', url)
+            try { logCloneSections(url, r.sections, r.structure) } catch {}
+            return r
           }
         }
       } catch {}
@@ -369,7 +371,9 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   // Tier 1: Direct clone with DIRECT fetch (proven stable, Firecrawl changes format)
   const html = cleanBasic(directHtml)
   if (analysis.tier === 1 && html.length <= 50_000) {
-    return await directClone(apiKey, html, intent || '', url)
+    const r = await directClone(apiKey, html, intent || '', url)
+    try { logCloneSections(url, r.sections, r.structure) } catch {}
+    return r
   }
 
   // Tier 2-3: Structure-first 2-step clone — prefer Firecrawl HTML (cleaner, JS-rendered)
@@ -381,5 +385,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
       if (fcHtml.length > 500) cloneHtml = fcHtml
     } catch {}
   }
-  return await structureFirstClone(apiKey, cloneHtml, intent || '', url)
+  const r = await structureFirstClone(apiKey, cloneHtml, intent || '', url)
+  try { logCloneSections(url, r.sections, r.structure) } catch {}
+  return r
 }
