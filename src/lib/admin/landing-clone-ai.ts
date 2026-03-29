@@ -148,14 +148,48 @@ function analyzeHtml(html: string): SiteAnalysis {
   return { tier, score, label: labels[tier], framework, details, canClone: score >= 20 }
 }
 
-/** Fetch HTML from URL */
+/** Fetch HTML — tries direct fetch first, falls back to Firecrawl if content too thin */
 async function fetchPageHtml(url: string): Promise<string> {
+  // Try direct fetch first (fast, free)
+  const directHtml = await directFetch(url)
+  const words = directHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2)
+
+  // If enough content, use direct fetch
+  if (words.length >= 50) return directHtml
+
+  // Fallback to Firecrawl (renders JS, handles SPA)
+  const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
+  if (firecrawlKey) {
+    try {
+      const fcHtml = await firecrawlFetch(url, firecrawlKey)
+      if (fcHtml.length > directHtml.length) return fcHtml
+    } catch {}
+  }
+
+  return directHtml
+}
+
+/** Direct HTTP fetch */
+async function directFetch(url: string): Promise<string> {
   const res = await fetch(url, {
     signal: AbortSignal.timeout(15000),
     headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
   })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return (await res.text()).slice(0, 100_000)
+}
+
+/** Fetch via Firecrawl API (renders JS, handles SPA/Cloudflare) */
+async function firecrawlFetch(url: string, apiKey: string): Promise<string> {
+  const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    method: 'POST',
+    signal: AbortSignal.timeout(30000),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ url, formats: ['html'], onlyMainContent: false, waitFor: 3000 }),
+  })
+  if (!res.ok) throw new Error(`Firecrawl error: ${res.status}`)
+  const data = await res.json()
+  return (data?.data?.html || '').slice(0, 100_000)
 }
 
 /** Clean HTML — basic (scripts/styles) */
