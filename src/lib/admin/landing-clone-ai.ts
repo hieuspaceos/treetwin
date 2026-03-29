@@ -15,33 +15,57 @@ const GEMINI_API_URL =
 /** Section types available in the builder */
 const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
 
-/** Legacy prompt for Tier 1 direct clone (proven working for SaaS sites) */
-const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze this HTML and decompose into landing page sections.
+/** Full detailed prompt for Tier 1 direct clone — EXACT copy from stable commit 830569d */
+const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze the HTML of a landing page and decompose it into structured sections matching our landing page builder schema.
 
-Section types: ${SECTION_TYPES.join(', ')}.
+Available section types, their variants, and fields:
+
+STRUCTURE:
+- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}], variant
+- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
+
+HERO (exactly ONE per page):
+- hero: variants=[centered, split, video-bg, minimal]. Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL). cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]. IMPORTANT: cta is always an ARRAY.
+
+CONTENT:
+- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description}], columns(2|3|4)
+- stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
+- how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
+- team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
+- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
+- rich-text: Fields: content (markdown string, max 300 chars)
+
+CONVERSION:
+- pricing: variants=[cards, simple, highlight-center]. Fields: heading, subheading, plans[{name, price, period, description, features[], cta{text,url}, highlighted, badge}]. Count actual plan CARDS only.
+- testimonials: variants=[cards, single, minimal, carousel]. Fields: heading, items[{quote, name, role, company, avatar, image}]. Use "carousel" if they scroll horizontally.
+- cta: variants=[default, split, banner, minimal, with-image]. Fields: headline, subheadline, backgroundImage. cta: ARRAY of buttons [{text, url, variant}].
+- social-proof: variants=[inline, banner]. Fields: text, icon, link
+- logo-wall: Fields: heading, logos[{name,url,image}]
+- banner: Fields: text, cta{text,url}, variant(info|warning|success)
+- contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
+- comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
+
+MEDIA:
+- video: Fields: url, caption, autoplay
+- image: Fields: src, alt, caption, fullWidth
+- image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
+- gallery: Fields: heading, images[{src,alt,caption}]
 
 Rules:
-- Extract EVERY visible section — do NOT skip any. Include ALL sections from top to bottom.
-- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}]
-- hero: extract backgroundImage URL and embed URL (video/iframe). If embed is .mp4/.webm, keep as-is.
-- Icons: use emoji, never "[SVG]" or raw SVG
-- Pricing: count actual plan CARDS only, include badge if visible
-- Testimonials: use "carousel" if they scroll horizontally. Extract avatar/image URLs.
-- video: extract the video URL (YouTube, Vimeo, or direct .mp4 link)
-- image/image-text: extract image src URLs as absolute URLs
-- gallery: extract ALL image src URLs
-- Rich-text: max 300 chars, summarize
-- Text fields: clean text, no HTML tags, max 200 chars
-- Image/video URLs: keep absolute, decode /_next/image URLs
+- Map each visual section to the BEST matching section type
+- Extract ALL text content, image URLs as absolute URLs
+- Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
+- Extract colors from CSS/inline styles — find dominant brand color
 - Keep content in ORIGINAL language
+- SVG icons → replace with matching emoji. NEVER output "[SVG]"
+- Decode /_next/image URLs to actual file paths
 - Do NOT duplicate content across sections
-- social-proof: short trust lines between sections (e.g. "Join 500+ happy users")
 
 Return ONLY valid JSON:
 {
-  "title": "...", "description": "...",
-  "design": { "colors": { "primary":"#hex","secondary":"#hex","accent":"#hex","background":"#hex","surface":"#hex","text":"#hex","textMuted":"#hex" }, "fonts": { "heading":"...", "body":"..." }, "borderRadius": "12px" },
-  "sections": [{ "type":"...", "order":0, "enabled":true, "data":{...} }, ...]
+  "title": "Page title", "description": "Meta description",
+  "design": { "colors": { "primary":"#hex","secondary":"#hex","accent":"#hex","background":"#hex","surface":"#hex","text":"#hex","textMuted":"#hex" }, "fonts": { "heading":"Font", "body":"Font" }, "borderRadius": "12px" },
+  "sections": [{ "type":"nav", "order":-1, "enabled":true, "data":{...} }, ...]
 }`
 
 /** Structure analysis prompt (Step 1 — small output) */
