@@ -48,10 +48,14 @@ const brandLogo = logo
 {/* Top info bar — rendered above nav when topBar data exists */}
 {topBar && topBar.length > 0 && (
   <div style={`display: flex; justify-content: center; gap: 1.5rem; padding: 0.4rem 1rem; font-size: 0.75rem; background: ${sectionStyle?.background ? 'color-mix(in srgb, ' + sectionStyle.background + ' 80%, #000)' : '#1e3a2f'}; color: rgba(255,255,255,0.8)`}>
-    {topBar.map(item => item.href
-      ? <a href={item.href} style="color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem">{item.icon && <span>{item.icon}</span>}{item.text}</a>
-      : <span style="display: inline-flex; align-items: center; gap: 0.3rem">{item.icon && <span>{item.icon}</span>}{item.text}</span>
-    )}
+    {topBar.map(item => {
+      const iconEl = item.icon
+        ? (item.icon.startsWith('http') ? <img src={item.icon} alt="" style="height:14px;width:auto" /> : <span>{item.icon}</span>)
+        : null
+      return item.href
+        ? <a href={item.href} style="color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem">{iconEl}{item.text}</a>
+        : <span style="display: inline-flex; align-items: center; gap: 0.3rem">{iconEl}{item.text}</span>
+    })}
   </div>
 )}
 {/* Default: logo left, links right */}
@@ -70,7 +74,7 @@ const brandLogo = logo
             {socialLinks.map(sl => (
               <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
                 style="font-size:1.1rem;line-height:1;padding:4px;border-radius:6px;transition:opacity 0.2s;color:var(--lp-text-muted)"
-                aria-label={sl.label || sl.icon}>{sl.icon}</a>
+                aria-label={sl.label || sl.icon}>{sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}</a>
             ))}
           </span>
         )}
