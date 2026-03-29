@@ -277,9 +277,9 @@ html:has(.landing-nav) {
   max-width: 72rem;
   margin: 0 auto;
 }
-/* Inner .landing-section in full-width: no extra padding (wrapper handles it) */
+/* Inner .landing-section always has its own padding — wrapper only carries bg */
 .lp-full-width .landing-section {
-  padding: 0;
+  padding: 4rem 2rem;
 }
 
 /* When renderer applies a background via style, component section should be transparent */

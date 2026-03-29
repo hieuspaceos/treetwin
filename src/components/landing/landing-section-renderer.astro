@@ -73,9 +73,9 @@ function buildSectionStyle(style?: SectionStyle): string | undefined {
   if (!style) return undefined
   const parts: string[] = []
   if (style.background) parts.push(`background: ${style.background}`)
-  // Full-width sections get default padding unless custom padding is set
-  if (style.padding) parts.push(`padding: ${style.padding}`)
-  else if (style.fullWidth) parts.push('padding: 4rem 2rem')
+  // Padding goes on .landing-section (inner), not the wrapper — prevents bg bleed gaps
+  // Only set padding on wrapper for bg-image sections (where .landing-section has padding:0)
+  if (style.backgroundImage && style.padding) parts.push(`padding: ${style.padding}`)
   if (style.textColor) parts.push(`--lp-text: ${style.textColor}; color: ${style.textColor}`)
   if (style.textMutedColor) parts.push(`--lp-text-muted: ${style.textMutedColor}`)
   if (style.accentColor) parts.push(`--lp-accent: ${style.accentColor}`)
