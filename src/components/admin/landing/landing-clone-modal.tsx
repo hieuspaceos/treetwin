@@ -312,13 +312,19 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
               </div>
             )}
 
-            {/* Section cards */}
+            {/* Section cards with confidence scores */}
             <div style={{ flex: 1, overflowY: 'auto', maxHeight: '380px', marginBottom: '0.75rem' }}>
               {result.sections.map((section, i) => {
                 const meta = SECTION_META[section.type] || { label: section.type, color: '#94a3b8' }
                 const data = (section.data || {}) as Record<string, unknown>
                 const preview = String(data?.headline || data?.heading || data?.text || data?.brandName || data?.content || '').slice(0, 80)
                 const isSelected = selected.has(i)
+                /* Per-section confidence from structure analysis */
+                const structInfo = (result as any).structure?.[i] as { confidence?: number; note?: string; variant?: string } | undefined
+                const confidence = structInfo?.confidence ?? (section as any).confidence
+                const note = structInfo?.note
+                const variant = structInfo?.variant || (data.variant ? String(data.variant) : '')
+                const confColor = confidence >= 80 ? '#16a34a' : confidence >= 50 ? '#d97706' : '#dc2626'
                 return (
                   <label key={i} style={{
                     display: 'flex', alignItems: 'center', gap: '0.65rem',
@@ -329,11 +335,15 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
                   }}>
                     <input type="checkbox" checked={isSelected} onChange={() => toggle(i)} style={{ flexShrink: 0, accentColor: meta.color }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.3rem' }}>
                         <span style={{ fontSize: '0.83rem', fontWeight: 500, color: isSelected ? '#1e293b' : '#94a3b8' }}>{meta.label}</span>
-                        {data.variant ? <span style={{ fontSize: '0.62rem', color: '#94a3b8', background: '#f1f5f9', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>{String(data.variant)}</span> : null}
+                        <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', flexShrink: 0 }}>
+                          {variant ? <span style={{ fontSize: '0.6rem', color: '#94a3b8', background: '#f1f5f9', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{variant}</span> : null}
+                          {confidence != null && <span style={{ fontSize: '0.6rem', fontWeight: 600, color: confColor, background: `${confColor}12`, padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{confidence}%</span>}
+                        </div>
                       </div>
                       {preview && <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{preview}</p>}
+                      {note && <p style={{ fontSize: '0.62rem', color: '#d97706', margin: '0.1rem 0 0' }}>⚠️ {note}</p>}
                     </div>
                   </label>
                 )

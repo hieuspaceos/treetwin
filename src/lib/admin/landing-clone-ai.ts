@@ -1,118 +1,70 @@
 /**
- * AI landing page cloner — fetches a URL, sends HTML to Gemini,
- * returns structured sections + design config matching our builder schema.
- * Requires GEMINI_API_KEY env var.
+ * AI landing page cloner — 2-step structure-first approach.
+ * Step 1: Analyze structure (small output, never truncates)
+ * Step 2: Fill content per section (parallel calls, each small)
+ *
+ * Tier 1 sites (< 50K clean HTML) use legacy direct clone (proven stable).
+ * Tier 2-4 sites use 2-step approach for reliability.
  */
+import { jsonrepair } from 'jsonrepair'
+import sanitizeHtml from 'sanitize-html'
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-/** Section types and variants available in the landing page builder */
-const SECTION_SCHEMA = `
-Available section types, their variants, and fields:
+/** Section types available in the builder */
+const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
 
-STRUCTURE:
-- nav: variants=[default, centered, transparent]. Fields: brandName, links[{label,href}], variant
-- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
+/** Legacy prompt for Tier 1 direct clone (proven working for SaaS sites) */
+const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze this HTML and decompose into landing page sections.
 
-HERO (exactly ONE per page):
-- hero: variants=[centered, split, video-bg, minimal].
-  Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL)
-  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
-  IMPORTANT: cta is always an ARRAY, even for a single button.
-
-CONTENT:
-- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description}], columns(2|3|4)
-- stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
-- how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
-- team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
-- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
-- rich-text: Fields: content (HTML string)
-
-CONVERSION:
-- pricing: variants=[cards, simple, highlight-center].
-  Fields: heading, subheading, plans[{name, price, period, description, features[], cta{text,url}, highlighted, badge}]
-  IMPORTANT: Only actual pricing plan CARDS go here. Do NOT confuse CTA buttons or bundle upsells with pricing plans.
-  Count the actual plan cards on the page — if there are 2 cards, output exactly 2 plans.
-  badge: optional label like "Most Popular" or "BEST VALUE" shown on the card.
-- testimonials: variants=[cards, single, minimal, carousel].
-  Fields: heading, subheading, items[{quote, name, role, company, avatar, image}]
-  avatar = small profile picture URL. image = screenshot of the original testimonial post.
-  Use "carousel" variant if testimonials scroll horizontally.
-- cta: variants=[default, split, banner, minimal, with-image].
-  Fields: headline, subheadline, backgroundImage
-  cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]
-  IMPORTANT: cta is always an ARRAY.
-- social-proof: variants=[inline, banner]. Fields: text, icon, link
-  Short trust line like "Join 500+ happy customers" shown between sections.
-- logo-wall: Fields: heading, logos[{name,url,image}]
-- banner: Fields: text, cta{text,url}, variant(info|warning|success)
-- countdown: Fields: targetDate, heading, expiredText
-- contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
-- comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
-
-MEDIA:
-- video: Fields: url, caption, autoplay
-- image: Fields: src, alt, caption, fullWidth
-- image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
-- gallery: Fields: heading, images[{src,alt,caption}]
-- map: Fields: address, embedUrl, height
-- divider: Fields: style(line|dots|space), height
-- layout: Fields: columns(number[]), gap, children[{column,sections[]}]
-`
-
-const SYSTEM_PROMPT = `You are an expert web designer. Analyze the HTML of a landing page and decompose it into structured sections matching our landing page builder schema.
-
-${SECTION_SCHEMA}
-
-For the design config, extract:
-- colors: primary (brand color), secondary, accent, background, surface (card bg), text, textMuted
-- fonts: heading font family, body font family
-- borderRadius: e.g. "12px", "8px", "16px"
+Section types: ${SECTION_TYPES.join(', ')}.
 
 Rules:
-- Map each visual section of the page to the BEST matching section type
-- Choose the variant that best matches the visual layout
-- Extract ALL text content (headlines, descriptions, button text, etc.)
-- Extract image URLs as-is (absolute URLs)
-- For nav: extract brand name and navigation links
-- For footer: extract copyright text and links
-- Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
-- If a section doesn't match any type, use rich-text with the HTML content
-- Extract colors from the page's CSS/inline styles — find the dominant brand color
-- Keep content in the ORIGINAL language of the page
+- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}]
+- Icons: use emoji, never "[SVG]" or raw SVG
+- Pricing: count actual plan CARDS only
+- Testimonials: use "carousel" if they scroll horizontally
+- Rich-text: max 300 chars, summarize
+- Text fields: clean text, no HTML tags, max 200 chars
+- Image URLs: keep absolute, decode /_next/image URLs
+- Keep content in ORIGINAL language
+- Do NOT duplicate content across sections
 
-IMAGE URL HANDLING:
-- Extract image URLs as direct paths. If you see Next.js optimized URLs like "/_next/image?url=%2F..." decode them to the actual file path (e.g. "/_next/image?url=%2Fassets%2Fphoto.jpg&w=3840&q=75" → "/assets/photo.jpg")
-- Always prefer the original image URL, not the processed/optimized version
-
-ICON HANDLING:
-- SVG icons CANNOT be extracted. When you see SVG elements in HTML, replace them with a matching EMOJI character instead.
-- For icon fields, ALWAYS use emoji (e.g. ✨ 🚀 🔒 ⚡ 💡 🛡️ ✅ 📦 🎯 💰 ☁️ 📧 🔧 📊 🏆 ❤️). NEVER output "[SVG]" or raw SVG markup.
-- For rich-text sections with inline SVG icons, replace each SVG with the closest emoji.
-
-CRITICAL — avoid these common mistakes:
-- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}], never a single object
-- PRICING: Count the actual pricing CARDS on the page. Do NOT create extra plans from CTA buttons, bundle links, or upsell text that appear elsewhere (hero, footer, CTA sections). If the page shows 2 pricing cards, output exactly 2 plans.
-- TESTIMONIALS: If testimonials scroll/slide horizontally, use variant "carousel". The "image" field is for screenshots of the original post, NOT avatar/profile pictures.
-- SOCIAL PROOF: Short trust lines like "Join 500+ happy customers" between sections should be "social-proof" type, NOT part of other sections.
-- Do NOT duplicate content across sections. Each piece of content belongs to exactly one section.
-
-Return ONLY valid JSON (no markdown, no code blocks):
+Return ONLY valid JSON:
 {
-  "title": "Page title",
-  "description": "Meta description or first paragraph summary",
-  "design": {
-    "colors": { "primary": "#hex", "secondary": "#hex", "accent": "#hex", "background": "#hex", "surface": "#hex", "text": "#hex", "textMuted": "#hex" },
-    "fonts": { "heading": "Font Name", "body": "Font Name" },
-    "borderRadius": "12px"
-  },
-  "sections": [
-    { "type": "nav", "order": -1, "enabled": true, "data": { "brandName": "...", "links": [...], "variant": "default" } },
-    { "type": "hero", "order": 0, "enabled": true, "data": { "headline": "...", "variant": "centered", ... } },
-    ...
-  ]
+  "title": "...", "description": "...",
+  "design": { "colors": { "primary":"#hex","secondary":"#hex","accent":"#hex","background":"#hex","surface":"#hex","text":"#hex","textMuted":"#hex" }, "fonts": { "heading":"...", "body":"..." }, "borderRadius": "12px" },
+  "sections": [{ "type":"...", "order":0, "enabled":true, "data":{...} }, ...]
 }`
+
+/** Structure analysis prompt (Step 1 — small output) */
+const STRUCTURE_PROMPT = `You are a web design expert. Analyze this HTML and identify the STRUCTURE of the landing page. Do NOT extract content — only identify sections.
+
+Available section types: ${SECTION_TYPES.join(', ')}
+
+For each visible section on the page, return:
+- type: best matching section type, or "unknown" if no match
+- variant: layout variant (e.g. "centered", "split", "grid", "cards", "carousel")
+- confidence: 0-100 how sure you are this mapping is correct
+- itemCount: number of items (for lists, grids, testimonials, pricing plans)
+- note: any issues or details (e.g. "has video embed", "carousel with 8 items")
+
+Also extract design: colors (from CSS/inline styles), fonts, borderRadius.
+
+Return ONLY valid compact JSON:
+{ "title":"...", "description":"...", "design":{...}, "structure":[{ "order":0, "type":"hero", "variant":"split", "confidence":90, "itemCount":0, "note":"" }, ...] }`
+
+/** Content fill prompt (Step 2 — per section) */
+function buildFillPrompt(sectionType: string, variant: string, itemCount: number): string {
+  return `Extract content for ONE section from the HTML below.
+Section type: ${sectionType}
+Variant: ${variant}
+Expected items: ${itemCount || 'unknown'}
+
+Rules: cta=ALWAYS array [{text,url}]. Icons=emoji. Text=max 200 chars, no HTML. Images=absolute URLs.
+Return ONLY the data object for this section (not wrapped in {sections:[...]}), e.g.: { "heading":"...", "items":[...] }`
+}
 
 export interface CloneResult {
   title: string
@@ -122,208 +74,91 @@ export interface CloneResult {
     fonts?: { heading?: string; body?: string }
     borderRadius?: string
   }
-  sections: Array<{
-    type: string
-    order: number
-    enabled: boolean
-    data: Record<string, unknown>
-  }>
-  /** Token usage + estimated cost from Gemini API */
+  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown> }>
   usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
+  /** Structure analysis with per-section confidence */
+  structure?: Array<{ type: string; variant: string; confidence: number; itemCount: number; note: string }>
 }
 
-/** Rewrite external image URLs in cloned sections to use /api/proxy-image */
-function proxyExternalImages(result: CloneResult) {
-  const rewrite = (val: unknown): unknown => {
-    if (typeof val === 'string' && /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|avif)/i.test(val)) {
-      return `/api/proxy-image?url=${encodeURIComponent(val)}`
-    }
-    if (Array.isArray(val)) return val.map(rewrite)
-    if (val && typeof val === 'object') {
-      const obj = val as Record<string, unknown>
-      for (const k of Object.keys(obj)) obj[k] = rewrite(obj[k])
-    }
-    return val
-  }
-  for (const section of result.sections) {
-    section.data = rewrite(section.data) as Record<string, unknown>
-  }
-}
+/** Framework detection patterns for tier scoring */
+const DETECTORS: Array<{ name: string; patterns: string[]; boost: number }> = [
+  { name: 'Astro', patterns: ['astro-island', 'astro-slot'], boost: 20 },
+  { name: 'Hugo', patterns: ['gohugo.io', 'hugo-'], boost: 18 },
+  { name: 'Next.js', patterns: ['/_next/', '__NEXT_DATA__'], boost: 15 },
+  { name: 'Nuxt', patterns: ['__nuxt', '/_nuxt/'], boost: 15 },
+  { name: 'SvelteKit', patterns: ['__sveltekit'], boost: 15 },
+  { name: 'Remix', patterns: ['__remixContext'], boost: 15 },
+  { name: 'Gatsby', patterns: ['gatsby-', '___gatsby'], boost: 12 },
+  { name: 'Jekyll', patterns: ['jekyll'], boost: 15 },
+  { name: 'WordPress', patterns: ['wp-content', 'wp-includes'], boost: 5 },
+  { name: 'Shopify', patterns: ['cdn.shopify.com'], boost: 5 },
+  { name: 'Webflow', patterns: ['webflow.com', 'w-webflow'], boost: 8 },
+  { name: 'Wix', patterns: ['wix.com', 'wixsite.com'], boost: 3 },
+  { name: 'Squarespace', patterns: ['squarespace'], boost: 5 },
+  { name: 'Ghost', patterns: ['ghost.org', 'ghost-portal'], boost: 10 },
+  { name: 'React SPA', patterns: ['<div id="root"></div>'], boost: -15 },
+  { name: 'Angular', patterns: ['ng-version', '<app-root'], boost: -20 },
+  { name: 'Cloudflare', patterns: ['cf-challenge', 'jschl_answer'], boost: -30 },
+]
 
-/** Site compatibility analysis result */
 export interface SiteAnalysis {
   tier: 1 | 2 | 3 | 4
-  score: number // 0-100
+  score: number
   label: string
   framework: string
   details: string[]
   canClone: boolean
 }
 
-/** Analyze URL for clone compatibility — no AI call, just HTML inspection */
+/** Pre-analyze site compatibility (no AI call) */
 export async function analyzeSiteCompatibility(url: string): Promise<SiteAnalysis> {
   const html = await fetchPageHtml(url)
+  return analyzeHtml(html)
+}
+
+function analyzeHtml(html: string): SiteAnalysis {
   const details: string[] = []
-  let score = 50 // start neutral
-
-  // 1. Detect framework/platform from HTML patterns (30+ detectors)
-  const detectors: Array<{ name: string; tier: 1 | 2 | 3 | 4; patterns: string[]; boost: number }> = [
-    // Tier 1 — SSR/SSG (best compatibility)
-    { name: 'Astro', tier: 1, patterns: ['astro-island', 'astro-slot', '<astro-'], boost: 20 },
-    { name: 'Hugo', tier: 1, patterns: ['gohugo.io', 'hugo-', '/hugo/'], boost: 18 },
-    { name: 'Jekyll', tier: 1, patterns: ['jekyll', 'github.io'], boost: 15 },
-    { name: 'Eleventy', tier: 1, patterns: ['eleventy', '11ty'], boost: 15 },
-    { name: 'Next.js (SSR)', tier: 1, patterns: ['/_next/', '__NEXT_DATA__', 'next/dist'], boost: 15 },
-    { name: 'Remix', tier: 1, patterns: ['remix', '__remixContext'], boost: 15 },
-    { name: 'Nuxt (SSR)', tier: 1, patterns: ['__nuxt', '/_nuxt/', 'nuxt-link'], boost: 15 },
-    { name: 'SvelteKit', tier: 1, patterns: ['__sveltekit', 'svelte-'], boost: 15 },
-    { name: 'Gatsby', tier: 1, patterns: ['gatsby-', '___gatsby'], boost: 12 },
-    // Tier 2 — Server-rendered with heavier HTML
-    // WordPress MUST be checked before Ghost (both can have 'content/themes')
-    { name: 'WordPress', tier: 2, patterns: ['wp-content', 'wp-includes', 'wp-json'], boost: 5 },
-    { name: 'WordPress + Elementor', tier: 2, patterns: ['elementor'], boost: 3 },
-    { name: 'WordPress + Divi', tier: 2, patterns: ['et-db', 'et_pb_', 'divi'], boost: 3 },
-    { name: 'Webflow', tier: 2, patterns: ['webflow.com', 'w-webflow', 'wf-page'], boost: 8 },
-    { name: 'Ghost', tier: 2, patterns: ['ghost.org', 'ghost/', 'ghost-portal'], boost: 10 },
-    { name: 'Shopify', tier: 2, patterns: ['cdn.shopify.com', 'shopify-section', 'Shopify.theme'], boost: 5 },
-    { name: 'Squarespace', tier: 2, patterns: ['squarespace.com', 'sqsp-', 'sqs-'], boost: 5 },
-    { name: 'Wix', tier: 2, patterns: ['wix.com', 'wixsite.com', 'wix-', 'x-wix-'], boost: 3 },
-    { name: 'Drupal', tier: 2, patterns: ['drupal', 'sites/default/files', 'drupal.js'], boost: 5 },
-    { name: 'Joomla', tier: 2, patterns: ['joomla', '/media/system/', 'option=com_'], boost: 5 },
-    { name: 'Laravel', tier: 2, patterns: ['laravel', 'csrf-token', '_token'], boost: 8 },
-    { name: 'Rails', tier: 2, patterns: ['csrf-token', 'turbolinks', 'rails-ujs'], boost: 8 },
-    { name: 'Django', tier: 2, patterns: ['csrfmiddlewaretoken', 'django'], boost: 8 },
-    // Tier 3 — Heavy/complex
-    { name: 'WooCommerce', tier: 3, patterns: ['woocommerce', 'wc-blocks', 'add-to-cart'], boost: 0 },
-    { name: 'Magento', tier: 3, patterns: ['magento', 'mage/', 'Magento_'], boost: -5 },
-    { name: 'BigCommerce', tier: 3, patterns: ['bigcommerce', 'stencil-'], boost: 0 },
-    { name: 'Framer', tier: 3, patterns: ['framer.com', 'framerusercontent', '__framer'], boost: 0 },
-    { name: 'Bubble', tier: 3, patterns: ['bubble.io', 'bubbleapps'], boost: -5 },
-    { name: 'Carrd', tier: 3, patterns: ['carrd.co', 'crd.co'], boost: 3 },
-    // Tier 4 — SPA/CSR (lowest compatibility)
-    { name: 'React SPA', tier: 4, patterns: ['<div id="root"></div>', 'react-root', 'reactDOM'], boost: -15 },
-    { name: 'Angular', tier: 4, patterns: ['ng-version', 'ng-app', '<app-root', 'angular'], boost: -20 },
-    { name: 'Vue SPA', tier: 4, patterns: ['<div id="app"></div>', '__VUE__', 'vue-app'], boost: -15 },
-    { name: 'Cloudflare Protected', tier: 4, patterns: ['cf-challenge', 'cloudflare-static', 'cf_clearance', 'jschl_answer'], boost: -30 },
-  ]
-
+  let score = 50
   let framework = 'Unknown'
-  let frameworkTier: 1 | 2 | 3 | 4 = 2
-  for (const det of detectors) {
-    if (det.patterns.some(p => html.includes(p))) {
-      framework = det.name
-      frameworkTier = det.tier
-      score += det.boost
-      break
-    }
+  for (const d of DETECTORS) {
+    if (d.patterns.some(p => html.includes(p))) { framework = d.name; score += d.boost; break }
   }
-  details.push(`Framework: ${framework} (Tier ${frameworkTier})`)
+  details.push(`Framework: ${framework}`)
 
-  // 2. Check content density (after cleaning)
-  const cleaned = html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-  const text = cleaned.replace(/<[^>]+>/g, ' ')
-  const words = text.split(/\s+/).filter(w => w.length > 2)
+  const cleaned = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '')
+  const words = cleaned.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2)
+  if (words.length < 30) { score -= 40; details.push(`⚠️ ${words.length} words (SPA)`) }
+  else if (words.length <= 800) { score += 15; details.push(`✓ ${words.length} words`) }
+  else if (words.length <= 2000) { score += 5; details.push(`${words.length} words (heavy)`) }
+  else { score -= 15; details.push(`⚠️ ${words.length} words (very heavy)`) }
 
-  if (words.length < 30) { score -= 40; details.push(`⚠️ Very low content: ${words.length} words (SPA/JS-rendered)`) }
-  else if (words.length < 100) { score -= 10; details.push(`Content: ${words.length} words (light)`) }
-  else if (words.length <= 800) { score += 15; details.push(`✓ Content: ${words.length} words (optimal)`) }
-  else if (words.length <= 2000) { score += 5; details.push(`Content: ${words.length} words (heavy, may truncate)`) }
-  else { score -= 15; details.push(`⚠️ Content: ${words.length} words (very heavy)`) }
+  const semantic = (html.match(/<(section|nav|footer|header|h[1-6])/gi) || []).length
+  if (semantic >= 5) { score += 15; details.push(`✓ ${semantic} semantic tags`) }
+  else if (semantic >= 2) { score += 5; details.push(`${semantic} semantic tags`) }
+  else { score -= 10; details.push(`⚠️ No semantic tags`) }
 
-  // 3. Check semantic HTML tags
-  const sections = (html.match(/<section/gi) || []).length
-  const navs = (html.match(/<nav/gi) || []).length
-  const footers = (html.match(/<footer/gi) || []).length
-  const h1s = (html.match(/<h1/gi) || []).length
-  const h2s = (html.match(/<h2/gi) || []).length
-  const semanticCount = sections + navs + footers + h1s + h2s
+  const cleanSize = cleaned.length
+  if (cleanSize <= 50000) { score += 10; details.push(`✓ ${(cleanSize/1000).toFixed(0)}K chars`) }
+  else if (cleanSize <= 150000) { details.push(`${(cleanSize/1000).toFixed(0)}K chars`) }
+  else { score -= 10; details.push(`⚠️ ${(cleanSize/1000).toFixed(0)}K chars`) }
 
-  if (semanticCount >= 5) { score += 15; details.push(`✓ Semantic HTML: ${semanticCount} tags (section, nav, h1-h2...)`) }
-  else if (semanticCount >= 2) { score += 5; details.push(`Semantic HTML: ${semanticCount} tags`) }
-  else { score -= 10; details.push(`⚠️ No semantic HTML tags found`) }
-
-  // 4. Check HTML size after cleaning
-  const cleanedSize = cleaned.length
-  if (cleanedSize < 500) { score -= 30; details.push(`⚠️ HTML too small: ${cleanedSize} chars`) }
-  else if (cleanedSize <= 50000) { score += 10; details.push(`✓ HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (optimal)`) }
-  else if (cleanedSize <= 150000) { details.push(`HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (large)`) }
-  else { score -= 10; details.push(`⚠️ HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (very large)`) }
-
-  // 5. Check for inline styles bloat
-  const inlineStyles = (html.match(/style="/gi) || []).length
-  if (inlineStyles > 100) { score -= 10; details.push(`⚠️ Heavy inline styles: ${inlineStyles}`) }
-
-  // 6. Check for images
-  const imgs = (html.match(/<img/gi) || []).length
-  if (imgs > 0) details.push(`Images: ${imgs} found`)
-
-  // Clamp score
   score = Math.max(0, Math.min(100, score))
-
-  // Determine tier
-  let tier: 1 | 2 | 3 | 4
-  let label: string
-  if (score >= 70) { tier = 1; label = 'Excellent — high chance of accurate clone' }
-  else if (score >= 50) { tier = 2; label = 'Good — most sections will be detected' }
-  else if (score >= 30) { tier = 3; label = 'Challenging — some sections may be missed' }
-  else { tier = 4; label = 'Low — try Paste Code mode instead' }
-
-  return { tier, score, label, framework, details, canClone: score >= 20 }
+  const tier = score >= 70 ? 1 : score >= 50 ? 2 : score >= 30 ? 3 : 4 as 1|2|3|4
+  const labels = { 1: 'Excellent', 2: 'Good', 3: 'Challenging', 4: 'Low — try Paste Code' }
+  return { tier, score, label: labels[tier], framework, details, canClone: score >= 20 }
 }
 
-/** Fetch HTML from URL with timeout and size limit */
+/** Fetch HTML from URL */
 async function fetchPageHtml(url: string): Promise<string> {
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 15000)
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TreeID-Bot/1.0)' },
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const html = await res.text()
-    // Limit to ~100K chars to stay within Gemini context
-    return html.slice(0, 100_000)
-  } finally {
-    clearTimeout(timeout)
-  }
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(15000),
+    headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return (await res.text()).slice(0, 100_000)
 }
 
-/** Attempt to repair truncated JSON by closing unclosed brackets/braces */
-function repairJson(text: string): string {
-  // Strip markdown code fences if present
-  let json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
-
-  // Try parsing as-is first
-  try { JSON.parse(json); return json } catch {}
-
-  // Count unclosed brackets/braces and close them
-  let braces = 0, brackets = 0, inString = false, escape = false
-  for (const ch of json) {
-    if (escape) { escape = false; continue }
-    if (ch === '\\') { escape = true; continue }
-    if (ch === '"') { inString = !inString; continue }
-    if (inString) continue
-    if (ch === '{') braces++
-    else if (ch === '}') braces--
-    else if (ch === '[') brackets++
-    else if (ch === ']') brackets--
-  }
-
-  // Remove trailing comma before closing
-  json = json.replace(/,\s*$/, '')
-
-  // Close unclosed structures
-  while (brackets > 0) { json += ']'; brackets-- }
-  while (braces > 0) { json += '}'; braces-- }
-
-  return json
-}
-
-/** Basic clean — remove scripts/styles/comments/SVGs */
+/** Clean HTML — basic (scripts/styles) */
 function cleanBasic(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -331,143 +166,118 @@ function cleanBasic(html: string): string {
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<svg[\s\S]*?<\/svg>/gi, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
+    .replace(/\s{2,}/g, ' ').trim()
 }
 
-/** Aggressive clean — strip all attributes except href/src/alt, keep only semantic structure */
-function cleanAggressive(html: string): string {
-  let h = cleanBasic(html)
-  // Strip all class, data-*, style, id attributes
-  h = h.replace(/\s(class|id|style|data-[\w-]+|aria-[\w-]+|role|tabindex|onclick|onload)="[^"]*"/gi, '')
-  // Strip empty tags
-  h = h.replace(/<(div|span|p)\s*>\s*<\/\1>/gi, '')
-  // Collapse nested empty divs
-  h = h.replace(/<div>\s*<\/div>/gi, '')
-  h = h.replace(/\s{2,}/g, ' ')
-  return h.trim()
+/** Clean HTML — aggressive (strip attrs, keep semantic structure) */
+function cleanForStructure(html: string): string {
+  return sanitizeHtml(cleanBasic(html), {
+    allowedTags: ['html','head','body','title','meta','h1','h2','h3','h4','h5','h6','p','a','img','ul','ol','li','nav','footer','header','section','article','figure','figcaption','blockquote','video','source','button','form','input','textarea','table','tr','td','th','thead','tbody','div','span'],
+    allowedAttributes: { a: ['href'], img: ['src','alt'], video: ['src'], source: ['src'], meta: ['name','content'], input: ['type','placeholder'], '*': [] },
+    allowedSchemes: ['http','https','data'],
+  }).replace(/\s{2,}/g, ' ').trim()
 }
 
-/** Deep extract — extract only text content with semantic structure preserved */
-function extractContent(html: string): string {
-  let h = cleanBasic(html)
-  // Keep only semantic tags + content
-  const keep = ['h1', 'h2', 'h3', 'h4', 'p', 'a', 'img', 'ul', 'ol', 'li', 'nav', 'footer', 'header', 'section', 'article', 'blockquote', 'figure', 'figcaption', 'button', 'form', 'input', 'textarea']
-  // Remove non-semantic wrapper tags but keep content
-  h = h.replace(/<(div|span|main|aside)(\s[^>]*)?\s*>/gi, '')
-  h = h.replace(/<\/(div|span|main|aside)>/gi, '')
-  // Strip all attributes except href, src, alt
-  h = h.replace(/<([a-z]+)\s+(?!href|src|alt)[^>]*>/gi, (match, tag) => {
-    const href = match.match(/href="([^"]*)"/)?.[0] || ''
-    const src = match.match(/src="([^"]*)"/)?.[0] || ''
-    const alt = match.match(/alt="([^"]*)"/)?.[0] || ''
-    const attrs = [href, src, alt].filter(Boolean).join(' ')
-    return `<${tag}${attrs ? ' ' + attrs : ''}>`
-  })
-  h = h.replace(/\s{2,}/g, ' ')
-  return h.trim()
-}
-
-/** Call Gemini with cleaned HTML */
-async function callGemini(apiKey: string, html: string, intent: string, url: string): Promise<{ text: string; promptTokens: number; outputTokens: number }> {
-  const intentContext = intent
-    ? `\n\nUser's intent: ${intent}\nUse this context to better understand what sections are important.`
-    : ''
-
+/** Call Gemini API */
+async function geminiCall(apiKey: string, systemPrompt: string, userPrompt: string, maxTokens = 16384): Promise<{ text: string; promptTokens: number; outputTokens: number }> {
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:${intentContext}\n\nURL: ${url}\n\n${html}` }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 32768, responseMimeType: 'application/json' },
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ parts: [{ text: userPrompt }] }],
+      generationConfig: { temperature: 0.15, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
     }),
   })
-
   if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
   const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-  const usage = data?.usageMetadata
-  return { text: text || '', promptTokens: usage?.promptTokenCount || 0, outputTokens: usage?.candidatesTokenCount || 0 }
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  const u = data?.usageMetadata
+  return { text, promptTokens: u?.promptTokenCount || 0, outputTokens: u?.candidatesTokenCount || 0 }
 }
 
-/** Main entry — tiered processing strategy */
+/** Parse JSON with jsonrepair */
+function safeJsonParse(text: string): unknown {
+  try { return JSON.parse(text) } catch {}
+  try { return JSON.parse(jsonrepair(text)) } catch {}
+  return null
+}
+
+/** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
+async function directClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
+  const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, DIRECT_CLONE_PROMPT, `Analyze this HTML:${intentCtx}\n\nURL: ${url}\n\n${html}`, 32768)
+
+  const parsed = safeJsonParse(text) as CloneResult | null
+  if (!parsed?.sections?.length) throw new Error('Failed to parse clone response')
+  for (const s of parsed.sections) { if (!s.data) s.data = {} }
+
+  const totalTokens = promptTokens + outputTokens
+  parsed.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) }
+  return parsed
+}
+
+/** ===== TIER 2+: 2-step structure-first clone ===== */
+async function structureFirstClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
+  let totalPrompt = 0, totalOutput = 0
+
+  // Step 1: Analyze structure
+  const structureHtml = cleanForStructure(html).slice(0, 60_000)
+  const intentCtx = intent ? `\nUser intent: ${intent}` : ''
+  const step1 = await geminiCall(apiKey, 'You are a web design expert. Return ONLY valid compact JSON.', `${STRUCTURE_PROMPT}${intentCtx}\n\nURL: ${url}\n\n${structureHtml}`, 4096)
+  totalPrompt += step1.promptTokens
+  totalOutput += step1.outputTokens
+
+  const analysis = safeJsonParse(step1.text) as { title?: string; description?: string; design?: CloneResult['design']; structure?: Array<{ order: number; type: string; variant: string; confidence: number; itemCount: number; note: string }> } | null
+  if (!analysis?.structure?.length) throw new Error('Structure analysis returned no sections')
+
+  // Step 2: Fill content per section (parallel)
+  const validSections = analysis.structure.filter(s => SECTION_TYPES.includes(s.type))
+  const fillPromises = validSections.map(async (s) => {
+    const prompt = buildFillPrompt(s.type, s.variant, s.itemCount)
+    const { text, promptTokens, outputTokens } = await geminiCall(apiKey, 'Extract content for ONE section. Return ONLY the data JSON object.', `${prompt}\n\nHTML:\n${structureHtml.slice(0, 30_000)}`, 4096)
+    totalPrompt += promptTokens
+    totalOutput += outputTokens
+    const data = safeJsonParse(text) as Record<string, unknown> | null
+    return { type: s.type, order: s.order, enabled: true, data: data || {}, confidence: s.confidence }
+  })
+
+  const sections = await Promise.all(fillPromises)
+
+  const totalTokens = totalPrompt + totalOutput
+  return {
+    title: analysis.title || '',
+    description: analysis.description,
+    design: analysis.design,
+    sections: sections.sort((a, b) => a.order - b.order),
+    structure: analysis.structure,
+    usage: { promptTokens: totalPrompt, outputTokens: totalOutput, totalTokens, estimatedCostUsd: (totalPrompt * 0.00000015) + (totalOutput * 0.0000006) },
+  }
+}
+
+/** ===== MAIN ENTRY ===== */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  // Fetch raw HTML
+  // Get raw HTML
   const rawHtml = url.startsWith('data:text/html,')
     ? decodeURIComponent(url.slice('data:text/html,'.length))
     : await fetchPageHtml(url)
 
-  // Pre-analyze to determine tier
-  const basicClean = cleanBasic(rawHtml)
-  const wordCount = basicClean.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+  const html = cleanBasic(rawHtml)
+  const analysis = analyzeHtml(rawHtml)
 
-  if (wordCount < 20) {
-    throw new Error(`Page has too little visible content (${wordCount} words). This site likely renders via JavaScript. Use "📋 Paste Code" mode instead.`)
+  // Tier 4: too little content
+  if (analysis.score < 20) {
+    throw new Error(`Page has too little visible content (score: ${analysis.score}). Use "📋 Paste Code" mode: open in Chrome → Inspect → select <body> → Copy outerHTML → paste.`)
   }
 
-  // Determine strategy based on content size
-  let html: string
-  let strategy: string
-
-  if (basicClean.length <= 50_000 && wordCount <= 800) {
-    // Tier 1: Clean HTML is small enough — use basic clean (best quality)
-    html = basicClean
-    strategy = 'direct'
-  } else if (basicClean.length <= 150_000) {
-    // Tier 2: Medium — aggressive clean to reduce noise
-    html = cleanAggressive(rawHtml)
-    // If still too large, truncate
-    if (html.length > 60_000) html = html.slice(0, 60_000)
-    strategy = 'aggressive-clean'
-  } else {
-    // Tier 3: Very large — deep extract content only
-    html = extractContent(rawHtml)
-    if (html.length > 60_000) html = html.slice(0, 60_000)
-    strategy = 'content-extract'
+  // Tier 1: Direct clone (proven stable, don't change what works)
+  if (analysis.tier === 1 && html.length <= 50_000) {
+    return await directClone(apiKey, html, intent || '', url)
   }
 
-  // Call Gemini
-  const { text, promptTokens, outputTokens } = await callGemini(apiKey, html, intent || '', url)
-  if (!text) throw new Error('Empty response from Gemini')
-
-  const totalTokens = promptTokens + outputTokens
-  const estimatedCostUsd = (promptTokens * 0.00000015) + (outputTokens * 0.0000006)
-
-  // Parse response
-  try {
-    const result = JSON.parse(repairJson(text)) as CloneResult
-    if (!result.sections || !Array.isArray(result.sections)) {
-      throw new Error('Invalid response: missing sections array')
-    }
-    // Ensure all sections have data
-    for (const s of result.sections) { if (!s.data) s.data = {} }
-    result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd }
-    return result
-  } catch (e) {
-    // If first attempt fails and we used basic clean, retry with aggressive
-    if (strategy === 'direct') {
-      const retryHtml = cleanAggressive(rawHtml).slice(0, 50_000)
-      const retry = await callGemini(apiKey, retryHtml, intent || '', url)
-      if (retry.text) {
-        try {
-          const result = JSON.parse(repairJson(retry.text)) as CloneResult
-          if (result.sections?.length) {
-            for (const s of result.sections) { if (!s.data) s.data = {} }
-            result.usage = {
-              promptTokens: promptTokens + retry.promptTokens,
-              outputTokens: outputTokens + retry.outputTokens,
-              totalTokens: totalTokens + retry.promptTokens + retry.outputTokens,
-              estimatedCostUsd: estimatedCostUsd + (retry.promptTokens * 0.00000015) + (retry.outputTokens * 0.0000006),
-            }
-            return result
-          }
-        } catch {}
-      }
-    }
-    throw new Error(`Failed to parse AI response: ${(e as Error).message}`)
-  }
+  // Tier 2-3: Structure-first 2-step clone
+  return await structureFirstClone(apiKey, rawHtml, intent || '', url)
 }
