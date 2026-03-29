@@ -309,11 +309,13 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   const analysis = safeJsonParse(step1.text) as { title?: string; description?: string; design?: CloneResult['design']; structure?: Array<{ order: number; type: string; variant: string; confidence: number; itemCount: number; note: string }> } | null
   if (!analysis?.structure?.length) throw new Error('Structure analysis returned no sections')
 
-  // Step 2: Fill content per section (parallel)
+  // Step 2: Fill content per section (parallel) — use Markdown if available (compact, full page)
+  const fillContent = _lastMarkdown.length > 500 ? _lastMarkdown : cleanForStructure(html).slice(0, 50_000)
+  const fillType = _lastMarkdown.length > 500 ? 'Markdown' : 'HTML'
   const validSections = analysis.structure.filter(s => SECTION_TYPES.includes(s.type))
   const fillPromises = validSections.map(async (s) => {
     const prompt = buildFillPrompt(s.type, s.variant, s.itemCount)
-    const { text, promptTokens, outputTokens } = await geminiCall(apiKey, 'Extract content for ONE section. Return ONLY the data JSON object.', `${prompt}\n\nHTML:\n${cleanForStructure(html).slice(0, 30_000)}`, 4096)
+    const { text, promptTokens, outputTokens } = await geminiCall(apiKey, 'Extract content for ONE section. Return ONLY the data JSON object.', `${prompt}\n\n${fillType}:\n${fillContent}`, 4096)
     totalPrompt += promptTokens
     totalOutput += outputTokens
     const data = safeJsonParse(text) as Record<string, unknown> | null
