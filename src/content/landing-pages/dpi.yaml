@@ -1,0 +1,531 @@
+title: DPI MEDIA - Biến ý tưởng thành những câu chuyện có sức ảnh hưởng
+sections:
+  - type: nav
+    order: -1
+    enabled: true
+    data:
+      brandName: DPI MEDIA
+      links:
+        - label: Dự án
+          href: https://dpistudio.vn/#du-an
+        - label: Hậu trường
+          href: https://dpistudio.vn/#hau-truong
+        - label: Giới thiệu
+          href: https://dpistudio.vn/#gioi-thieu
+        - label: Hành trình
+          href: https://dpistudio.vn/#hanh-trinh
+        - label: FAQ
+          href: https://dpistudio.vn/#faq
+        - label: Liên hệ
+          href: https://dpistudio.vn/#lien-he
+      variant: default
+      brandLogo: https://dpistudio.vn/logoconty.png
+  - type: hero
+    order: 0
+    enabled: true
+    data:
+      headline: Biến ý tưởng thành những câu chuyện có sức ảnh hưởng
+      subheadline: >-
+        Chúng tôi là đối tác sáng tạo của bạn trong việc sản xuất TVC, video doanh nghiệp, nội dung mạng xã hội và nhiều
+        định dạng truyền thông mạnh mẽ khác.
+      variant: minimal
+      backgroundImage: https://api.dpistudio.vn/uploads/banners/banner_1772787861310.png
+      cta:
+        - text: Xem tất cả dự án
+          url: https://dpistudio.vn/#du-an
+          variant: primary
+        - text: Liên hệ tư vấn
+          url: https://dpistudio.vn/#lien-he
+          variant: outline
+  - type: features
+    order: 1
+    enabled: true
+    data:
+      heading: DPI MEDIA
+      subheading: Dịch vụ của chúng tôi
+      items:
+        - title: TVC / Quảng cáo
+          description: ''
+        - title: Video Doanh nghiệp
+          description: ''
+        - title: Social Media
+          description: ''
+        - title: Hậu trường (BTS)
+          description: ''
+      variant: list
+  - type: layout
+    order: 2
+    enabled: true
+    data:
+      columns:
+        - 1
+        - 1
+      children:
+        - column: 0
+          sections:
+            - type: video
+              data:
+                url: https://www.youtube.com/watch?v=6KuQzypy5Co
+                caption: Showreel 2026
+                autoplay: false
+        - column: 1
+          sections:
+            - type: stats
+              data:
+                heading: Showreel 2026
+                subheading: >-
+                  60 giây nhìn toàn bộ năng lực. Chỉ trong 60s, bạn có thể cảm nhận được nhịp dựng, màu sắc, góc máy và
+                  cách DPI MEDIA kể câu chuyện cho từng thương hiệu.
+                items:
+                  - value: '4.9'
+                    label: Client Rating
+                  - value: 120+
+                    label: Videos / Year
+                variant: row
+            - type: cta
+              data:
+                headline: ''
+                subheadline: ''
+                cta:
+                  - text: dự án thực tế
+                    url: https://dpistudio.vn/#du-an
+                    variant: primary
+                  - text: Đặt lịch tư vấn
+                    url: https://dpistudio.vn/#lien-he
+                    variant: outline
+                variant: minimal
+  - type: logo-wall
+    order: 3
+    enabled: true
+    data:
+      heading: Đối tác & thương hiệu
+      subheading: >-
+        Đơn vị sản xuất nội dung, thương hiệu, doanh nghiệp ở đa dạng lĩnh vực đã lựa chọn DPI MEDIA cho các chiến dịch
+        truyền thông, TVC, livestream và nội dung số. Chúng tôi đồng hành cùng doanh nghiệp trong việc xây dựng hình
+        ảnh, kể câu chuyện thương hiệu và lan tỏa thông điệp qua video, hình ảnh, TVC, livestream và nội dung digital.
+        120+ Chiến dịch mỗi năm, 10 Đối tác tiêu biểu. * Danh sách trên chỉ là một phần đối tác đã hợp tác cùng DPI
+        MEDIA ở nhiều định dạng: TVC, viral clip, social video, livestream, sự kiện và các hoạt động truyền thông khác.
+      logos:
+        - name: Hyundai
+          image: https://api.dpistudio.vn/uploads/partner/1772776601320_Hyundai.png
+          url: https://hyundaismartlock.vn/
+        - name: Bosch
+          image: https://api.dpistudio.vn/uploads/partner/1772776609624_Bosch_logo.png
+        - name: Á Châu
+          image: https://api.dpistudio.vn/uploads/partner/1772776617382_ACHAU.png
+        - name: An Cường
+          image: https://api.dpistudio.vn/uploads/partner/1772776631430_ANCUONG.png
+        - name: SHARP
+          image: https://api.dpistudio.vn/uploads/partner/1772776638877_SHARP.png
+        - name: SYMBIO
+          image: https://api.dpistudio.vn/uploads/partner/1765276091669_LOGO_NGANG.png
+        - name: F.Studio
+          image: https://api.dpistudio.vn/uploads/partner/1768200399663_logoFPTpng.png
+        - name: Hubert
+          image: https://api.dpistudio.vn/uploads/partner/1772776649069_logo-H.png_HUBERT.png
+  - type: gallery
+    order: 4
+    enabled: true
+    data:
+      heading: Dự án của DPI MEDIA
+      subheading: Chọn danh mục để xem các Commercial, TVC, social video… đã thực hiện.
+      images:
+        - src: https://api.dpistudio.vn/uploads/posters/1763284062183-VN_Green_building.jpg
+          alt: Việt Nam Green Building and Transportation Week 2025
+          caption: Việt Nam Green Building and Transportation Week 2025
+        - src: https://api.dpistudio.vn/uploads/posters/1763281961702-bonana.jpg
+          alt: BƠNANA JUICE | iTVC Quảng cáo | DPI Media
+          caption: BƠNANA JUICE | iTVC Quảng cáo | DPI Media
+        - src: https://api.dpistudio.vn/uploads/posters/1763281834427-ILA.jpg
+          alt: ECO Voice Championship 2025 – Event Recap | DPI Media
+          caption: ECO Voice Championship 2025 – Event Recap | DPI Media
+        - src: https://api.dpistudio.vn/uploads/posters/1765275879977-Symbio_Ads_90s_16_9.00_00_14_02.Still001.jpg
+          alt: SYMBIO – Vì Hạnh Phúc Nhà Nông
+          caption: SYMBIO – Vì Hạnh Phúc Nhà Nông
+        - src: https://api.dpistudio.vn/uploads/posters/1763364905520-HD_02.jpg
+          alt: HYUNDAI SMART HOME | Video Social Ads | DPI Media
+          caption: HYUNDAI SMART HOME | Video Social Ads | DPI Media
+        - src: https://api.dpistudio.vn/uploads/posters/1763364375258-HYUNDAI.jpg
+          alt: HYUNDAI SMART HOME | Video Social Ads | DPI Media
+          caption: HYUNDAI SMART HOME | Video Social Ads | DPI Media
+        - src: https://api.dpistudio.vn/uploads/posters/1763361859948-TecAlliance.jpg
+          alt: TecAlliance Vietnam Opening Event
+          caption: TecAlliance Vietnam Opening Event
+        - src: https://api.dpistudio.vn/uploads/posters/1763282961983-Pima.jpg
+          alt: Pima 10th Anniversary – Hành Trình 10 Năm Vững Bền
+          caption: Pima 10th Anniversary – Hành Trình 10 Năm Vững Bền
+        - src: https://api.dpistudio.vn/uploads/posters/1763282086143-Will_365.jpg
+          alt: Will 365 – Còn Nhớ Còn Thương | Official Teaser
+          caption: Will 365 – Còn Nhớ Còn Thương | Official Teaser
+  - type: rich-text
+    order: 5
+    enabled: true
+    data:
+      content: >-
+        ## Hành trình dự án DPI MEDIA
+
+        Quy trình đằng sau những thước phim chất lượng. Cách DPI Media giải quyết bài toán thương hiệu cho từng đối tác.
+
+
+        [![DPI x CỬA NHỰA COMPOSITE ASIA
+        DOOR](https://api.dpistudio.vn/uploads/news/1768291780145_asiadoor.jpg)](https://dpistudio.vn/du-an/dpi-x-cua-nhua-composite-asia-door)
+
+        Social Media • 13/01/2026
+
+        **DPI x CỬA NHỰA COMPOSITE ASIA DOOR** 
+
+        DPI đồng hành cùng Asia Door với vai trò đối tác Marketing đa nền tảng, tập trung xây dựng chiến lược nội dung
+        bài bản và định hình hình ảnh thương hiệu nhất quán trên các kênh số. Thông qua nghiên cứu thị trường, triển
+        khai nội dung sáng tạo và tối ưu hiệu quả truyền thông, DPI góp phần giúp Asia Door làm nổi bật giá trị cốt lõi
+        của cửa nhựa composite, tạo nền tảng vững chắc cho mục tiêu mở rộng thị phần và khẳng định vị thế thương hiệu
+        trên thị trường.
+
+
+        [![DPI x GIẢI BÓNG ĐÁ DOANH NGHIỆP CHUNG TAY VÌ MIỀN TRUNG
+        2025](https://api.dpistudio.vn/uploads/news/1768212549015_GBDDNCTMT2025.jpg)](https://dpistudio.vn/du-an/dpi-x-giai-bong-a-doanh-nghiep-chung-tay-vi-mien-trung-2025)
+
+        Event • 12/01/2026
+
+        **DPI x GIẢI BÓNG ĐÁ DOANH NGHIỆP CHUNG TAY VÌ MIỀN TRUNG 2025** 
+
+        DPI MEDIA đồng hành cùng Giải bóng đá Doanh nghiệp “Chung tay vì miền Trung” với vai trò đơn vị tổ chức và triển
+        khai truyền thông toàn diện, góp phần tạo nên một giải đấu chuyên nghiệp, giàu cảm xúc và đậm tinh thần sẻ chia.
+        Không chỉ là sân chơi thể thao gắn kết cộng đồng doanh nghiệp, giải đấu còn lan tỏa mạnh mẽ thông điệp trách
+        nhiệm xã hội, kêu gọi sự chung tay vì miền Trung.
+
+
+        [![DPI x HYUNDAI SMART
+        HOME](https://api.dpistudio.vn/uploads/news/1773218095092_1763364375258-HYUNDAI.jpg)](https://dpistudio.vn/du-an/dpi-x-hyundai-smart-home)
+
+        Social Media • 11/03/2026
+
+        **DPI x HYUNDAI SMART HOME** 
+
+        Trải nghiệm khóa nội thất thông minh Hyundai Smart Home qua ống kính của DPI Media. Giải pháp Video Ads sáng
+        tạo, chân thực, giúp doanh nghiệp gia tăng niềm tin với đại lý và khách hàng.
+
+
+        [![DPI x CÔNG TY CP NÔNG NGHIỆP VIỆT NAM
+        SYMBIO](https://api.dpistudio.vn/uploads/news/1773196450102_z7608395951251_dca2ae99f7300718a123934b1f3e0e0c.jpg)](https://dpistudio.vn/du-an/dpi-x-cong-ty-cp-nong-nghiep-viet-nam-symbio)
+
+        Social Media • 11/03/2026
+
+        **DPI x CÔNG TY CP NÔNG NGHIỆP VIỆT NAM SYMBIO** 
+
+        Nâng tầm thương hiệu phân bón Symbio bằng hình ảnh & video chất lượng cao từ DPI Media. Xem ngay cách chúng tôi
+        truyền tải giá trị nông nghiệp xanh qua ống kính chuyên nghiệp!
+
+
+        [Xem toàn bộ dự án](https://dpistudio.vn/du-an)
+  - type: features
+    order: 6
+    enabled: true
+    data:
+      heading: Dịch Vụ Thiết Kế Website
+      subheading: >-
+        Không chỉ là website, chúng tôi xây dựng cỗ máy bán hàng và định vị thương hiệu đỉnh cao cho bạn. Công nghệ cốt
+        lõi: React JS, Tailwind, Node JS, MySQL.
+      items:
+        - title: CHÂN THỰC
+          description: >-
+            Code thật, hiệu năng thật. Chúng tôi bàn giao Source Code sạch sẽ, không giấu nghề, khách hàng sở hữu trọn
+            đời.
+        - title: TỐC ĐỘ
+          description: Tối ưu hóa hình ảnh, cache và query database. Đảm bảo website tải dưới 1s để giữ chân khách hàng.
+        - title: BẢO MẬT
+          description: Chống SQL Injection, XSS. Tích hợp SSL miễn phí và cơ chế sao lưu dữ liệu định kỳ.
+      variant: grid
+      columns: 3
+  - type: gallery
+    order: 7
+    enabled: true
+    data:
+      heading: Hậu trường sản xuất
+      subheading: Những khoảnh khắc trên set – năng lượng, kỷ luật và sáng tạo.
+      images:
+        - src: https://api.dpistudio.vn/images/backstage/1760964045360-HYUNDAIBTS-12.jpg
+          alt: ITVC Hyundai Smart-Home
+          caption: ITVC Hyundai Smart-Home
+        - src: https://api.dpistudio.vn/images/backstage/1760964063075-HYUNDAIBTS-9.jpg
+          alt: Hậu trường
+          caption: Hậu trường
+        - src: https://api.dpistudio.vn/images/backstage/1760964082101-HYUNDAIBTS-10.jpg
+          alt: Quay TVC quảng cáo doanh nghiệp
+          caption: Quay TVC quảng cáo doanh nghiệp
+        - src: https://api.dpistudio.vn/images/backstage/1760964097582-HYUNDAIBTS-4.jpg
+          alt: Hyundai smartlock
+          caption: Hyundai smartlock
+  - type: rich-text
+    order: 8
+    enabled: true
+    data:
+      content: >-
+        ## Không chỉ là video — chúng tôi giúp thương hiệu của bạn được nhớ đến
+
+        DPI MEDIA sinh ra từ một câu hỏi rất đơn giản: làm sao để mỗi nội dung thương mại vẫn giữ được cảm xúc như một
+        bộ phim ngắn, nhưng lại phục vụ rõ ràng cho mục tiêu kinh doanh của khách hàng.
+
+
+        Từ những set quay đầu tiên cho showroom, lễ khai trương và sự kiện nhỏ, chúng tôi lớn lên cùng thương hiệu: học
+        cách kể câu chuyện của họ bằng hình ảnh, âm thanh và nhịp dựng khiến người xem thực sự ở lại đến giây cuối cùng.
+
+
+        [Nhận tư vấn & báo giá](#lien-he) [Xem dự án tiêu biểu](https://dpistudio.vn/#du-an)
+  - type: features
+    order: 9
+    enabled: true
+    data:
+      heading: Giá trị của chúng tôi
+      subheading: ''
+      items:
+        - title: Thật với thương hiệu
+          description: >-
+            Mỗi thương hiệu có một giọng nói riêng. Chúng tôi không ép bạn chạy theo mọi trend, mà ưu tiên câu chuyện
+            đúng với bản sắc & hình ảnh bạn đang xây dựng.
+        - title: Trải nghiệm người xem là trung tâm
+          description: >-
+            Góc máy đẹp là chưa đủ. Từng cut, từng nhịp nhạc, từng dòng chữ đều được dựng để giữ chân người xem, dẫn dắt
+            cảm xúc và thúc đẩy hành động.
+        - title: Rõ ràng & có trách nhiệm
+          description: >-
+            Quy trình, mốc duyệt, timeline đều minh bạch. Chúng tôi luôn báo sớm những rủi ro có thể phát sinh để hai
+            bên chủ động, cùng hướng tới kết quả tốt nhất.
+      variant: grid
+      columns: 3
+  - type: stats
+    order: 10
+    enabled: true
+    data:
+      heading: Thành tựu của chúng tôi
+      subheading: ''
+      items:
+        - value: 120+
+          label: dự án đã hoàn thành
+        - value: 4.9/5
+          label: điểm hài lòng từ khách hàng
+        - value: 10+
+          label: ngành hàng đã thực hiện
+      variant: row
+  - type: how-it-works
+    order: 11
+    enabled: true
+    data:
+      heading: Quy trình 4 bước
+      subheading: >-
+        Chúng tôi tin rằng một quy trình rõ ràng giúp cả hai phía yên tâm hơn. Từ lúc bạn mới có ý tưởng đến khi video
+        được xuất bản, DPI MEDIA luôn đồng hành ở từng bước.
+      items:
+        - number: '01'
+          title: Brief & concept
+          description: Cùng bạn chốt mục tiêu, đối tượng, thông điệp chính và moodboard để mọi người cùng nhìn về một hướng.
+        - number: '02'
+          title: Pre-prod
+          description: Lên kịch bản chi tiết, phân cảnh, lịch quay, nhân sự & thiết bị; thống nhất trước khi bấm máy.
+        - number: '03'
+          title: Shoot
+          description: On set với đạo diễn, DOP, âm thanh, ánh sáng... đảm bảo chất lượng hình ảnh & cảm xúc như đã thống nhất.
+        - number: '04'
+          title: Post
+          description: Dựng, color, âm nhạc, subtitle, chỉnh sửa theo feedback và bàn giao file tối ưu cho các nền tảng.
+      variant: numbered
+  - type: cta
+    order: 12
+    enabled: true
+    data:
+      headline: >-
+        Nếu bạn đã có một ý tưởng, một chiến dịch hoặc chỉ là vài dòng mô tả, DPI MEDIA rất sẵn sàng ngồi xuống, nghe
+        bạn chia sẻ và cùng vẽ ra kế hoạch phù hợp nhất cho thương hiệu.
+      subheadline: Bắt đầu lên khung video đầu tiên
+      cta:
+        - text: Kể câu chuyện thương hiệu của bạn
+          url: https://dpistudio.vn/#lien-he
+          variant: primary
+      variant: default
+  - type: faq
+    order: 13
+    enabled: true
+    data:
+      heading: Câu hỏi thường gặp
+      subheading: Tò mò về DPI MEDIA? Đây là các thắc mắc phổ biến. Nếu cần thêm, cứ nhắn cho chúng tôi.
+      items:
+        - question: DPI?
+          answer: >-
+            DPI = Digital Performance & Innovation. Digital – Số hóa: Đại diện cho lĩnh vực truyền thông, sản xuất nội
+            dung số (media, video, ảnh, quảng cáo...). Performance – Hiệu quả: Cam kết tạo ra sản phẩm đạt chất lượng và
+            hiệu quả truyền thông cao nhất cho khách hàng. Innovation – Đổi mới: Tư duy sáng tạo, liên tục cập nhật xu
+            hướng, công nghệ và giải pháp mới trong ngành
+        - question: DPI MEDIA cung cấp những dịch vụ nào?
+          answer: >-
+            Chúng tôi sản xuất TVC, social video, 3D/Animation, VFX, livestream sự kiện, OOH và trọn gói từ tiền kỳ—hậu
+            kỳ.
+        - question: Chi phí sản xuất video bao nhiêu?
+          answer: >-
+            Tùy độ dài, độ phức tạp và yêu cầu (diễn viên, bối cảnh, VFX…). Hãy gửi yêu cầu ở trang Báo giá để nhận đề
+            xuất & khung chi phí phù hợp.
+        - question: Thời gian thực hiện một dự án?
+          answer: Dự án ngắn 1–2 tuần; TVC/3D phức tạp 3–6 tuần. Chúng tôi luôn gửi lịch trình sản xuất rõ ràng ngay từ đầu.
+        - question: DPI có hỗ trợ kịch bản & storyboard không?
+          answer: >-
+            Có Creative team hỗ trợ strategy, kịch bản, storyboard/moodboard để thống nhất hình ảnh và thông điệp trước
+            khi quay/dựng.
+        - question: Quy trình làm việc của DPI như thế nào?
+          answer: >-
+            Brief → đề xuất & báo giá → kịch bản/board → tiền kỳ (casting, bối cảnh) → sản xuất → hậu kỳ (edit, color,
+            VFX, âm thanh) → bàn giao.
+        - question: Có thể làm trong ngân sách cố định không?
+          answer: Chúng tôi tối ưu nguồn lực theo ngân sách, nhưng vẫn giữ tiêu chuẩn chất lượng & đúng deadline.
+      variant: accordion
+  - type: contact-form
+    order: 14
+    enabled: true
+    data:
+      heading: Đặt lịch quay / sản xuất nội dung cùng DPI MEDIA
+      subheading: >-
+        Cho chúng tôi biết cách liên lạc và loại nội dung bạn đang cần. Đội ngũ tư vấn sẽ phản hồi trong vòng **24 giờ
+        làm việc**. Dù bạn đang chuẩn bị TVC, video doanh nghiệp, social clip hay nội dung hậu trường, chúng tôi luôn
+        bắt đầu bằng việc hiểu rõ: Mục tiêu chiến dịch & đối tượng khán giả. Giọng nói thương hiệu & bối cảnh sử dụng
+        video. Ngân sách, timeline và định dạng ưu tiên. Booking & tư vấn: (+84)36 570 1415, info@dpimedia.pro. Studio /
+        Văn phòng: Số 5 đường số 17B, P. Bình Hưng Hoà, Q. Bình Tân, HCM. Không có brief hoàn hảo ngay từ đầu. Cứ chia
+        sẻ những gì bạn đang có, DPI MEDIA sẽ giúp bạn “gỡ rối” và đề xuất cấu trúc video phù hợp.
+      fields:
+        - label: Tên
+          type: text
+        - label: Email
+          type: email
+        - label: Số điện thoại
+          type: tel
+        - label: Nội dung bạn cần
+          type: textarea
+      submitText: Gửi yêu cầu
+      submitUrl: '#'
+  - type: cta
+    order: 15
+    enabled: true
+    data:
+      headline: Để lại email, chúng tôi sẽ gửi gợi ý khung video & báo giá tham khảo
+      subheadline: >-
+        Chỉ cần một email liên hệ, DPI MEDIA sẽ gửi tài liệu tóm tắt kèm vài case study phù hợp với ngành hàng của bạn.
+        Bằng việc để lại email, bạn đồng ý cho DPI MEDIA liên hệ lại về dịch vụ quay – dựng – livestream. Không spam,
+        không bán dữ liệu.
+      cta:
+        - text: Nhận tư vấn nhanh
+          url: '#'
+          variant: primary
+      variant: default
+  - type: video
+    order: 1
+    enabled: true
+    data:
+      subtitle: 60 giây nhìn toàn bộ năng lực
+      description: >-
+        Chỉ trong 60s, bạn có thể cảm nhận được nhịp dựng, màu sắc, góc máy và cách DPI MEDIA kể câu chuyện cho từng
+        thương hiệu.
+      video_url: https://i.ytimg.com/vi/6KuQzypy5Co/maxresdefault.jpg
+      stats:
+        - value: '4.9'
+          label: Client Rating
+        - value: 120+
+          label: Videos / Year
+      cta:
+        - text: dự án thực tế
+          url: https://dpistudio.vn/#du-an
+        - text: Đặt lịch tư vấn
+          url: https://dpistudio.vn/#lien-he
+      heading: Showreel 2026
+  - type: gallery
+    order: 2
+    enabled: true
+    data:
+      description: Quy trình đằng sau những thước phim chất lượng. Cách DPI Media giải quyết bài toán thương hiệu cho từng đối tác.
+      cta:
+        - text: Xem toàn bộ dự án
+          url: https://dpistudio.vn/du-an
+      heading: Hành trình dự án DPI MEDIA
+      images:
+        - image: https://api.dpistudio.vn/uploads/news/1768291780145_asiadoor.jpg
+          title: DPI x CỬA NHỰA COMPOSITE ASIA DOOR
+          description: >-
+            DPI đồng hành cùng Asia Door với vai trò đối tác Marketing đa nền tảng, tập trung xây dựng chiến lược nội
+            dung bài bản và định hình hình ảnh thương hiệu nhất quán trên các kênh số. Thông qua nghiên cứu thị trường,
+            triển khai nội dung sáng tạo và tối ưu hiệu quả truyền thông, DPI góp phần giúp Asia Door làm nổi bật giá
+            trị cốt lõi của cửa nhựa composite, tạo nền tảng vững chắc cho mục tiêu mở rộng thị phần và khẳng định vị
+            thế thương hiệu trên thị trường.
+          url: https://dpistudio.vn/du-an/dpi-x-cua-nhua-composite-asia-door
+          metadata:
+            - label: Category
+              value: Social Media
+            - label: Date
+              value: 13/01/2026
+        - image: https://api.dpistudio.vn/uploads/news/1768212549015_GBDDNCTMT2025.jpg
+          title: DPI x GIẢI BÓNG ĐÁ DOANH NGHIỆP CHUNG TAY VÌ MIỀN TRUNG 2025
+          description: >-
+            DPI MEDIA đồng hành cùng Giải bóng đá Doanh nghiệp “Chung tay vì miền Trung” với vai trò đơn vị tổ chức và
+            triển khai truyền thông toàn diện, góp phần tạo nên một giải đấu chuyên nghiệp, giàu cảm xúc và đậm tinh
+            thần sẻ chia. Không chỉ là sân chơi thể thao gắn kết cộng đồng doanh nghiệp, giải đấu còn lan tỏa mạnh mẽ
+            thông điệp trách nhiệm xã hội, kêu gọi sự chung tay vì miền Trung.
+          url: https://dpistudio.vn/du-an/dpi-x-giai-bong-a-doanh-nghiep-chung-tay-vi-mien-trung-2025
+          metadata:
+            - label: Category
+              value: Event
+            - label: Date
+              value: 12/01/2026
+        - image: https://api.dpistudio.vn/uploads/news/1773218095092_1763364375258-HYUNDAI.jpg
+          title: DPI x HYUNDAI SMART HOME
+          description: >-
+            Trải nghiệm khóa nội thất thông minh Hyundai Smart Home qua ống kính của DPI Media. Giải pháp Video Ads sáng
+            tạo, chân thực, giúp doanh nghiệp gia tăng niềm tin với đại lý và khách hàng.
+          url: https://dpistudio.vn/du-an/dpi-x-hyundai-smart-home
+          metadata:
+            - label: Category
+              value: Social Media
+            - label: Date
+              value: 11/03/2026
+        - image: https://api.dpistudio.vn/uploads/news/1773196450102_z7608395951251_dca2ae99f7300718a123934b1f3e0e0c.jpg
+          title: DPI x CÔNG TY CP NÔNG NGHIỆP VIỆT NAM SYMBIO
+          description: >-
+            Nâng tầm thương hiệu phân bón Symbio bằng hình ảnh & video chất lượng cao từ DPI Media. Xem ngay cách chúng
+            tôi truyền tải giá trị nông nghiệp xanh qua ống kính chuyên nghiệp!
+          url: https://dpistudio.vn/du-an/dpi-x-cong-ty-cp-nong-nghiep-viet-nam-symbio
+          metadata:
+            - label: Category
+              value: Social Media
+            - label: Date
+              value: 11/03/2026
+  - type: footer
+    order: 999
+    enabled: true
+    data:
+      text: © DPI MEDIA | Media Production & Website Design by DPI MEDIA
+      links:
+        - label: Facebook DPI MEDIA
+          href: https://www.facebook.com/Dpistudio.vn?locale=vi_VN
+        - label: YouTube DPI MEDIA
+          href: https://www.youtube.com/@DPIMedia
+        - label: Zalo DPI MEDIA
+          href: https://zalo.me/0365701415
+        - label: Gọi ngay
+          href: tel:0365701415
+        - label: Chat Zalo
+          href: https://zalo.me/0365701415
+        - label: Facebook
+          href: https://www.facebook.com/Dpistudio.vn?locale=vi_VN
+        - label: Youtube
+          href: https://www.youtube.com/@DPIMedia
+      variant: minimal
+description: >-
+  DPI MEDIA là đối tác sáng tạo của bạn trong việc sản xuất TVC, video doanh nghiệp, nội dung mạng xã hội và nhiều định
+  dạng truyền thông mạnh mẽ khác.
+design:
+  preset: clean-light
+  colors:
+    primary: '#3b82f6'
+    secondary: '#6366f1'
+    accent: '#f59e0b'
+    background: '#ffffff'
+    surface: '#f8fafc'
+    text: '#0f172a'
+    textMuted: '#64748b'
+  fonts:
+    heading: Plus Jakarta Sans
+    body: Inter
+  borderRadius: 12px
