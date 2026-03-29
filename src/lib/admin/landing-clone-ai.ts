@@ -929,7 +929,57 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 8a: Clean broken color values (e.g. "#" without hex digits)
+  // Fix 8: Validate and fix design colors — ensure they match actual site colors
+  if (r.design?.colors) {
+    const c = r.design.colors
+    // Fix textMuted too light on white bg (should be at least mid-gray)
+    if (c.textMuted && c.background) {
+      const bgLight = !c.background || c.background === '#ffffff' || c.background === '#fff'
+      const mutedMatch = c.textMuted.match(/^#([0-9a-f]{6})$/i)
+      if (bgLight && mutedMatch) {
+        const avg = (parseInt(mutedMatch[1].slice(0, 2), 16) + parseInt(mutedMatch[1].slice(2, 4), 16) + parseInt(mutedMatch[1].slice(4, 6), 16)) / 3
+        if (avg > 180) c.textMuted = '#64748b' // fix too-light muted text
+      }
+    }
+    // Fix surface color — if surface is very dark on light bg, reset to light
+    if (c.surface && c.background) {
+      const bgLight = !c.background || c.background === '#ffffff' || c.background === '#fff'
+      const surfMatch = c.surface.match(/^#([0-9a-f]{6})$/i)
+      if (bgLight && surfMatch) {
+        const avg = (parseInt(surfMatch[1].slice(0, 2), 16) + parseInt(surfMatch[1].slice(2, 4), 16) + parseInt(surfMatch[1].slice(4, 6), 16)) / 3
+        if (avg < 80) c.surface = '#f8fafc' // dark surface on light bg → fix
+      }
+    }
+    // Fix primary/accent — try to extract from actual nav/button colors in HTML
+    const navBg = nav?.style?.background
+    if (navBg && typeof navBg === 'string' && /^#[0-9a-f]{6}$/i.test(navBg)) {
+      c.primary = navBg // nav background is usually the brand primary color
+    }
+    // Extract accent from CTA buttons in HTML
+    const btnColors = [...rawHtml.matchAll(/(?:background|background-color):\s*(#[0-9a-f]{6})/gi)]
+      .map(m => m[1].toLowerCase())
+      .filter(h => !['#ffffff', '#000000', '#f8f8f8', '#f0f0f0', '#333333', '#111111'].includes(h))
+    const accentCandidates = btnColors.filter(h => {
+      const r2 = parseInt(h.slice(1, 3), 16), g2 = parseInt(h.slice(3, 5), 16), b2 = parseInt(h.slice(5, 7), 16)
+      return r2 > 150 && g2 < 150 // warm/orange-ish colors (common CTA accent)
+    })
+    if (accentCandidates.length > 0 && c.accent === c.primary) {
+      c.accent = accentCandidates[0]
+    }
+  }
+
+  // Fix 8c: Don't inject Dancing Script for non-script sites (only for sites with cursive headings)
+  // Check if hero heading font should be cursive by looking at original CSS
+  const hasCursiveFont = /font-family[^;]*(?:Dancing|Script|Cursive|cursive|Pacifico|Lobster)/i.test(rawHtml)
+  if (!hasCursiveFont && r.scopedCss) {
+    // Remove Dancing Script from hero if site doesn't use cursive
+    const heroScoped = r.scopedCss.find((c: { selector: string; css: string }) => c.selector.includes('section-hero') && c.css.includes('Dancing Script'))
+    if (heroScoped) {
+      heroScoped.css = heroScoped.css.replace(/font-family:\s*['"]?Dancing Script['"]?,\s*cursive;\s*/g, '')
+    }
+  }
+
+  // Fix 8d: Clean broken color values (e.g. "#" without hex digits)
   for (const s of r.sections) {
     if (!s.style) continue
     for (const key of ['textColor', 'textMutedColor', 'accentColor', 'background'] as const) {
