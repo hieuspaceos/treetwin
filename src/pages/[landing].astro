@@ -12,18 +12,16 @@ import LandingLayout from '@/layouts/landing-layout.astro'
 import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
 import type { LandingSection, LandingDesign } from '@/lib/landing/landing-types'
 
-export async function getStaticPaths() {
-  const pages = await getCollection('landingPages')
-  const products = await getCollection('products')
-  return pages
-    .filter(p => p.id !== 'home')
-    .map(p => {
-      const product = products.find(pr => pr.data.landingPage === p.id)
-      return { params: { landing: p.id }, props: { page: p, product: product ?? null } }
-    })
-}
+// SSR mode — fetch entry by slug from URL params
+const { landing } = Astro.params
+const pages = await getCollection('landingPages')
+const page = pages.find(p => p.id === landing)
+if (!page) return Astro.redirect('/404')
 
-const { page, product } = Astro.props
+let products: any[] = []
+try { products = await getCollection('products') } catch {}
+const product = products.find((pr: any) => pr.data?.landingPage === landing) ?? null
+
 const sections = page.data.sections as unknown as LandingSection[]
 const design = (page.data as Record<string, unknown>).design as LandingDesign | undefined
 // If nav/footer section exists (even disabled), hide layout's nav/footer
