@@ -5,7 +5,8 @@ interface Props extends VideoData {}
 const { url = '', caption, autoplay, heading, subheading, cta, items } = Astro.props as VideoData
 
 /** Convert YouTube/Vimeo watch URLs to embed URLs. Returns null for unrecognised URLs. */
-function toEmbedUrl(raw: string): string | null {
+function toEmbedUrl(raw: string | null | undefined): string | null {
+  if (!raw) return null
   const ytMatch = raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/)
   if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}${autoplay ? '?autoplay=1&mute=1' : ''}`
   const vmMatch = raw.match(/vimeo\.com\/(\d+)/)
@@ -15,7 +16,7 @@ function toEmbedUrl(raw: string): string | null {
 }
 
 /** All videos: primary + items */
-const allVideos = [{ url, caption }, ...(items || [])]
+const allVideos = [{ url, caption }, ...(items || [])].filter(v => v.url)
 const isMulti = allVideos.length > 1
 const embedUrl = toEmbedUrl(url)
 const isDirectVideo = embedUrl === url

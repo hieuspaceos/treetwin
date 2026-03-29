@@ -1,4 +1,4 @@
-title: Voyage au Vietnam sur mesure, agence de voyage locale francophone
+title: Voyage authentique et immersif au Vietnam
 sections:
   - type: nav
     order: -1
@@ -6,12 +6,11 @@ sections:
     data:
       brandName: AucoeurVietnam
       logo: https://aucoeurvietnam.com/wp-content/uploads/2024/04/logo-agence-de-voyage-au-vietnam.jpg
-      variant: default
       topBar:
-        - icon: whatsapp
-          text: +84.909.426.406
+        - icon: fab fa-whatsapp
+          text: 'WhatsApp: +84.909.426.406'
           href: tel:+84.909.426.406
-        - icon: envelope
+        - icon: fas fa-envelope
           text: bonjour@aucoeurvietnam.com
           href: mailto:bonjour@aucoeurvietnam.com
       links:
@@ -27,6 +26,7 @@ sections:
           href: https://aucoeurvietnam.com/style/vietnam-en-liberte/
         - label: Rencontre avec un personnage
           href: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
+      variant: default
       socialLinks:
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2024/03/facebook.png
           url: https://www.facebook.com/aucoeurvietnam
@@ -43,6 +43,7 @@ sections:
     style:
       fullWidth: true
       background: '#2d4a3e'
+      padding: 1rem 2rem
       textColor: '#ffffff'
   - type: hero
     order: 0
@@ -50,38 +51,57 @@ sections:
     data:
       headline: Voyage authentique et immersif au Vietnam
       subheadline: Créez votre voyage sur mesure avec nos experts locaux.
-      variant: centered
+      variant: minimal
       cta:
         - text: Personnaliser votre voyage
           url: https://aucoeurvietnam.com/devis-sur-mesure/
           variant: primary
-      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2024/04/slider-1-m-c-2.jpg
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Header-tour-aucoeurvietnam-5.jpg
     style:
       fullWidth: true
-      background: '#1b2c25'
-      padding: 0px 0px 0px 0px
-      backgroundOverlay: linear-gradient(to bottom, rgba(45,74,62,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(45,74,62,0.4) 100%)
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+      backgroundOverlay: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2))
       textColor: '#ffffff'
+      padding: 6rem 2rem
+      background: '#101c18'
+      textMutedColor: rgba(255,255,255,0.8)
   - type: features
     order: 1
     enabled: true
     data:
-      variant: grid
-      columns: 5
+      heading: null
+      subheading: null
       items:
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
           title: DEVIS PERSONNALISÉ
+          description: null
+          image: null
+          url: null
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
           title: VOYAGES AUTHENTIQUES
+          description: null
+          image: null
+          url: null
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
           title: GUIDES FRANCOPHONES
+          description: null
+          image: null
+          url: null
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
           title: CONSEILLERS RÉACTIFS
+          description: null
+          image: null
+          url: null
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
           title: AGENCE LOCALE RESPONSABLE
+          description: null
+          image: null
+          url: null
+      columns: 5
     style:
-      background: 'color-mix(in srgb, #2d4a3e 5%, #ffffff)'
+      fullWidth: false
       padding: 3rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
   - type: layout
     order: 2
     enabled: true
@@ -100,18 +120,19 @@ sections:
                 heading: À propos de AucoeurVietnam
                 subheading: _Votre agence de voyage sur-mesure au Vietnam_
                 content: >-
-                  AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant
-                  dirigée par un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord,
-                  **Phan NGUYEN** est un guide spécialiste des voyages hors des sentiers battus dans les montagnes du
-                  Nord et habite à Hanoï. Il a organisé beaucoup de voyages authentiques dans cette région. Au centre du
-                  pays, l’agence à Danang est gérée par **Quynh-Anh NGUYEN**. Étant francophile, elle exerce ce métier
-                  depuis 2012, ce qui lui permet de parler sa langue préférée et de créer de beaux voyages dans les
-                  trois pays de l’Indochine. Et au Sud, l’agence se trouve à Saigon, gérée par **Laetitia TRAN**,
-                  conseillère de voyage depuis 2013. Après 11 ans d’expérience dans l’organisation de circuits, elle se
-                  consacre maintenant à la conception de voyage en ligne avec **Toan NGUYEN**, un ex-guide francophone.
-                  Toan Nguyen, avec ses expériences profondes du métier depuis 2001, assure notre base juridique et
-                  financière dans son réseau **DMC MEKONG IMAGE TRAVEL**, … <a
-                  href="https://aucoeurvietnam.com/votre-agence-de-voyage-locale/">Lire plus</a>
+                  <strong>AucoeurVietnam – IMAGE Travel</strong> dispose de 3 agences situées dans 3 régions du Vietnam,
+                  chacune étant dirigée par un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant
+                  du Nord, <strong>Phan NGUYEN</strong> est un guide spécialiste des voyages hors des sentiers battus
+                  dans les montagnes du Nord et habite à Hanoï. Il a organisé beaucoup de voyages authentiques dans
+                  cette région. Au centre du pays, l’agence à Danang est gérée par <strong>Quynh-Anh NGUYEN</strong>.
+                  Étant francophile, elle exerce ce métier depuis 2012, ce qui lui permet de parler sa langue préférée
+                  et de créer de beaux voyages dans les trois pays de l’Indochine. Et au Sud, l’agence se trouve à
+                  Saigon, gérée par <strong>Laetitia TRAN</strong>, conseillère de voyage depuis 2013. Après 11 ans
+                  d’expérience dans l’organisation de circuits, elle se consacre maintenant à la conception de voyage en
+                  ligne avec <strong>Toan NGUYEN</strong>, un ex-guide francophone. Toan Nguyen, avec ses expériences
+                  profondes du métier depuis 2001, assure notre base juridique et financière dans son réseau <strong>DMC
+                  MEKONG IMAGE TRAVEL</strong>, … <a
+                  href="https://aucoeurvietnam.com/votre-agence-de-voyage-locale/"><strong>Lire plus</strong></a>
         - column: 1
           sections:
             - type: image
@@ -121,18 +142,16 @@ sections:
                 src: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
                 alt: agence de voyage au Vietnam
                 caption: _Photo prise par notre guide Hiểu LÊ à Sapa_
+                fullWidth: false
     style:
-      background: '#f3f3f3'
-      padding: 0px 0px 0px 0px
-      fullWidth: true
+      fullWidth: false
+      padding: 4rem 2rem
   - type: features
     order: 3
     enabled: true
     data:
       heading: Idées de voyages en fonction de votre style
       subheading: _Les activités enrichissantes qui jalonnent notre itinéraire_
-      variant: grid
-      columns: 4
       items:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
           title: Voyage gastronomique au Vietnam
@@ -155,9 +174,12 @@ sections:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
           title: Croisière au Vietnam
           url: https://aucoeurvietnam.com/idees-des-croisieres-au-vietnam/
+      columns: 3
+      variant: grid
     style:
-      background: 'color-mix(in srgb, #2d4a3e 5%, #ffffff)'
-      padding: 5rem 2rem
+      fullWidth: false
+      padding: 4rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
   - type: features
     order: 4
     enabled: true
@@ -166,8 +188,6 @@ sections:
       subheading: >-
         _Découvrez le Vietnam à votre rythme, en prenant le temps nécessaire pour vous immerger pleinement dans
         l’expérience de votre séjour._
-      variant: grid
-      columns: 4
       items:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Excursions-1-2-3-4-jours-au-Vietnam.jpg
           title: Excursions 1-2-3-4 jours au Vietnam
@@ -181,95 +201,99 @@ sections:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-3-semaines-au-Vietnam.jpg
           title: Circuit de 3 semaines au Vietnam
           url: https://aucoeurvietnam.com/duree/circuit-vietnam-3-semaines/
+      columns: 4
+      variant: grid
+    style:
+      fullWidth: false
+      padding: 4rem 2rem
+  - type: cta
+    order: 5
+    enabled: true
+    data:
+      headline: Prêt à créer votre voyage sur mesure ?
+      subheadline: Contactez nos conseillers pour un devis personnalisé.
       cta:
         - text: Devis pour votre voyage sur mesure
           url: https://aucoeurvietnam.com/devis-sur-mesure/
           variant: primary
+      variant: default
     style:
+      fullWidth: false
+      padding: 3rem 2rem
       background: '#f8f8f8'
-      padding: 5rem 2rem
   - type: features
-    order: 5
+    order: 6
     enabled: true
     data:
       heading: Voyages recommandés
       subheading: >-
         _Parcourez nos dernières créations de voyages sur-mesure, conçues pour vous offrir une expérience totalement
         personnalisée._
-      variant: grid
-      columns: 3
       items:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/07/hotonlesap.jpg
           title: Grande croisière sur le fleuve du Mékong
-          description: |-
-            11 jours 10 nuits
-            Sud Vietnam, Cambodge
+          description: 11 jours 10 nuits<br>Sud Vietnam, Cambodge
           url: https://aucoeurvietnam.com/voyage/grande-croisiere-sur-le-mekong/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/04/ho-chi-minh-89.jpg
           title: Le sud du Vietnam 12 jours 11 nuits
-          description: |-
-            12 jours 11 nuits
-            Sud du Vietnam
+          description: 12 jours 11 nuits<br>Sud du Vietnam
           url: https://aucoeurvietnam.com/voyage/le-sud-du-vietnam-12-jours-11-nuits/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cuisine-vietnamienne.jpg
           title: Voyage culinaire Vietnam à travers des incontournables 14 jours
-          description: |-
-            14 jours 13 nuits
-            Vietnam du Nord au Sud
+          description: 14 jours 13 nuits<br>Vietnam du Nord au Sud
           url: https://aucoeurvietnam.com/voyage/voyage-culinaire-vietnam-a-travers-des-incontournables/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cerf-volant-Hue.jpg
           title: Épopée Vietnam en famille 14 jours
-          description: |-
-            14 jours 13 nuits
-            Vietnam du Nord au Centre
+          description: 14 jours 13 nuits<br>Vietnam du Nord au Centre
           url: https://aucoeurvietnam.com/voyage/exploration-vietnam-en-famille-14-jours/
         - image: >-
             https://aucoeurvietnam.com/wp-content/uploads/2023/12/Idees-de-circuit-au-Vietnam-Ninh-Binh-baie-dHalong-terrestre.jpg
           title: Incontournables au Vietnam 11 jours 10 nuits (circuit en petit groupe)
-          description: |-
-            11 jours 10 nuits
-            Vietnam du Nord au Sud
+          description: 11 jours 10 nuits<br>Vietnam du Nord au Sud
           url: https://aucoeurvietnam.com/voyage/incontournables-au-vietnam-11-jours-10-nuits/
         - image: >-
             https://aucoeurvietnam.com/wp-content/uploads/2023/12/balade-avec-des-elephants-au-Vietnam-Hauts-Plateaux-e1746522657649.jpg
           title: Escapade au Vietnam et dans les Hauts Plateaux du Vietnam 15 jours
-          description: |-
-            15 jours 14 nuits
-            Vietnam, Hauts plateaux
+          description: 15 jours 14 nuits<br>Vietnam, Hauts plateaux
           url: https://aucoeurvietnam.com/voyage/escapade-dans-les-hauts-plateaux-du-vietnam-15-jours/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2024/04/ho-chi-minh-89.jpg
           title: Vietnam en liberté 17 jours
-          description: |-
-            17 jours 16 nuits
-            Vietnam du Nord au Sud
+          description: 17 jours 16 nuits<br>Vietnam du Nord au Sud
           url: https://aucoeurvietnam.com/voyage/vietnam-en-liberte-17-jours-16-nuits/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/ethnie-Hmong-Nord-Vietnam-e1753419476536.jpg
           title: Exploration des montagnes & Ethnie du Nord du Vietnam 17 jours
-          description: |-
-            17 jours 16 nuits
-            Nord du Vietnam
+          description: 17 jours 16 nuits<br>Nord du Vietnam
           url: https://aucoeurvietnam.com/voyage/montagnes-ethnie-du-nord-du-vietnam/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Voyage-en-couple-de-noce-Vietnam-e1737432686936.jpg
           title: Voyage de noces au Vietnam en 20 jours
-          description: |-
-            20 jours 19 nuits
-            Vietnam du Nord au Sud
+          description: 20 jours 19 nuits<br>Vietnam du Nord au Sud
           url: https://aucoeurvietnam.com/voyage/voyage-de-noces-au-vietnam-en-20-jours/
         - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/riziere-en-terrasse-a-mu-cang-chai.jpg
           title: Immersion de la montagne au delta Vietnam Cambodge 21 jours
-          description: |-
-            21 jours 20 nuits
-            Vietnam Cambodge
+          description: 21 jours 20 nuits<br>Vietnam Cambodge
           url: https://aucoeurvietnam.com/voyage/immersion-de-la-montagne-au-delta-vietnam-cambodge/
+      columns: 3
+      variant: grid
+    style:
+      fullWidth: false
+      padding: 4rem 2rem
+  - type: cta
+    order: 7
+    enabled: true
+    data:
+      headline: Voir tous nos circuits
+      subheadline: null
       cta:
         - text: Voir tous nos circuits
           url: https://aucoeurvietnam.com/region/voyage-au-vietnam/
-          variant: secondary
+          variant: primary
+      variant: default
     style:
-      background: 'color-mix(in srgb, #2d4a3e 5%, #ffffff)'
-      padding: 5rem 2rem
+      fullWidth: false
+      padding: 3rem 2rem
+      background: '#f8f8f8'
   - type: rich-text
-    order: 6
+    order: 8
     enabled: true
     data:
       heading: Nos engagements responsables et actions solidaires
@@ -283,20 +307,36 @@ sections:
         déplacements verts, et surtout l’organisation de voyages responsables respectueux de l’environnement, des
         populations et de l’économie locales.<br><br><a href="https://travelifesustainability.com/"><img
         src="https://aucoeurvietnam.com/wp-content/uploads/2023/12/Travelife-300x117.webp" alt="travel life"></a>
+    style:
+      fullWidth: false
+      padding: 4rem 2rem
+  - type: cta
+    order: 9
+    enabled: true
+    data:
+      headline: Découvrir plus sur nos actions
+      subheadline: null
       cta:
         - text: Découvrir plus sur nos actions
           url: https://aucoeurvietnam.com/parcours-de-tourisme-responsable/
           variant: primary
+      variant: default
     style:
-      background: '#f3f3f3'
-      padding: 5rem 2rem
-      fullWidth: true
+      fullWidth: false
+      padding: 3rem 2rem
+      background: '#f8f8f8'
   - type: video
-    order: 7
+    order: 10
     enabled: true
     data:
       heading: Notre collection de vidéos
       subheading: _Découvrez des moments inoubliables lors de vos voyages au Vietnam avec AucoeurVietnam!_
+      url: null
+      caption: null
+      autoplay: false
+      cta:
+        text: Voir toutes nos vidéos
+        url: https://www.youtube.com/@AucoeurVietnam/videos
       items:
         - url: https://www.youtube.com/watch?v=fU-LEIChTxU
           caption: Voyage authentique et immersif au Vietnam avec AucoeurVietnam - agence de voyage locale
@@ -306,89 +346,108 @@ sections:
           caption: Cérémonie de l'abandon des tombes dans les Hauts Plateaux du Centre du Vietnam
         - url: https://www.youtube.com/watch?v=G-M_Je4xGms
           caption: Évasion à la campagne au Vietnam Cambodge Laos - Voyages avec AucoeurVietnam
-      cta:
-        text: Voir toutes nos vidéos
-        url: https://www.youtube.com/@AucoeurVietnam/videos
-        variant: secondary
     style:
-      background: 'color-mix(in srgb, #2d4a3e 5%, #ffffff)'
-      padding: 5rem 2rem
+      fullWidth: false
+      padding: 4rem 2rem
   - type: logo-wall
-    order: 8
+    order: 11
     enabled: true
     data:
       heading: Nos clients parlent de nous
       logos:
         - name: Google Review
-          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/google-review-aucoeurvietnam-1.png
           url: https://g.page/r/CQe3WlUNn4R7EAE/review
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/google-review-aucoeurvietnam-1.png
         - name: Petit Futé
-          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/petit-fute-review-aucoeurvietnam.png
           url: >-
             https://www.petitfute.com/v45031-hanoi/c1122-voyage-transports/c747-tours-operateurs/2098939-aucoeurvietnam-image-travel/tous-les-avis.html
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/petit-fute-review-aucoeurvietnam.png
         - name: Tripadvisor
-          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/tripadvisor-review-aucoeurvietnam-1.png
           url: >-
             https://www.tripadvisor.com.vn/Attraction_Review-g293924-d27133890-Reviews-AucoeurVietnam_IMAGE_Travel-Hanoi.html
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/tripadvisor-review-aucoeurvietnam-1.png
     style:
-      background: '#f3f3f3'
-      padding: 3rem 2rem
-      fullWidth: true
+      fullWidth: false
+      padding: 4rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
   - type: testimonials
-    order: 9
+    order: 12
     enabled: true
     data:
-      variant: carousel
+      heading: null
       items:
         - quote: >-
             Organisation très professionnelle,excellents guides,hôtels conformes à notre demande,programme bien
             équilibré,bref:une réussite. Très satisfait des prestations de AucoeurVietnam lors de chacun des voyages que
             nous avons eu la bonheur de vivre.
           name: Reconnaissance
+          role: null
+          company: null
+          avatar: null
+          image: null
         - quote: >-
             Nous avons passé un formidable voyage au Vietnam ( nous avons fait le Nord et le Sud, pas le Centre), on
             revient enchantés avec des souvenirs et de magnifiques images pleins la tête ! Tout a été parfaitement
             organisé et fluide ! Nous avions demandé un voyage hors des sentiers battus, pas touristique et le contrat a
             été…
           name: Johanna
+          role: null
+          company: null
+          avatar: null
+          image: null
         - quote: >-
             Nous revenons enchantés de notre voyage organisé (pour notre groupe de 27 personnes) par l agence locale
             AucoeurVietnam – notre conseillère pour déterminer le circuit et notre guide sur place ont été d un grande
             gentillesse et ont été à l écoute de toutes nos attentes, surpassant même parfois celles-ci avec un grand
             professionnalisme, une…
           name: Carine
+          role: null
+          company: null
+          avatar: null
+          image: null
         - quote: >-
             Très beau voyage conforme à mes souhaits petits déplacements, marche vélo , découverte hors des sentiers
             battus, logements qualitatifs et guides et chauffeurs sérieux et à l’écoute. Un seul bémol, la 2eme semaine
             les températures ont fortement baissé, et la chambre d’hôtes pourtant sympa, n’était pas adaptée pour ce
             type de température , nous avons eu trop…
           name: Corinne
+          role: null
+          company: null
+          avatar: null
+          image: null
         - quote: >-
             Nous vous remercions énormément pour l’ensemble du séjour : vous avez su nous proposer, et mettre en place
             tout cela en un temps record ! bravo ! Nous avons été enchantés par ce séjour, ces belles découvertes, ces
             paysages, ces magnifiques rencontres : avec les guides surtout, mais de façon générale nous n’avons vu que
             des gens accueillants, souriants…
           name: Benoît
+          role: null
+          company: null
+          avatar: null
+          image: null
         - quote: >-
             Nous l’avons rêvé, nous l’avons vécu! D’Hanoi a la baie de Tu Long, puis Luang Prabang et enfin Siem Reap.
             Des cascades d’images merveilleuses et de moments intenses qui resteront à jamais d’excellents souvenirs,
             tout cela grâce à l’accompagnement parfaitement orchestré par Cuc qui a aussi su s’adapter à nos ‘caprices’,
             toujours avec réactivité, efficacité…
           name: Laurence et Yves
+          role: null
+          company: null
+          avatar: null
+          image: null
+      variant: cards
     style:
-      background: '#2d4a3e'
-      padding: 5rem 2rem
-      fullWidth: true
-      textColor: '#ffffff'
+      fullWidth: false
+      padding: 4rem 2rem
+      background: '#f8f8f8'
   - type: team
-    order: 10
+    order: 13
     enabled: true
     data:
       heading: Vos conseillers de voyage
       subheading: >-
         _Nos conseillers de voyage au Vietnam, à l’écoute, toujours disponibles, vous aideront à avoir un voyage de
         qualité et mémorable._
-      variant: grid
       members:
         - name: CUC NGUYEN
           role: Experte des croisières Mékong
@@ -421,21 +480,32 @@ sections:
           bio: >-
             “J’aime découvrir l’histoire et la culture de mon pays. C’est pour cet amour que je m’engage dans le
             tourisme pour vous apporter un Vietnam avec toutes ses beautés charmante et ses valeurs variées.”
-      cta:
-        text: Voir notre équipe
-        url: https://aucoeurvietnam.com/vos-conseillers-de-voyage-locaux/
-        variant: secondary
+      variant: grid
     style:
+      fullWidth: false
+      padding: 4rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
+  - type: cta
+    order: 14
+    enabled: true
+    data:
+      headline: Voir notre équipe
+      subheadline: null
+      cta:
+        - text: Voir notre équipe
+          url: https://aucoeurvietnam.com/vos-conseillers-de-voyage-locaux/
+          variant: primary
+      variant: default
+    style:
+      fullWidth: false
+      padding: 3rem 2rem
       background: '#f8f8f8'
-      padding: 5rem 2rem
   - type: features
-    order: 11
+    order: 15
     enabled: true
     data:
       heading: Notre blog de voyage au Vietnam
       subheading: _Le Vietnam sous toutes ses facettes à explorer !_
-      variant: grid
-      columns: 3
       items:
         - image: https://aucoeurvietnam.com/wp-content/uploads/2026/03/prix-des-carburants-au-vietnam-source-vnexpress.jpg
           title: 'Hausse du prix des carburants : quel impact sur le voyage au Vietnam ?'
@@ -486,21 +556,33 @@ sections:
           title: 'Sapa villages vietnam: Quels villages visiter? Guide complet'
           description: Si vous tapez “Sapa villages Vietnam” sur Google, vous verrez des centaines de photos de...
           url: https://aucoeurvietnam.com/sapa-villages-vietnam/
-      cta:
-        text: Découvrir tous nos articles
-        url: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
-        variant: secondary
+      columns: 3
+      variant: grid
     style:
-      background: '#f3f3f3'
-      padding: 5rem 2rem
-      fullWidth: true
+      fullWidth: false
+      padding: 4rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
+  - type: cta
+    order: 16
+    enabled: true
+    data:
+      headline: Découvrir tous nos articles
+      subheadline: null
+      cta:
+        - text: Découvrir tous nos articles
+          url: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
+          variant: primary
+      variant: default
+    style:
+      fullWidth: false
+      padding: 3rem 2rem
+      background: '#f8f8f8'
   - type: how-it-works
-    order: 12
+    order: 17
     enabled: true
     data:
       heading: Faites créer votre voyage au Vietnam en 3 étapes !
       subheading: '_Votre voyage au Vietnam sur mesure : nos conseillers le façonnent selon vos préférences !_'
-      variant: numbered
       items:
         - number: 1
           title: Premier contact
@@ -521,38 +603,31 @@ sections:
             partenaires locaux pour assurer la flexibilité totale, l’authenticité et l’immersion complète de votre
             voyage.
           icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/etape-3.png
-      cta:
-        text: FAITES CRÉER VOTRE VOYAGE
-        url: https://aucoeurvietnam.com/devis-sur-mesure/
-        variant: primary
     style:
-      background: '#f8f8f8'
-      padding: 5rem 2rem
+      fullWidth: false
+      padding: 4rem 2rem
+      background: 'color-mix(in srgb, #1a2e28 5%, #ffffff)'
   - type: cta
-    order: 13
+    order: 18
     enabled: true
     data:
-      headline: Prêt à explorer le Vietnam?
-      subheadline: Contactez-nous pour un voyage sur mesure inoubliable.
-      variant: default
+      headline: Prêt à commencer votre aventure ?
+      subheadline: Faites créer votre voyage sur mesure dès aujourd'hui !
       cta:
-        - text: Demander un devis
+        - text: FAITES CRÉER VOTRE VOYAGE
           url: https://aucoeurvietnam.com/devis-sur-mesure/
           variant: primary
-        - text: Rappel gratuit
-          url: https://aucoeurvietnam.com/rappel-gratuit/
-          variant: outline
+      variant: default
     style:
-      fullWidth: true
-      background: '#2d4a3e'
-      textColor: '#ffffff'
-      padding: 4rem 2rem
+      fullWidth: false
+      padding: 3rem 2rem
+      background: '#f8f8f8'
   - type: footer
     order: 999
     enabled: true
     data:
-      variant: columns
       text: © COPYRIGHT 2023, AUCOEURVIETNAM - BY IMAGE TRAVEL & EVENTS CO., LTD FROM 2009.
+      links: []
       columns:
         - heading: Nos destinations
           links:
@@ -670,18 +745,13 @@ sections:
                 https://www.tripadvisor.fr/Attraction_Review-g293924-d27133890-Reviews-AucoeurVietnam_IMAGE_Travel-Hanoi.html
               image: https://static.tacdn.com/img2/travelers_choice/widgets/tchotel_2025_LL.png
         - heading: Infos contacts
-          links:
-            - label: 'Agence au Nord : 152 Pho Đuc Chinh, Truc Bạch, Ba Đinh, Ha Noi'
-              icon: https://aucoeurvietnam.com/wp-content/uploads/2024/02/google-maps-white.png
-            - label: 'Agence au Centre : Lot 52 Bui Ta Han, Khue My, Ngu Hanh Son, Đa Nang'
-              icon: https://aucoeurvietnam.com/wp-content/uploads/2024/02/google-maps-white.png
-            - label: 'Agence au Sud: 22 Nguyen Trong Loi, Tan Son Nhat, HCM ville'
-              icon: https://aucoeurvietnam.com/wp-content/uploads/2024/02/google-maps-white.png
-            - label: 'Tel : +84.28.22.08.66.88'
-            - label: 'WhatsApp: +84.909.426.406'
-            - label: 'Email: bonjour@aucoeurvietnam.com'
-            - label: 'Licence de l’exploitation: 0307417876 délivré le 02/03/2009'
-            - label: 'Licence internationale du tourisme (nouvelle): 79-1284/2022/TCDL-GP LHQT'
+          links: []
+          content: >-
+            Agence au Nord : 152 Pho Đuc Chinh, Truc Bạch, Ba Đinh, Ha Noi<br>Agence au Centre : Lot 52 Bui Ta Han, Khue
+            My, Ngu Hanh Son, Đa Nang<br>Agence au Sud: 22 Nguyen Trong Loi, Tan Son Nhat, HCM ville<br>Tel :
+            +84.28.22.08.66.88<br>WhatsApp: +84.909.426.406<br>Email: bonjour@aucoeurvietnam.com<br>Licence de
+            l’exploitation: 0307417876 délivré le 02/03/2009<br>Licence internationale du tourisme (nouvelle):
+            79-1284/2022/TCDL-GP LHQT
       socialLinks:
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2024/03/facebook.png
           url: https://www.facebook.com/aucoeurvietnam
@@ -695,33 +765,27 @@ sections:
         - icon: https://aucoeurvietnam.com/wp-content/uploads/2024/03/linkedin.png
           url: https://www.linkedin.com/company/imagetravel-events/
           label: LinkedIn
+      variant: columns
     style:
       fullWidth: true
       background: '#1a2e28'
       textColor: '#ffffff'
       textMutedColor: rgba(255,255,255,0.7)
-      padding: 5rem 2rem
+      padding: 4rem 2rem
 design:
   colors:
-    primary: '#2d4a3e'
-    secondary: '#f7931e'
-    accent: '#f7931e'
-    background: '#f8f8f8'
-    surface: '#ffffff'
+    primary: '#1a2e28'
+    secondary: '#e74c3c'
+    accent: '#e74c3c'
+    background: '#ffffff'
+    surface: '#f8f8f8'
     text: '#333333'
     textMuted: '#666666'
   fonts:
-    heading: Playfair Display
+    heading: Montserrat
     body: Open Sans
   borderRadius: 8px
 scopedCss:
-  - selector: .landing-page-root
-    css: |-
-      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-      .landing-btn-primary { background: #e67e22; border-radius: 25px; }
-      .landing-btn-primary:hover { background: #d35400; }
-  - selector: '[data-section="section-hero"]'
-    css: 'h1, h2 { font-family: "Dancing Script", cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); color: #fff; }'
   - selector: '[data-section="section-nav"]'
     css: >-
       .landing-section { background: #2d4a3e; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
@@ -730,45 +794,36 @@ scopedCss:
       .lp-icon-bg { background: rgba(255,255,255,0.1); }
   - selector: '[data-section="section-hero"]'
     css: >-
-      .landing-section { background:
-      url('https://aucoeurvietnam.com/wp-content/uploads/2024/06/voyage-au-vietnam-sur-mesure-1.jpg'); } h1, h2, h3, h4
-      { color: #ffffff; } p, li, span { color: rgba(255,255,255,0.7); } .lp-card-hover { background:
-      rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); } .glass-card { background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.1); color: #ffffff; } .lp-icon-bg { background: rgba(255,255,255,0.1); }
-  - selector: '[data-section="section-features"]'
-    css: '.landing-section { background: color-mix(in srgb, #2d4a3e 5%, #ffffff); }'
-  - selector: '[data-section="section-layout"]'
-    css: '.landing-section { background: #f3f3f3; }'
-  - selector: '[data-section="section-features-2"]'
-    css: '.landing-section { background: color-mix(in srgb, #2d4a3e 5%, #ffffff); }'
-  - selector: '[data-section="section-features-3"]'
-    css: '.landing-section { background: #f8f8f8; }'
-  - selector: '[data-section="section-features-4"]'
-    css: '.landing-section { background: color-mix(in srgb, #2d4a3e 5%, #ffffff); }'
-  - selector: '[data-section="section-rich-text"]'
-    css: '.landing-section { background: #f3f3f3; }'
-  - selector: '[data-section="section-video"]'
-    css: '.landing-section { background: color-mix(in srgb, #2d4a3e 5%, #ffffff); }'
-  - selector: '[data-section="section-logo-wall"]'
-    css: '.landing-section { background: #f3f3f3; }'
-  - selector: '[data-section="section-testimonials"]'
-    css: >-
-      .landing-section { background: #2d4a3e; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
+      .landing-section { background: #101c18; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
+      rgba(255,255,255,0.8); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
       } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
       .lp-icon-bg { background: rgba(255,255,255,0.1); }
+  - selector: '[data-section="section-features"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-features-2"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-cta"]'
+    css: '.landing-section { background: #f8f8f8; }'
+  - selector: '[data-section="section-cta-2"]'
+    css: '.landing-section { background: #f8f8f8; }'
+  - selector: '[data-section="section-cta-3"]'
+    css: '.landing-section { background: #f8f8f8; }'
+  - selector: '[data-section="section-logo-wall"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-testimonials"]'
+    css: '.landing-section { background: #f8f8f8; }'
   - selector: '[data-section="section-team"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-cta-4"]'
     css: '.landing-section { background: #f8f8f8; }'
   - selector: '[data-section="section-features-5"]'
-    css: '.landing-section { background: #f3f3f3; }'
-  - selector: '[data-section="section-how-it-works"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-cta-5"]'
     css: '.landing-section { background: #f8f8f8; }'
-  - selector: '[data-section="section-cta"]'
-    css: >-
-      .landing-section { background: #2d4a3e; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+  - selector: '[data-section="section-how-it-works"]'
+    css: '.landing-section { background: color-mix(in srgb, #1a2e28 5%, #ffffff); }'
+  - selector: '[data-section="section-cta-6"]'
+    css: '.landing-section { background: #f8f8f8; }'
   - selector: '[data-section="section-footer"]'
     css: >-
       .landing-section { background: #1a2e28; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:

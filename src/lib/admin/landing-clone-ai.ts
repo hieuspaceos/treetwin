@@ -787,8 +787,85 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   // Phase 2: Per-section quality assessment
   r.sectionQuality = r.sections.map((s, i) => assessSectionQuality(s, i))
 
+  // Phase 3: Post-processing auto-fixes (lessons from clone optimization)
+  postProcessCloneResult(r, rawHtml, url)
+
   try { logCloneSections(url, r.sections, words, pageHeadings) } catch {}
   return r
+}
+
+/** Auto-fix common AI clone issues based on learned patterns */
+function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
+  // Fix 1: Hero backgroundImage — find real CSS background-image if AI missed it or picked wrong one
+  const hero = r.sections.find(s => s.type === 'hero')
+  const heroImgLooksWrong = hero && hero.data.backgroundImage &&
+    (String(hero.data.backgroundImage).endsWith('.png') || String(hero.data.backgroundImage).includes('logo'))
+  if (hero && (!hero.data.backgroundImage || heroImgLooksWrong)) {
+    const bgUrls = [...rawHtml.matchAll(/background[^;]*url\(["']?([^"')]+)["']?\)/g)]
+      .map(m => m[1])
+      .filter(u => u.startsWith('http') && !u.includes('logo') && !u.includes('icon') && !u.includes('flag') && !u.includes('dropdown'))
+    // Prefer JPG/JPEG (photos) over PNG (usually illustrations/logos)
+    const jpgUrls = bgUrls.filter(u => /\.(jpg|jpeg|webp)/i.test(u))
+    // Prioritize URLs with hero-related keywords (most specific first)
+    const heroKeywords = ['slider', 'hero', 'banner', 'header-', 'cover']
+    const heroUrl = jpgUrls.find(u => heroKeywords.some(k => u.toLowerCase().includes(k)))
+    const bestUrl = heroUrl || jpgUrls[0] || bgUrls.find(u => /\.(png)/i.test(u) && !u.includes('logo'))
+    if (bestUrl) {
+      hero.data.backgroundImage = bestUrl
+    }
+  }
+
+  // Fix 2: Hero subheadline — clean if it contains raw form data (select options, dates, etc.)
+  if (hero) {
+    const sub = String(hero.data.subheadline || '')
+    const hasFormData = sub.length > 200 || /20\d{2}/.test(sub) || (sub.match(/—/g) || []).length > 2
+    if (hasFormData) {
+      hero.data.subheadline = ''
+    }
+  }
+
+  // Fix 3: Design fonts — replace non-Google custom fonts with closest Google Fonts equivalents
+  if (r.design?.fonts) {
+    const fontMap: Record<string, string> = {
+      'Apercu': 'Inter', 'Apercu Light': 'Inter', 'Apercu Medium': 'Inter',
+      'DancingScript-Bold-WOFF': 'Dancing Script', 'DancingScript': 'Dancing Script',
+      'Proxima Nova': 'Montserrat', 'Avenir': 'Nunito', 'Gotham': 'Poppins',
+      'Futura': 'Nunito Sans', 'Helvetica Neue': 'Inter', 'Helvetica': 'Inter',
+      'Arial': 'Inter', 'Georgia': 'Playfair Display', 'Garamond': 'EB Garamond',
+      'Times New Roman': 'Playfair Display', 'Palatino': 'Lora',
+    }
+    for (const key of ['heading', 'body'] as const) {
+      const font = r.design.fonts[key]
+      if (font) {
+        // Strip fallbacks like "sans-serif", quotes
+        const clean = font.replace(/,\s*(sans-serif|serif|monospace|cursive)$/i, '').replace(/['"]/g, '').trim()
+        const mapped = fontMap[clean]
+        if (mapped) r.design.fonts[key] = mapped
+        else r.design.fonts[key] = clean
+      }
+    }
+  }
+
+  // Fix 4: Ensure hero has proper style if backgroundImage exists
+  if (hero?.data.backgroundImage && hero.style) {
+    if (!hero.style.background) hero.style.background = '#1a1a1a'
+    if (!hero.style.backgroundOverlay) {
+      hero.style.backgroundOverlay = 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.4) 100%)'
+    }
+    hero.style.fullWidth = true
+    hero.style.textColor = '#ffffff'
+  }
+
+  // Fix 5: Nav logo — find site logo if AI missed it
+  const nav = r.sections.find(s => s.type === 'nav')
+  if (nav && !nav.data.logo) {
+    const logoUrls = [...rawHtml.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g)]
+      .map(m => ({ src: m[1], ctx: m[0].toLowerCase() }))
+      .filter(m => (m.ctx.includes('logo') || m.ctx.includes('brand')) && m.src.startsWith('http'))
+    if (logoUrls.length > 0) {
+      nav.data.logo = logoUrls[0].src
+    }
+  }
 }
 
 /** Assess quality of a single cloned section */
