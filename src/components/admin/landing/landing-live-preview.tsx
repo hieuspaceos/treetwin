@@ -676,7 +676,8 @@ function parseMd(md: string): string {
 }
 
 function PreviewRichText({ data }: { data: RichTextData }) {
-  const content = data?.content || ''
+  if (!data) return <div style={{ padding: '1rem', color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>[Rich Text — no data]</div>
+  const content = String(data.content || '')
   if (!content) return <div style={{ padding: '1rem', color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>[Rich Text — empty]</div>
   const isHtml = content.trimStart().startsWith('<')
   const html = isHtml ? content : parseMd(content)
