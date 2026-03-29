@@ -644,13 +644,17 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   // Step 1: Get best HTML available
   let rawHtml: string
   let originalHtml: string // Always keep the direct-fetch HTML for post-processing (has CSS/styles)
+  let localMarkdown = '' // Per-request markdown — NOT global (prevents parallel clone contamination)
   if (isDataUrl) {
     rawHtml = decodeURIComponent(url.slice('data:text/html,'.length))
     originalHtml = rawHtml
   } else {
     let fcHtml = ''
     if (firecrawlKey) {
-      try { fcHtml = await firecrawlFetch(url, firecrawlKey) } catch {}
+      try {
+        fcHtml = await firecrawlFetch(url, firecrawlKey)
+        localMarkdown = getLastMarkdown() // capture immediately after fetch
+      } catch {}
     }
     const directHtml = await directFetch(url)
     originalHtml = directHtml // Always keep for post-processing (Firecrawl strips CSS)
@@ -668,7 +672,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
 
   // Step 2: Choose best input format — keep <style> blocks so Gemini sees CSS colors
   const htmlWithStyles = cleanKeepStyles(rawHtml)
-  const lastMd = getLastMarkdown()
+  const lastMd = localMarkdown
   let cloneInput: string
   if (htmlWithStyles.length <= 80_000) {
     cloneInput = htmlWithStyles

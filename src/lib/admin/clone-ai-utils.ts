@@ -29,7 +29,7 @@ export const GEMINI_API_URL =
 /** Section types available in the builder */
 export const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
 
-/** Last fetched markdown — used for structure analysis (more compact than HTML) */
+/** @deprecated Use firecrawlFetchWithMarkdown instead — global state causes race conditions */
 let _lastMarkdown = ''
 export function getLastMarkdown(): string { return _lastMarkdown }
 export function setLastMarkdown(md: string) { _lastMarkdown = md }
