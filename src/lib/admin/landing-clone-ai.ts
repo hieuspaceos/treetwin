@@ -798,6 +798,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
 function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
   // Fix 1: Hero backgroundImage — find real CSS background-image if AI missed it or picked wrong one
   const hero = r.sections.find(s => s.type === 'hero')
+  const nav = r.sections.find(s => s.type === 'nav')
   const heroImgLooksWrong = hero && hero.data.backgroundImage &&
     (String(hero.data.backgroundImage).endsWith('.png') || String(hero.data.backgroundImage).includes('logo'))
   if (hero && (!hero.data.backgroundImage || heroImgLooksWrong)) {
@@ -846,18 +847,59 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 4: Ensure hero has proper style if backgroundImage exists
-  if (hero?.data.backgroundImage && hero.style) {
-    if (!hero.style.background) hero.style.background = '#1a1a1a'
-    if (!hero.style.backgroundOverlay) {
-      hero.style.backgroundOverlay = 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.4) 100%)'
+  // Fix 4: Ensure hero has proper style — remove style.backgroundImage (hero component handles its own bg)
+  if (hero?.style) {
+    // Hero component renders data.backgroundImage internally — style.backgroundImage causes duplicate/wrong bg
+    delete hero.style.backgroundImage
+    if (hero.data.backgroundImage) {
+      if (!hero.style.background) hero.style.background = '#1a1a1a'
+      if (!hero.style.backgroundOverlay) {
+        hero.style.backgroundOverlay = 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.4) 100%)'
+      }
+      hero.style.fullWidth = true
+      hero.style.textColor = '#ffffff'
     }
-    hero.style.fullWidth = true
-    hero.style.textColor = '#ffffff'
   }
 
-  // Fix 5: Nav logo — find site logo if AI missed it
-  const nav = r.sections.find(s => s.type === 'nav')
+  // Fix 5: Clean topBar icons — replace Font Awesome classes with emoji
+  if (nav?.data.topBar && Array.isArray(nav.data.topBar)) {
+    const faMap: Record<string, string> = {
+      'fa-whatsapp': '📱', 'fa-phone': '📞', 'fa-envelope': '✉️', 'fa-email': '✉️',
+      'fa-facebook': '📘', 'fa-instagram': '📷', 'fa-twitter': '🐦', 'fa-youtube': '▶️',
+      'fa-linkedin': '💼', 'fa-map-marker': '📍', 'fa-globe': '🌐', 'fa-clock': '🕐',
+    }
+    for (const item of nav.data.topBar as Array<{ icon?: string; text?: string }>) {
+      if (item.icon && typeof item.icon === 'string') {
+        // Replace "fab fa-whatsapp" or "fas fa-envelope" with emoji
+        const faMatch = item.icon.match(/fa[bsr]?\s+fa-(\w+)/)
+        if (faMatch) {
+          const key = `fa-${faMatch[1]}`
+          item.icon = faMap[key] || '•'
+        }
+        // Also clean from text if icon class leaked into text
+        if (item.text && typeof item.text === 'string') {
+          item.text = item.text.replace(/fa[bsr]?\s+fa-\w+\s*/g, '').trim()
+        }
+      }
+    }
+  }
+
+  // Fix 6: Add global scoped CSS preset (orange buttons, Dancing Script for hero)
+  if (!r.scopedCss) r.scopedCss = []
+  const hasGlobalCss = r.scopedCss.some((c: { selector: string }) => c.selector === '.landing-page-root')
+  if (!hasGlobalCss) {
+    r.scopedCss.unshift({
+      selector: '.landing-page-root',
+      css: `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+.landing-btn-primary { background: var(--lp-accent, var(--lp-primary)); border-radius: 25px; }`,
+    })
+    r.scopedCss.splice(1, 0, {
+      selector: '[data-section="section-hero"]',
+      css: `h1, h2 { font-family: 'Dancing Script', cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); color: #fff; }`,
+    })
+  }
+
+  // Fix 7: Nav logo — find site logo if AI missed it
   if (nav && !nav.data.logo) {
     const logoUrls = [...rawHtml.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g)]
       .map(m => ({ src: m[1], ctx: m[0].toLowerCase() }))
