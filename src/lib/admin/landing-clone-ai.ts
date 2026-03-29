@@ -21,15 +21,21 @@ const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze this HTML a
 Section types: ${SECTION_TYPES.join(', ')}.
 
 Rules:
+- Extract EVERY visible section — do NOT skip any. Include ALL sections from top to bottom.
 - hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}]
+- hero: extract backgroundImage URL and embed URL (video/iframe). If embed is .mp4/.webm, keep as-is.
 - Icons: use emoji, never "[SVG]" or raw SVG
-- Pricing: count actual plan CARDS only
-- Testimonials: use "carousel" if they scroll horizontally
+- Pricing: count actual plan CARDS only, include badge if visible
+- Testimonials: use "carousel" if they scroll horizontally. Extract avatar/image URLs.
+- video: extract the video URL (YouTube, Vimeo, or direct .mp4 link)
+- image/image-text: extract image src URLs as absolute URLs
+- gallery: extract ALL image src URLs
 - Rich-text: max 300 chars, summarize
 - Text fields: clean text, no HTML tags, max 200 chars
-- Image URLs: keep absolute, decode /_next/image URLs
+- Image/video URLs: keep absolute, decode /_next/image URLs
 - Keep content in ORIGINAL language
 - Do NOT duplicate content across sections
+- social-proof: short trust lines between sections (e.g. "Join 500+ happy users")
 
 Return ONLY valid JSON:
 {
@@ -223,7 +229,7 @@ async function geminiCall(apiKey: string, systemPrompt: string, userPrompt: stri
     body: JSON.stringify({
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{ parts: [{ text: userPrompt }] }],
-      generationConfig: { temperature: 0.15, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
+      generationConfig: { temperature: 0.05, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
     }),
   })
   if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
