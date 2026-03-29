@@ -309,24 +309,47 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  // Get raw HTML
-  const rawHtml = url.startsWith('data:text/html,')
+  // Get raw HTML — direct fetch first to check tier
+  const isDataUrl = url.startsWith('data:text/html,')
+  const directHtml = isDataUrl
     ? decodeURIComponent(url.slice('data:text/html,'.length))
-    : await fetchPageHtml(url)
+    : await directFetch(url)
 
-  const html = cleanBasic(rawHtml)
-  const analysis = analyzeHtml(rawHtml)
+  const analysis = analyzeHtml(directHtml)
 
   // Tier 4: too little content
-  if (analysis.score < 20) {
-    throw new Error(`Page has too little visible content (score: ${analysis.score}). Use "📋 Paste Code" mode: open in Chrome → Inspect → select <body> → Copy outerHTML → paste.`)
+  if (analysis.score < 20 && !isDataUrl) {
+    // Try Firecrawl before giving up
+    const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
+    if (firecrawlKey) {
+      try {
+        const fcHtml = await firecrawlFetch(url, firecrawlKey)
+        if (fcHtml.length > 500) {
+          const fcAnalysis = analyzeHtml(fcHtml)
+          if (fcAnalysis.score >= 20) {
+            // Firecrawl saved us — use 2-step
+            return await structureFirstClone(apiKey, fcHtml, intent || '', url)
+          }
+        }
+      } catch {}
+    }
+    throw new Error(`Page has too little visible content (score: ${analysis.score}). Use "📋 Paste Code" mode.`)
   }
 
-  // Tier 1: Direct clone (proven stable, don't change what works)
+  // Tier 1: Direct clone with DIRECT fetch (proven stable, Firecrawl changes format)
+  const html = cleanBasic(directHtml)
   if (analysis.tier === 1 && html.length <= 50_000) {
     return await directClone(apiKey, html, intent || '', url)
   }
 
-  // Tier 2-3: Structure-first 2-step clone
-  return await structureFirstClone(apiKey, rawHtml, intent || '', url)
+  // Tier 2-3: Structure-first 2-step clone — prefer Firecrawl HTML (cleaner, JS-rendered)
+  const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
+  let cloneHtml = directHtml
+  if (firecrawlKey && !isDataUrl) {
+    try {
+      const fcHtml = await firecrawlFetch(url, firecrawlKey)
+      if (fcHtml.length > 500) cloneHtml = fcHtml
+    } catch {}
+  }
+  return await structureFirstClone(apiKey, cloneHtml, intent || '', url)
 }
