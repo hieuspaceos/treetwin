@@ -323,78 +323,151 @@ function repairJson(text: string): string {
   return json
 }
 
-/** Strip scripts, styles, and non-visible content to reduce token usage */
-function cleanHtml(html: string): string {
+/** Basic clean — remove scripts/styles/comments/SVGs */
+function cleanBasic(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<svg[\s\S]*?<\/svg>/gi, '[SVG]')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
 
-/** Send HTML to Gemini and get structured landing page config */
-export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
-  const apiKey = import.meta.env.GEMINI_API_KEY
-  if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
+/** Aggressive clean — strip all attributes except href/src/alt, keep only semantic structure */
+function cleanAggressive(html: string): string {
+  let h = cleanBasic(html)
+  // Strip all class, data-*, style, id attributes
+  h = h.replace(/\s(class|id|style|data-[\w-]+|aria-[\w-]+|role|tabindex|onclick|onload)="[^"]*"/gi, '')
+  // Strip empty tags
+  h = h.replace(/<(div|span|p)\s*>\s*<\/\1>/gi, '')
+  // Collapse nested empty divs
+  h = h.replace(/<div>\s*<\/div>/gi, '')
+  h = h.replace(/\s{2,}/g, ' ')
+  return h.trim()
+}
 
-  // Fetch HTML from URL or decode pasted code (data: URL)
-  const rawHtml = url.startsWith('data:text/html,')
-    ? decodeURIComponent(url.slice('data:text/html,'.length))
-    : await fetchPageHtml(url)
-  const html = cleanHtml(rawHtml)
+/** Deep extract — extract only text content with semantic structure preserved */
+function extractContent(html: string): string {
+  let h = cleanBasic(html)
+  // Keep only semantic tags + content
+  const keep = ['h1', 'h2', 'h3', 'h4', 'p', 'a', 'img', 'ul', 'ol', 'li', 'nav', 'footer', 'header', 'section', 'article', 'blockquote', 'figure', 'figcaption', 'button', 'form', 'input', 'textarea']
+  // Remove non-semantic wrapper tags but keep content
+  h = h.replace(/<(div|span|main|aside)(\s[^>]*)?\s*>/gi, '')
+  h = h.replace(/<\/(div|span|main|aside)>/gi, '')
+  // Strip all attributes except href, src, alt
+  h = h.replace(/<([a-z]+)\s+(?!href|src|alt)[^>]*>/gi, (match, tag) => {
+    const href = match.match(/href="([^"]*)"/)?.[0] || ''
+    const src = match.match(/src="([^"]*)"/)?.[0] || ''
+    const alt = match.match(/alt="([^"]*)"/)?.[0] || ''
+    const attrs = [href, src, alt].filter(Boolean).join(' ')
+    return `<${tag}${attrs ? ' ' + attrs : ''}>`
+  })
+  h = h.replace(/\s{2,}/g, ' ')
+  return h.trim()
+}
 
-  if (html.length < 100) {
-    throw new Error('Page content too short — may be a JavaScript-only SPA that requires a browser to render')
-  }
-
+/** Call Gemini with cleaned HTML */
+async function callGemini(apiKey: string, html: string, intent: string, url: string): Promise<{ text: string; promptTokens: number; outputTokens: number }> {
   const intentContext = intent
-    ? `\n\nUser's intent: ${intent}\nUse this context to better understand what sections are important and how to categorize content.`
+    ? `\n\nUser's intent: ${intent}\nUse this context to better understand what sections are important.`
     : ''
 
-  // Call Gemini
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:${intentContext}\n\nURL: ${url}\n\n${html}` }] }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 32768,
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { temperature: 0.2, maxOutputTokens: 32768, responseMimeType: 'application/json' },
     }),
   })
 
-  if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Gemini API error: ${res.status} — ${err.slice(0, 200)}`)
-  }
-
+  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
   const data = await res.json()
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  const usage = data?.usageMetadata
+  return { text: text || '', promptTokens: usage?.promptTokenCount || 0, outputTokens: usage?.candidatesTokenCount || 0 }
+}
+
+/** Main entry — tiered processing strategy */
+export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
+  const apiKey = import.meta.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
+
+  // Fetch raw HTML
+  const rawHtml = url.startsWith('data:text/html,')
+    ? decodeURIComponent(url.slice('data:text/html,'.length))
+    : await fetchPageHtml(url)
+
+  // Pre-analyze to determine tier
+  const basicClean = cleanBasic(rawHtml)
+  const wordCount = basicClean.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+
+  if (wordCount < 20) {
+    throw new Error(`Page has too little visible content (${wordCount} words). This site likely renders via JavaScript. Use "📋 Paste Code" mode instead.`)
+  }
+
+  // Determine strategy based on content size
+  let html: string
+  let strategy: string
+
+  if (basicClean.length <= 50_000 && wordCount <= 800) {
+    // Tier 1: Clean HTML is small enough — use basic clean (best quality)
+    html = basicClean
+    strategy = 'direct'
+  } else if (basicClean.length <= 150_000) {
+    // Tier 2: Medium — aggressive clean to reduce noise
+    html = cleanAggressive(rawHtml)
+    // If still too large, truncate
+    if (html.length > 60_000) html = html.slice(0, 60_000)
+    strategy = 'aggressive-clean'
+  } else {
+    // Tier 3: Very large — deep extract content only
+    html = extractContent(rawHtml)
+    if (html.length > 60_000) html = html.slice(0, 60_000)
+    strategy = 'content-extract'
+  }
+
+  // Call Gemini
+  const { text, promptTokens, outputTokens } = await callGemini(apiKey, html, intent || '', url)
   if (!text) throw new Error('Empty response from Gemini')
 
-  // Extract token usage for cost display
-  const usageMeta = data?.usageMetadata
-  const promptTokens = usageMeta?.promptTokenCount || 0
-  const outputTokens = usageMeta?.candidatesTokenCount || 0
   const totalTokens = promptTokens + outputTokens
-  // Gemini 2.5 Flash pricing: $0.15/1M input, $0.60/1M output (as of 2025)
   const estimatedCostUsd = (promptTokens * 0.00000015) + (outputTokens * 0.0000006)
 
-  // Parse JSON response — repair truncated JSON if needed
+  // Parse response
   try {
     const result = JSON.parse(repairJson(text)) as CloneResult
     if (!result.sections || !Array.isArray(result.sections)) {
       throw new Error('Invalid response: missing sections array')
     }
+    // Ensure all sections have data
+    for (const s of result.sections) { if (!s.data) s.data = {} }
     result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd }
     return result
   } catch (e) {
+    // If first attempt fails and we used basic clean, retry with aggressive
+    if (strategy === 'direct') {
+      const retryHtml = cleanAggressive(rawHtml).slice(0, 50_000)
+      const retry = await callGemini(apiKey, retryHtml, intent || '', url)
+      if (retry.text) {
+        try {
+          const result = JSON.parse(repairJson(retry.text)) as CloneResult
+          if (result.sections?.length) {
+            for (const s of result.sections) { if (!s.data) s.data = {} }
+            result.usage = {
+              promptTokens: promptTokens + retry.promptTokens,
+              outputTokens: outputTokens + retry.outputTokens,
+              totalTokens: totalTokens + retry.promptTokens + retry.outputTokens,
+              estimatedCostUsd: estimatedCostUsd + (retry.promptTokens * 0.00000015) + (retry.outputTokens * 0.0000006),
+            }
+            return result
+          }
+        } catch {}
+      }
+    }
     throw new Error(`Failed to parse AI response: ${(e as Error).message}`)
   }
 }
