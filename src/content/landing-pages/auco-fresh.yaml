@@ -40,7 +40,7 @@ sections:
       variant: centered
     style:
       fullWidth: true
-      backgroundOverlay: 'linear-gradient(160deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 55%, #2d4a3e33 100%)'
+      backgroundOverlay: 'linear-gradient(to bottom, rgba(45,74,62,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(45,74,62,0.4) 100%)'
       textColor: '#ffffff'
       padding: 6rem 2rem
       background: '#1b2c25'
@@ -717,12 +717,16 @@ design:
     body: Open Sans
   borderRadius: 8px
 scopedCss:
+  - selector: '.landing-page-root'
+    css: >-
+      .landing-btn-primary { background: #e67e22; border-radius: 25px; }
+      .landing-btn-primary:hover { background: #d35400; }
+      h2 { font-family: var(--lp-font-heading), 'Playfair Display', serif; }
   - selector: '[data-section="section-hero"]'
     css: >-
       .landing-section { background: #1b2c25; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      rgba(255,255,255,0.8); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+      rgba(255,255,255,0.8); } .landing-btn-primary { background: #e67e22; border-radius: 25px; padding: 0.85rem 2.5rem; }
+      .landing-btn-primary:hover { background: #d35400; }
   - selector: '[data-section="section-features"]'
     css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-features-2"]'
