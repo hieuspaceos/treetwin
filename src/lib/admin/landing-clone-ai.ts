@@ -174,18 +174,26 @@ async function directFetch(url: string): Promise<string> {
   return (await res.text()).slice(0, 100_000)
 }
 
-/** Fetch via Firecrawl API (renders JS, handles SPA/Cloudflare) */
+/** Fetch via Firecrawl API — returns both HTML and Markdown */
 async function firecrawlFetch(url: string, apiKey: string): Promise<string> {
   const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
     signal: AbortSignal.timeout(30000),
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ url, formats: ['html'], onlyMainContent: false, waitFor: 3000 }),
+    body: JSON.stringify({ url, formats: ['html', 'markdown'], onlyMainContent: false, waitFor: 3000 }),
   })
   if (!res.ok) throw new Error(`Firecrawl error: ${res.status}`)
   const data = await res.json()
+  // Store markdown globally for structure analysis (compact, semantic)
+  _lastMarkdown = (data?.data?.markdown || '').slice(0, 50_000)
   return (data?.data?.html || '').slice(0, 100_000)
 }
+
+/** Last fetched markdown — used for structure analysis (more compact than HTML) */
+let _lastMarkdown = ''
+
+/** Get markdown from last Firecrawl fetch (if available) */
+export function getLastMarkdown(): string { return _lastMarkdown }
 
 /** Clean HTML — basic (scripts/styles) */
 function cleanBasic(html: string): string {
@@ -250,10 +258,11 @@ async function directClone(apiKey: string, html: string, intent: string, url: st
 async function structureFirstClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   let totalPrompt = 0, totalOutput = 0
 
-  // Step 1: Analyze structure
-  const structureHtml = cleanForStructure(html).slice(0, 60_000)
+  // Step 1: Analyze structure — prefer Markdown (compact, fits full page) over HTML
+  const structureContent = _lastMarkdown.length > 500 ? _lastMarkdown : cleanForStructure(html).slice(0, 60_000)
+  const contentType = _lastMarkdown.length > 500 ? 'Markdown' : 'HTML'
   const intentCtx = intent ? `\nUser intent: ${intent}` : ''
-  const step1 = await geminiCall(apiKey, 'You are a web design expert. Return ONLY valid compact JSON.', `${STRUCTURE_PROMPT}${intentCtx}\n\nURL: ${url}\n\n${structureHtml}`, 4096)
+  const step1 = await geminiCall(apiKey, 'You are a web design expert. Return ONLY valid compact JSON.', `${STRUCTURE_PROMPT}${intentCtx}\n\nURL: ${url}\n\nPage content (${contentType}):\n${structureContent}`, 8192)
   totalPrompt += step1.promptTokens
   totalOutput += step1.outputTokens
 
