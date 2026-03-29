@@ -240,6 +240,14 @@ function safeJsonParse(text: string): unknown {
   return null
 }
 
+/** Validate design object — strip invalid string values where objects expected */
+function validateDesign(result: CloneResult) {
+  if (!result.design) return
+  if (typeof result.design.colors === 'string') result.design.colors = undefined as any
+  if (typeof result.design.fonts === 'string') result.design.fonts = undefined as any
+  if (typeof result.design.borderRadius !== 'string' && result.design.borderRadius != null) result.design.borderRadius = String(result.design.borderRadius)
+}
+
 /** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
 async function directClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
@@ -251,6 +259,7 @@ async function directClone(apiKey: string, html: string, intent: string, url: st
 
   const totalTokens = promptTokens + outputTokens
   parsed.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) }
+  validateDesign(parsed)
   return parsed
 }
 
@@ -283,7 +292,7 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   const sections = await Promise.all(fillPromises)
 
   const totalTokens = totalPrompt + totalOutput
-  return {
+  const result: CloneResult = {
     title: analysis.title || '',
     description: analysis.description,
     design: analysis.design,
@@ -291,6 +300,8 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
     structure: analysis.structure,
     usage: { promptTokens: totalPrompt, outputTokens: totalOutput, totalTokens, estimatedCostUsd: (totalPrompt * 0.00000015) + (totalOutput * 0.0000006) },
   }
+  validateDesign(result)
+  return result
 }
 
 /** ===== MAIN ENTRY ===== */

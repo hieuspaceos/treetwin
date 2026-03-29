@@ -1,0 +1,327 @@
+title: AucoeurVietnam - Voyage authentique et immersif au Vietnam
+sections:
+  - type: nav
+    order: 0
+    enabled: true
+    data:
+      items:
+        - text: COLLECTIONS DE VOYAGE
+          url: https://aucoeurvietnam.com/collections-de-voyage-au-vietnam/
+          items:
+            - text: Par région
+              items:
+                - text: Voyage au Vietnam
+                  url: https://aucoeurvietnam.com/region/voyage-au-vietnam/
+                - text: Voyage au Vietnam du Nord
+                  url: https://aucoeurvietnam.com/region/voy
+    confidence: 95
+  - type: nav
+    order: 1
+    enabled: true
+    data:
+      items:
+        - text: COLLECTIONS DE VOYAGE
+          url: https://aucoeurvietnam.com/collections-de-voyage-au-vietnam/
+          sub_items:
+            - heading: Par région
+              items:
+                - text: Voyage au Vietnam
+                  url: https://aucoeurvietnam.com/region/voyage-au-vietnam/
+                - text: Voyage au Vietnam du Nord
+                  url: https://aucoeurvietnam.com/region
+    confidence: 95
+  - type: hero
+    order: 2
+    enabled: true
+    data:
+      heading: Voyage authentique et immersif au Vietnam
+      description: null
+      cta:
+        - text: Personnaliser votre voyage
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+    confidence: 90
+  - type: features
+    order: 3
+    enabled: true
+    data:
+      heading: Voyage authentique et immersif au Vietnam
+      cta:
+        - text: Personnaliser votre voyage
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+      items:
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
+          text: DEVIS PERSONNALISÉ
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+          text: VOYAGES AUTHENTIQUES
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
+          text: GUIDES FRANCOPHONES
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
+          text: CONSEILLERS RÉACTIFS
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
+          text: AGENCE LOCALE RESPONSABLE
+    confidence: 85
+  - type: rich-text
+    order: 4
+    enabled: true
+    data:
+      heading: À propos de AucoeurVietnam
+      subheading: Votre agence de voyage sur-mesure au Vietnam
+      text: >-
+        AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée par
+        un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, Phan NGUYEN est un guide
+        spécialiste des voyages hors des sentiers battus.
+      cta:
+        - text: Lire plus
+          url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+      image: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
+      image_alt: agence de voyage au Vietnam
+      image_caption: Photo prise par notre guide Hiểu LÊ à Sapa
+    confidence: 90
+  - type: features
+    order: 5
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      description: Les activités enrichissantes qui jalonnent notre itinéraire
+      items:
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          text: Voyage culinaire
+          icon: 🍜
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-voyages-culinaires-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          text: Rencontres ethniques
+          icon: 🤝
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-rencontres-ethniques-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          text: Villages d'artisanat
+          icon: 🎨
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-villages-dartisanat-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          text: Séjours balnéaires
+          icon: 🏖️
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-sejours-balneaires-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/randonnee-au-Vietnam-trek-au-Vietnam.jpg
+          text: Randonnée & Trek
+          icon: ⛰️
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/randonee-trek-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Bike-tour-au-Vietnam.jpg
+          text: Bike tour
+          icon: 🚴
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/style/bike-tour/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
+          text: Croisières
+          icon: 🚢
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-croisieres-au-vietnam/
+    confidence: 90
+  - type: features
+    order: 6
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      description: Les activités enrichissantes qui jalonnent notre itinéraire
+      items:
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          text: Voyage gastronomique au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-voyages-culinaires-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          text: Voyage à la rencontre des minorités ethniques au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-rencontres-ethniques-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          text: Villages d'artisanat
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-villages-dartisanat-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          text: Voyage avec extension plage au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-sejours-balneaires-au-vietnam/
+    confidence: 90
+  - type: gallery
+    order: 7
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      subheading: Les activités enrichissantes qui jalonnent notre itinéraire
+      items:
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          title: Voyage gastronomique au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-voyages-culinaires-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          title: Voyage à la rencontre des minorités ethniques au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-rencontres-ethniques-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          title: Villages d'artisanat
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-villages-dartisanat-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          title: Voyage avec extension plage au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-sejours-balneaires-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/randonnee-au-Vietnam-trek-au-Vietnam.jpg
+          title: Randonnée & Trek au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/randonee-trek-au-vietnam/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Bike-tour-au-Vietnam.jpg
+          title: Bike tour au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/style/bike-tour/
+        - image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
+          title: Croisière au Vietnam
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-croisieres-au-vietnam/
+    confidence: 90
+  - type: rich-text
+    order: 8
+    enabled: true
+    data:
+      heading: À propos de AucoeurVietnam
+      subheading: Votre agence de voyage sur-mesure au Vietnam
+      text: >-
+        AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée par
+        un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, Phan NGUYEN est un guide
+        spécialiste des voyages hors des sentiers battus.
+      image: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
+      image_alt: agence de voyage au Vietnam
+      image_caption: Photo prise par notre guide Hiểu LÊ à Sapa
+      cta:
+        - text: Lire plus
+          url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+    confidence: 90
+  - type: video
+    order: 9
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      description: Les activités enrichissantes qui jalonnent notre itinéraire
+      items:
+        - heading: Voyage gastronomique au Vietnam
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-des-voyages-culinaires-vietnam/
+        - heading: Voyage à la rencontre des minorités ethniques au Vietnam
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-rencontres-ethniques-au-vietnam/
+        - heading: Villages d'artisanat
+          image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-villages-dartisanat-au-vietnam/
+        - heading: Voyage avec extension plage au Vietnam
+          image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          cta:
+            - text: Découvrir
+              url: https://aucoeurvietnam.com/idees-sejours-balneaires-au-vietnam/
+    confidence: 90
+  - type: testimonials
+    order: 10
+    enabled: true
+    data:
+      heading: null
+      items: []
+    confidence: 90
+  - type: team
+    order: 11
+    enabled: true
+    data:
+      heading: À propos de AucoeurVietnam
+      description: Votre agence de voyage sur-mesure au Vietnam
+      items:
+        - name: Phan NGUYEN
+          role: Gérant du Nord, Guide spécialiste
+          description: >-
+            Phan NGUYEN est un guide spécialiste des voyages hors des sentiers battus dans les montagnes du Nord et
+            habite à Hanoï. Il a organisé beaucoup de voyages authentiques dans cette région.
+          cta: []
+        - name: Quynh-Anh NGUYEN
+          role: Gér
+    confidence: 90
+  - type: how-it-works
+    order: 13
+    enabled: true
+    data:
+      heading: Comment ça marche ?
+      subheading: Votre voyage au Vietnam en quelques étapes
+      items:
+        - icon: 📝
+          heading: 1. Devis personnalisé
+          text: >-
+            Contactez-nous pour une proposition de voyage sur mesure, conçue spécifiquement pour vos envies et votre
+            budget, garantissant une expérience unique et adaptée.
+          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
+          cta:
+            - text: Personnaliser votre voyage
+              url: https://aucoeurvietnam.com/devis-sur-mesure/
+        - icon: 🗺️
+          heading: 2. Voyages authentiques
+          text: >-
+            Découvrez le Vietnam à travers des expériences uniques et immersives, loin des sentiers battus, pour une
+            véritable immersion dans la culture locale et les paysages magnifiques.
+          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+          cta:
+            - text: Découvrir nos voyages
+              url: https://au
+    confidence: 95
+  - type: footer
+    order: 14
+    enabled: true
+    data:
+      columns:
+        - heading: Contact & Réseaux Sociaux
+          items:
+            - type: text
+              content: 'WhatsApp: +84.909.426.406'
+            - type: text
+              content: bonjour@aucoeurvietnam.com
+            - type: cta
+              text: Facebook
+              url: https://www.facebook.com/aucoeurvietnam
+              icon: 👍
+            - {}
+    confidence: 95
+description: >-
+  Analysis of AucoeurVietnam landing page structure, identifying sections like navigation, hero, features, testimonials,
+  and footer, along with design elements.
+design:
+  colors:
+    primary: '#5b7a67'
+    secondary: '#ed7d1c'
+    accent: '#ed7d1c'
+    background: '#ffffff'
+    surface: '#f5f5f0'
+    text: '#383838'
+    textMuted: '#666666'
+  fonts:
+    heading: Georgia, serif
+    body: sans-serif
+  borderRadius: 8px
