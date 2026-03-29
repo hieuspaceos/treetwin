@@ -126,6 +126,7 @@ const componentMap: Record<string, any> = {
     return (
       <div
         id={sectionId}
+        data-section={sectionId}
         class:list={[isFullWidth ? 'lp-full-width' : '', hasBgImage ? 'lp-section-bg' : '', 'lp-fade-up']}
         style={inlineStyle}
       >

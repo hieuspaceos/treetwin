@@ -544,6 +544,21 @@ sections:
       padding: 4rem 2rem
       textColor: '#ffffff'
       textMutedColor: rgba(255,255,255,0.8)
+  - type: cta
+    order: 12
+    enabled: true
+    data:
+      headline: Prêt à créer votre voyage au Vietnam ?
+      subheadline: Contactez nos conseillers de voyage et commencez à planifier votre aventure sur mesure dès maintenant.
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2024/02/background-aucoeurvietnam-1-c.jpg
+      variant: with-image
+      cta:
+        - text: Demander un devis gratuit
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+          variant: primary
+    style:
+      fullWidth: true
+      padding: 5rem 2rem
   - type: footer
     order: 999
     enabled: true
