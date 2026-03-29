@@ -81,22 +81,22 @@ const brandLogo = logo
 
 {/* Centered: logo centered, links split left/right */}
 {variant === 'centered' && (
-  <nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
+  <nav class="landing-nav sticky top-0 z-50" style={navInlineStyle} aria-label="Landing page navigation">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3" style="position: relative">
       {/* Left links (first half) */}
       <div class="hidden items-center gap-1 sm:flex" style="flex: 1">
         {autoLinks.slice(0, Math.ceil(autoLinks.length / 2)).map(link => (
-          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+          <a href={link.href} class="rounded-full px-2 py-1.5 text-xs font-medium transition-colors" style={`color: ${linkColor}`}>{link.label}</a>
         ))}
       </div>
       {/* Center brand */}
-      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text); flex-shrink: 0; padding: 0 1rem">
+      <a href="#" class="text-lg font-semibold tracking-tight" style={`color: ${brandColor}; flex-shrink: 0; padding: 0 1rem`}>
         {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
       </a>
       {/* Right links (second half) + social links */}
       <div class="hidden items-center gap-1 sm:flex" style="flex: 1; justify-content: flex-end">
         {autoLinks.slice(Math.ceil(autoLinks.length / 2)).map(link => (
-          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+          <a href={link.href} class="rounded-full px-2 py-1.5 text-xs font-medium transition-colors" style={`color: ${linkColor}`}>{link.label}</a>
         ))}
         {socialLinks.map(sl => (
           <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}

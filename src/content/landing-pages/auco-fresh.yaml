@@ -26,7 +26,7 @@ sections:
         - icon: "\U00002709"
           text: info@aucoeurvietnam.com
           href: mailto:info@aucoeurvietnam.com
-      variant: default
+      variant: centered
     style:
       fullWidth: true
       background: '#2d4a3e'
@@ -52,6 +52,32 @@ sections:
       padding: 6rem 2rem
       background: '#1b2c25'
       textMutedColor: rgba(255,255,255,0.8)
+  - type: rich-text
+    order: 0.5
+    enabled: true
+    data:
+      content: >-
+        <div style="max-width:700px;margin:-2rem auto 0;position:relative;z-index:10">
+        <div style="display:flex;justify-content:center;gap:0;margin-bottom:0">
+        <button style="padding:0.6rem 1.5rem;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;background:#fff;color:#2d4a3e;border-radius:8px 8px 0 0">Vos envies</button>
+        <button style="padding:0.6rem 1.5rem;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;background:rgba(255,255,255,0.3);color:#fff;border-radius:8px 8px 0 0">Période de voyage</button>
+        </div>
+        <div style="background:#fff;border-radius:0 8px 8px 8px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+        <select style="flex:1;padding:0.6rem;border:1px solid #ddd;border-radius:6px;font-size:0.85rem;color:#666;background:#fff">
+        <option>Vietnam du Nord au Sud</option>
+        <option>Nord du Vietnam</option>
+        <option>Centre du Vietnam</option>
+        <option>Sud du Vietnam</option>
+        <option>Vietnam + Cambodge</option>
+        <option>Vietnam + Laos</option>
+        </select>
+        <a href="https://aucoeurvietnam.com/devis-sur-mesure/" style="padding:0.65rem 1.5rem;background:#e67e22;color:#fff;border-radius:25px;font-size:0.85rem;font-weight:600;text-decoration:none;white-space:nowrap">Personnaliser votre voyage</a>
+        </div>
+        </div>
+    style:
+      background: transparent
+      padding: 0
+      fullWidth: true
   - type: features
     order: 1
     enabled: true
@@ -754,6 +780,9 @@ scopedCss:
       .landing-btn-primary { background: #e67e22; border-radius: 25px; }
       .landing-btn-primary:hover { background: #d35400; }
       h2 { font-family: var(--lp-font-heading), 'Playfair Display', serif; }
+  - selector: '[data-section="section-rich-text"]'
+    css: >-
+      .landing-section { background: transparent; padding: 0; margin-top: -3rem; position: relative; z-index: 10; }
   - selector: '[data-section="section-hero"]'
     css: >-
       .landing-section { background: #1b2c25; }
