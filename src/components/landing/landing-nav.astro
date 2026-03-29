@@ -5,14 +5,24 @@
  * - centered: logo centered, links split left/right
  * - transparent: no background, overlay style (for hero-over use)
  */
-import type { NavData, LandingSection } from '@/lib/landing/landing-types'
+import type { NavData, LandingSection, SectionStyle } from '@/lib/landing/landing-types'
 
 interface Props extends NavData {
   sections?: LandingSection[]
   pageTitle?: string
+  sectionStyle?: SectionStyle
 }
 
-const { brandName, links, sections = [], pageTitle, variant = 'default', socialLinks = [] } = Astro.props
+const { brandName, logo, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle } = Astro.props
+
+/** Build inline style from section style overrides (background, textColor, padding) */
+const navStyleParts: string[] = []
+if (sectionStyle?.background) navStyleParts.push(`background: ${sectionStyle.background}`)
+if (sectionStyle?.padding) navStyleParts.push(`padding: ${sectionStyle.padding}`)
+const navInlineStyle = navStyleParts.length > 0 ? navStyleParts.join('; ') : undefined
+/** Text color for nav links — from section style or variant defaults */
+const linkColor = sectionStyle?.textColor || (variant === 'transparent' ? 'rgba(255,255,255,0.85)' : 'var(--lp-text-muted)')
+const brandColor = sectionStyle?.textColor || (variant === 'transparent' ? '#fff' : 'var(--lp-text)')
 
 const sectionLabels: Record<string, string> = {
   features: 'Features', pricing: 'Pricing', testimonials: 'Testimonials',
@@ -29,16 +39,22 @@ const autoLinks = links && links.length > 0
       .map(s => ({ label: sectionLabels[s.type] || s.type, href: `#section-${s.type}` }))
 
 const brand = brandName || pageTitle || 'Home'
+/** Render brand as logo image or text */
+const brandLogo = logo
+  ? `<img src="${logo}" alt="${brand}" style="height: 40px; width: auto; object-fit: contain" />`
+  : null
 ---
 
 {/* Default: logo left, links right */}
 {variant === 'default' && (
-  <nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
+  <nav class="landing-nav sticky top-0 z-50" style={navInlineStyle} aria-label="Landing page navigation">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text)">{brand}</a>
+      <a href="#" class="text-lg font-semibold tracking-tight" style={`color: ${brandColor}`}>
+        {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
+      </a>
       <div class="hidden items-center gap-1 sm:flex">
         {autoLinks.map(link => (
-          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style={`color: ${linkColor}`}>{link.label}</a>
         ))}
         {socialLinks.length > 0 && (
           <span style="display:inline-flex;gap:0.25rem;margin-left:0.5rem">
@@ -65,7 +81,9 @@ const brand = brandName || pageTitle || 'Home'
         ))}
       </div>
       {/* Center brand */}
-      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text); flex-shrink: 0; padding: 0 1rem">{brand}</a>
+      <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text); flex-shrink: 0; padding: 0 1rem">
+        {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
+      </a>
       {/* Right links (second half) + social links */}
       <div class="hidden items-center gap-1 sm:flex" style="flex: 1; justify-content: flex-end">
         {autoLinks.slice(Math.ceil(autoLinks.length / 2)).map(link => (
@@ -85,7 +103,9 @@ const brand = brandName || pageTitle || 'Home'
 {variant === 'transparent' && (
   <nav class="sticky top-0 z-50" style="background: transparent; border-bottom: none" aria-label="Landing page navigation">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-      <a href="#" class="text-lg font-semibold tracking-tight" style="color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.4)">{brand}</a>
+      <a href="#" class="text-lg font-semibold tracking-tight" style="color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.4)">
+        {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
+      </a>
       <div class="hidden items-center gap-1 sm:flex">
         {autoLinks.map(link => (
           <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: rgba(255,255,255,0.85)">{link.label}</a>

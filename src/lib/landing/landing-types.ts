@@ -142,6 +142,8 @@ export interface LogoWallData {
 
 export interface NavData {
   brandName?: string
+  /** Logo image URL — displayed instead of brandName text when provided */
+  logo?: string
   /** Custom nav links — if empty, auto-generated from enabled sections */
   links?: Array<{ label: string; href: string }>
   /** Layout variant: default (logo left, links right), centered (logo center, links split), transparent (no background overlay) */

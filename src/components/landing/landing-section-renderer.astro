@@ -112,7 +112,7 @@ const componentMap: Record<string, any> = {
 ---
 
 {/* Nav at top — receives all sections for auto-generating anchor links */}
-{navSection && <LandingNav {...navSection.data as any} sections={enabled} pageTitle={pageTitle} />}
+{navSection && <LandingNav {...navSection.data as any} sections={enabled} pageTitle={pageTitle} sectionStyle={navSection.style} />}
 
 <div class="landing-sections">
   {bodySections.map(section => {

@@ -18,11 +18,13 @@ sections:
           href: https://aucoeurvietnam.com/style/vietnam-en-liberte/
         - label: Rencontre avec un personnage
           href: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
+      logo: https://aucoeurvietnam.com/wp-content/uploads/2024/04/logo-aucoeurvietnam.jpg
       variant: default
     style:
       fullWidth: true
-      background: '#ffffff'
-      padding: 1rem 2rem
+      background: '#2d4a3e'
+      textColor: '#ffffff'
+      padding: 0.75rem 2rem
   - type: hero
     order: 0
     enabled: true
@@ -33,7 +35,7 @@ sections:
         - text: Personnaliser votre voyage
           url: https://aucoeurvietnam.com/devis-sur-mesure/
           variant: primary
-      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2024/04/slider-1-m-c-2.jpg
       embed: null
       variant: centered
     style:
@@ -47,29 +49,24 @@ sections:
     order: 1
     enabled: true
     data:
-      heading: Voyage authentique et immersif au Vietnam
+      heading: ''
       subheading: ''
       items:
-        - icon: 📝
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
           title: DEVIS PERSONNALISÉ
           description: ''
-          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
-        - icon: 🗺️
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
           title: VOYAGES AUTHENTIQUES
           description: ''
-          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
-        - icon: 🗣️
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
           title: GUIDES FRANCOPHONES
           description: ''
-          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
-        - icon: 💬
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
           title: CONSEILLERS RÉACTIFS
           description: ''
-          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
-        - icon: 🌍
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
           title: AGENCE LOCALE RESPONSABLE
           description: ''
-          image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
       columns: 3
       variant: grid
     style:
@@ -316,6 +313,9 @@ sections:
         déplacements verts, et surtout l’organisation de voyages responsables respectueux de l’environnement, des
         populations et de l’économie locales.
     style:
+      fullWidth: true
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2024/01/background-aucoeurvietnam.jpg
+      backgroundOverlay: ‘linear-gradient(to bottom, rgba(255,255,255,0.85), rgba(255,255,255,0.9))’
       padding: 4rem 2rem
   - type: video
     order: 7
@@ -538,8 +538,12 @@ sections:
           icon: ✈️
       variant: numbered
     style:
-      background: '#f0f0f0'
+      fullWidth: true
+      backgroundImage: https://aucoeurvietnam.com/wp-content/uploads/2023/12/marre-de-lotus.jpg
+      backgroundOverlay: 'linear-gradient(to bottom, rgba(27,44,37,0.85), rgba(27,44,37,0.9))'
       padding: 4rem 2rem
+      textColor: '#ffffff'
+      textMutedColor: rgba(255,255,255,0.8)
   - type: footer
     order: 999
     enabled: true
@@ -697,7 +701,7 @@ design:
     text: '#333333'
     textMuted: '#666666'
   fonts:
-    heading: Montserrat
+    heading: Playfair Display
     body: Open Sans
   borderRadius: 8px
 scopedCss:
