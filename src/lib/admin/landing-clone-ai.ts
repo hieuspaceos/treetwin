@@ -273,7 +273,7 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   const validSections = analysis.structure.filter(s => SECTION_TYPES.includes(s.type))
   const fillPromises = validSections.map(async (s) => {
     const prompt = buildFillPrompt(s.type, s.variant, s.itemCount)
-    const { text, promptTokens, outputTokens } = await geminiCall(apiKey, 'Extract content for ONE section. Return ONLY the data JSON object.', `${prompt}\n\nHTML:\n${structureHtml.slice(0, 30_000)}`, 4096)
+    const { text, promptTokens, outputTokens } = await geminiCall(apiKey, 'Extract content for ONE section. Return ONLY the data JSON object.', `${prompt}\n\nHTML:\n${cleanForStructure(html).slice(0, 30_000)}`, 4096)
     totalPrompt += promptTokens
     totalOutput += outputTokens
     const data = safeJsonParse(text) as Record<string, unknown> | null
