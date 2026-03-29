@@ -31,9 +31,10 @@ Tree Identity is a **hybrid static + SSR platform** for content + commerce.
 - [Media Management](./media-management.md) — R2 storage, upload flow, media browser integration
 
 ### Landing Pages
-- [Landing Page System](./landing-pages.md) — YAML config, 11 section types (36 variants), D&D editor
-- [Landing Design System](./landing-design.md) — Per-page customization, 6 presets, CSS variables, AI clone
-- [Section Components](./landing-sections.md) — 11 section types, variants, responsive design
+- [Landing Page System](./landing-pages.md) — YAML config, 23 section types (50+ variants), D&D editor
+- [Landing Design System](./landing-design.md) — Full-width sections, per-page customization, 6 presets, CSS variables, AI clone v2.8 with 11 auto-fixes
+- [AI Clone Post-Processing](./ai-clone-post-processing.md) — 11-stage auto-fix pipeline (fonts, icons, colors, scoped CSS, contrast)
+- [Section Components](./landing-sections.md) — 23 section types, variants, responsive design, scoped CSS
 
 ### Product & Entity Systems
 - [Product Module System](./products.md) — Multi-tenant products, per-product admin, API scoping
@@ -54,5 +55,5 @@ Tree Identity is a **hybrid static + SSR platform** for content + commerce.
 
 ---
 
-**Last updated:** 2026-03-28
-**Version:** v3.0.0 (Marketplace Evolution)
+**Last updated:** 2026-03-29
+**Version:** v3.1.0 (AI Clone Auto-Improve & Post-Processing)

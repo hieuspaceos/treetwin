@@ -460,6 +460,121 @@ Use WebP, size appropriately:
 - Extract business logic to `lib/` utilities
 - Minimize client-side code (React islands only)
 
+## Landing Page Components (v3.1.0+)
+
+### Full-Width Section Layout
+
+All landing page sections render full-width with edge-to-edge backgrounds:
+
+```astro
+---
+// src/components/landing/my-section.astro
+interface Props {
+  data: Record<string, any>
+  style?: Record<string, string>
+  scopedCss?: Array<{ selector: string; css: string }>
+}
+
+const { data, style, scopedCss } = Astro.props
+---
+
+<div
+  class="landing-section-wrapper"
+  data-section={`section-${data.id}`}
+  style={buildSectionStyle(style)}
+>
+  <div class="landing-section">
+    {/* Inner content here */}
+  </div>
+
+  {scopedCss && (
+    <style>
+      {scopedCss.map(s => `[data-section="section-${data.id}"] ${s.selector} { ${s.css} }`).join('\n')}
+    </style>
+  )}
+</div>
+
+<style>
+  .landing-section-wrapper {
+    width: 100vw;
+    /* bg color/image from style prop */
+  }
+
+  .landing-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    /* content padding here, not wrapper */
+  }
+</style>
+```
+
+### Design Variables (No Hardcoding)
+
+Landing page component CSS must use design variables, never hardcoded colors:
+
+```astro
+<!-- ✅ Good -->
+<button style={`background: var(--lp-accent); color: white;`}>
+  Click me
+</button>
+
+<!-- ❌ Avoid -->
+<button style="background: #f59e0b; color: white;">
+  Click me
+</button>
+```
+
+**Available variables:**
+- `--lp-primary` — Primary brand color
+- `--lp-secondary` — Secondary accent
+- `--lp-accent` — Call-to-action color
+- `--lp-text` — Main text color
+- `--lp-text-muted` — Lighter text (captions, hints)
+- `--lp-background` — Section background
+- `--lp-border` — Border/divider color
+
+### Scoped CSS
+
+Each component can include auto-generated scoped CSS (from AI clone post-processor):
+
+```json
+{
+  "scopedCss": [
+    { "selector": ".card", "css": "background: rgba(var(--lp-accent-rgb), 0.1);" },
+    { "selector": ".icon", "css": "color: var(--lp-accent);" }
+  ]
+}
+```
+
+Rendered as:
+```html
+<style>
+  [data-section="section-features"] .card {
+    background: rgba(var(--lp-accent-rgb), 0.1);
+  }
+  [data-section="section-features"] .icon {
+    color: var(--lp-accent);
+  }
+</style>
+```
+
+### Component Size Limits
+
+Landing page components **must stay under 200 LOC**:
+
+| Component | Max LOC | Split if | Example |
+|-----------|---------|----------|---------|
+| Features | 150 | Multi-variant | grid, list, alternating |
+| Pricing | 120 | Complex logic | card styles, comparisons |
+| Hero | 100 | Large variants | centered, split, video |
+| Nav | 100 | Deep nesting | logo, topbar, social |
+| Footer | 120 | Many columns | icons, links, responsive |
+
+If logic exceeds limit:
+- Extract variant logic to separate `{name}-{variant}.astro` files
+- Move calculations to `src/lib/landing-helpers.ts`
+- Use sub-components for repeated patterns
+
 ## Testing
 
 ### Manual Testing Checklist

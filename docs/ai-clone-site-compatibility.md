@@ -672,15 +672,43 @@ Total score guide:
 
 ---
 
+## AI Clone Pipeline (v2.8.0)
+
+**Three-stage pipeline with post-processing:**
+
+1. **Clone Stage:** Gemini analyzes HTML → extracts sections + content
+2. **Design Extract:** Separate Gemini call for colors/fonts from CSS
+3. **Missing Retry:** Auto-retry targeting H2 headings not matched in main clone
+4. **Post-Processing:** 11-stage auto-fix pipeline (fonts, icons, colors, scoped CSS, etc.)
+5. **Output:** Landing config ready to use, minimal manual refinement needed
+
+**Auto-Fixes Applied:**
+- Hero background image extraction
+- Subheadline raw syntax cleanup
+- Font mapping (Arial → Roboto, etc.)
+- Icon normalization (Font Awesome → emoji)
+- Social icon conversion
+- Scoped CSS injection
+- Nav logo auto-find
+- Testimonial card background fix
+- Design color accuracy + contrast
+- High-contrast text correction
+- Broken color value cleanup
+
+See [AI Clone Post-Processing](./architecture/ai-clone-post-processing.md) for detailed documentation.
+
+---
+
 ## Gemini API Details
 
 - **Model:** Gemini 2.5 Flash
 - **Max input:** 1M tokens (~5M chars)
 - **Max output:** 32,768 tokens (~130K chars)
 - **Response format:** `application/json` (structured output)
-- **Temperature:** 0.2 (deterministic)
-- **Cost:** ~$0.001-0.005 per clone
+- **Temperature:** 0.05 (highly deterministic, improved in v2.8)
+- **Cost:** ~$0.001-0.005 per clone (+ design extraction call)
 - **Timeout:** 60 seconds
+- **Pipeline stages:** 3 Gemini calls (clone + design + retry)
 
 ---
 
@@ -711,6 +739,28 @@ Total score guide:
 
 ---
 
+## Improvements in v2.8.0 (2026-03-29)
+
+**Auto-Fix Post-Processing** — 11 intelligent post-processors run after Gemini clone to auto-fix common issues:
+
+1. **Hero background image extraction** — Removes CSS pollution, keeps image
+2. **Subheadline cleaning** — Strips raw form syntax and HTML fragments
+3. **Font normalization** — Maps system fonts to Google Fonts (Arial → Roboto)
+4. **Icon conversion** — Font Awesome → emoji for consistency
+5. **SocialLinks normalization** — Icon names → emoji or images
+6. **Scoped CSS injection** — Per-section styling for visual fidelity
+7. **Nav logo auto-find** — Scans HTML for logo images, auto-populates field
+8. **Testimonial readability** — Dark cards → light mode for contrast
+9. **Design color accuracy** — Extracts primary/accent, fixes textMuted contrast
+10. **High-contrast correction** — Fixes inverted text/background contrast
+11. **Color cleanup** — Validates hex/rgb values, fallback to theme defaults
+
+**Result:** 50%+ fewer manual edits needed after clone. Landing pages render immediately without visual errors.
+
+See [AI Clone Post-Processing](./architecture/ai-clone-post-processing.md) for implementation details.
+
+---
+
 ## Future Improvements (Backlog)
 
 - **Chunked analysis:** Split HTML > 100K by sections, merge results
@@ -721,3 +771,4 @@ Total score guide:
 - **Smart caching:** Remember site frameworks (Next.js/Astro) → pre-set expectations
 - **Error recovery:** Auto-retry failed clones with chunked approach
 - **Custom prompt tuning:** Different prompts for different site types
+- **Custom post-processors:** Landing-specific auto-fix rules

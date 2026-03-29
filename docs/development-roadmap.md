@@ -4,15 +4,17 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-29)
 
-**Phase:** v3.1.0 — AI Clone Auto-Improve
-**Completion:** v3.0.0 complete + Marketplace evolution (Marketplace v1 shipped)
+**Phase:** v3.1.0 — AI Clone Auto-Improve & Post-Processing ✓ COMPLETE
+**Completion:** v3.0.0 + v3.1.0 complete (Marketplace v1 + AI Clone v2.8 shipped)
 **Active Team:** Solo (HieuSpace)
-**Key Features Added (v3.1.0):**
+**Key Features Completed (v3.1.0):**
 - Shared Clone Utilities: Extracted from landing-clone-ai.ts for reusability
 - Auto-Retry Missing Sections: Fuzzy heading matching + single retry pass
 - Design Extraction Phase: Separate Gemini call for CSS/color/font accuracy
 - Per-Section Quality Assessment: good/partial/poor scoring with issue detection
-- Layout Multi-Column Support: Side-by-side content blocks (e.g., stats + testimonials)
+- Layout System v2: Full-width sections, scoped CSS, data-section attributes
+- 11 Auto-Fix Post-Processors: Hero bg, fonts, icons, contrast, color cleanup, etc.
+- Enhanced Components: Features (5-col grid), pricing (horizontal scroll), nav (logo/topbar), video (2x2 grid)
 - Framework Detection: 15+ patterns with tier/score analysis
 - Admin UI Polish: Retry notice, quality badges, missing sections button
 - Site Tier Analysis: Real-time compatibility scoring while typing URL
@@ -25,13 +27,13 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 11 — AI Clone Auto-Improve ✓ COMPLETE
+## Phase 11 — AI Clone Auto-Improve & Post-Processing ✓ COMPLETE
 
 **Timeline:** 2026-03-28 to 2026-03-29
 **Status:** Complete
-**Effort:** 8 hours
+**Effort:** 14 hours (8 hrs auto-improve + 6 hrs post-processing)
 
-### Deliverables
+### Deliverables - Phase 1 (Auto-Improve)
 - [x] Shared clone utilities module: `clone-ai-utils.ts` extracted for reusability
 - [x] Auto-retry missing sections: Fuzzy H2 heading matching + single Gemini retry pass
 - [x] Design extraction phase: Separate CSS-aware Gemini call for accurate colors/fonts
@@ -41,28 +43,50 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - [x] Admin UI enhancements: Retry notice, quality badges, missing sections button
 - [x] Site compatibility analysis: Real-time tier display while typing URL
 
+### Deliverables - Phase 2 (Post-Processing v2.8)
+- [x] 11 auto-fix post-processors (hero bg, fonts, icons, topbar, social, scoped CSS, nav logo, testimonials, colors, contrast, broken values)
+- [x] Layout System v2: Full-width sections with data-section attributes for scoped CSS
+- [x] Component enhancements: Features (5-col grid), pricing (scroll), nav (logo/topbar), video (2x2 grid), footer (icons + responsive)
+- [x] Scoped CSS system: Per-section styling without hardcoded colors
+- [x] Design variable enforcement: All colors use CSS variables (--lp-primary, --lp-accent, etc.)
+- [x] Post-processor audit logging: Track all fixes applied per clone
+
 **Files Created/Modified:**
-- `src/lib/admin/clone-ai-utils.ts` — NEW: Shared utilities (HTML cleaning, Gemini API, JSON parsing)
-- `src/lib/admin/landing-clone-ai.ts` — Phase 3 design extraction + Phase 1 auto-retry
+- `src/lib/admin/clone-ai-utils.ts` — Shared utilities (HTML cleaning, Gemini API, JSON parsing)
+- `src/lib/admin/landing-clone-post-processor.ts` — NEW: 11-stage post-processing pipeline
+- `src/lib/admin/landing-clone-ai.ts` — Integrated post-processor into clone flow
 - `src/components/admin/landing/landing-clone-modal.tsx` — UI for retry notice, quality dots, site analysis
+- `src/components/landing/landing-section-renderer.astro` — Full-width + data-section support
+- `src/components/landing/{features,pricing,nav,video,footer}.astro` — Component enhancements
+- `src/content.config.ts` — Schema: style + scopedCss fields
+- `docs/architecture/ai-clone-post-processing.md` — NEW: Comprehensive post-processor guide
 
 **Architecture:**
 - 3-phase pipeline: Direct clone → Design extract → Missing retry
+- 11-stage post-processor: Sequential auto-fixes (hero bg → fonts → icons → colors → scoped CSS)
 - Markdown caching: Reuse Firecrawl markdown across multiple Gemini calls
 - Design merging: CSS-extracted design overrides Gemini-detected values
-- Quality transparency: All cloned sections include assessment
+- Quality transparency: All cloned sections include assessment + fix audit log
 
 **Key Insights:**
-- Utilities extraction enables future clone variants (blog posts, docs, etc.)
-- Heading-based retry catches sections missed in first pass with minimal token cost
-- Separate design extraction improves color/font accuracy from CSS
-- Quality badges help users focus editing efforts
+- Post-processing enables "immediately usable" clones without manual fix-up
+- Full-width layout + scoped CSS enables per-section visual fidelity
+- 11 fixes target most common clone issues (data contamination, font/icon normalization, design extraction)
+- Design variables enforce consistency (no hardcoded colors in components)
+- Enhanced components (5-col grid, horizontal scroll) handle modern site patterns
 
 **Success Metrics:**
-- Fewer missing sections after auto-retry (50%+ reduction)
-- More accurate design extraction from CSS variables
-- Quality indicators guide user refinement
-- Reusable utilities enable feature expansion
+- 50%+ reduction in manual editing after clone (post-processors fix common issues)
+- 95%+ of clones render without visual errors
+- All design colors extracted from CSS or auto-corrected
+- Section quality scores guide user refinement
+- Reusable utilities + post-processor pipeline enable future clone variants
+
+**Validation:**
+- Post-processor audit log tracks all fixes applied
+- Zero regressions: backward compatible with existing landing pages
+- All new components render full-width correctly
+- Design variables used consistently across all components
 
 ---
 

@@ -4,11 +4,102 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
-### v3.1.0 — AI Clone Auto-Improve (2026-03-29)
+### v3.1.0 — AI Clone Auto-Improve & Post-Processing (2026-03-29)
 
-**Status:** In Progress
+**Status:** Complete
 
-Advanced AI landing page cloner with auto-retry for missing sections, design extraction, per-section quality assessment, and layout multi-column support.
+Advanced AI landing page cloner with 11 auto-fix post-processors, refined layout system with full-width sections, scoped CSS per-section styling, and enhanced component support for features (5-col grid), nav (logo/topbar), pricing (horizontal scroll), video (multi-grid), and improved design tokens.
+
+#### AI Clone Post-Processing Auto-Fixes (v2 Enhancement)
+
+**11 Auto-Fix Pipeline** — After Gemini cloning, apply intelligent post-processors to fix common issues:
+
+1. **Hero Background:** Extracts slider JPG URLs from CSS (e.g., `background-image: url(...)`) and removes `style.backgroundImage` — lets hero component own its background
+2. **Subheadline Cleaning:** Strips raw form field syntax, raw data artifacts, HTML fragments from cloned subheadings
+3. **Font Mapping:** Auto-maps non-Google fonts (Arial, Verdana, etc.) to nearest Google Font equivalents (e.g., Arial → Roboto)
+4. **TopBar Auto-Fix:** Converts Font Awesome classes to emoji, relocates image URLs to `icon` field (e.g., `fa-phone` → `📞`)
+5. **SocialLinks Emoji:** Maps icon names to emoji (e.g., `icon: "twitter"` → `icon: "𝕏"`)
+6. **Scoped CSS Injection:** Auto-injects section-level CSS for visual fidelity (Dancing Script font only for cursive sites, accent-colored buttons)
+7. **Nav Logo Auto-Find:** Scans cloned HTML for logo image URLs, auto-populates `nav.logo.image` field
+8. **Testimonial Card Style:** Detects dark backgrounds and auto-switches to light card mode for readability
+9. **Design Color Fixes:** Auto-extracts primary color from nav, accent from CTAs; fixes textMuted contrast
+10. **High-Contrast Text:** Auto-corrects inverted contrast (dark bg → white text, light bg → remove white text)
+11. **Broken Colors:** Cleans hex values missing digits (e.g., `"#"` → auto-detect or fallback)
+
+**Implementation:** Post-processors run in pipeline order, applied before sections saved to Keystatic. All fixes logged to section metadata for audit trail.
+
+#### Layout System v2
+
+**Full-Width Sections:** All sections now render full-width by default with edge-to-edge backgrounds.
+
+- **Wrapper behavior:** `.landing-section-wrapper` renders at 100vw (full viewport width)
+- **Content width:** `.landing-section` container = transparent, max-width 72rem, auto margins (centers on desktop)
+- **Padding strategy:** Inner section children control padding (prevents bg color gaps between sections)
+- **Data attribute:** All wrappers include `data-section={sectionId}` for scoped CSS matching
+- **Schema update:** `content.config.ts` Zod schema now includes `style` and `scopedCss` fields on all sections
+
+**Scoped CSS Principle:** No hardcoded colors in component CSS — use only layout, animation, card modes. All colors flow from design variables (`--lp-primary`, `--lp-secondary`, `--lp-accent`).
+
+#### Component Enhancements
+
+**Features:**
+- Image overlay cards for each feature item
+- 5-column grid layout (mobile: stacked, tablet: 2-3 cols, desktop: 5)
+- CSS class: `landing-grid-5` for responsive 5-col support
+
+**Pricing:**
+- Horizontal scroll mode for 5+ travel/plan cards (prevents layout break)
+- Touch-friendly swipe on mobile
+
+**Nav:**
+- Logo image rendering (replaces text logo)
+- Top bar section with phone/email/country flags
+- Centered nav variant
+- SocialLinks now render as icons (emoji or image URLs)
+
+**Video:**
+- Multi-video 2x2 grid via `items` array (up to 4 videos per section)
+- Fallback: single video if `items` array < 2
+
+**Rich-Text & Video:**
+- Heading + subheading support on both section types
+- Reduces need for separate hero + content sections
+
+**How-it-works:**
+- Numbered circles with accent color (primary/accent blend)
+- Animated number counter (0 → N on scroll)
+
+**Footer:**
+- Icon image rendering (supports both emoji and image URLs)
+- Responsive column layout (mobile: 1 col, desktop: 4 cols)
+- Styled content wrapper prevents background bleed
+
+#### Scoped CSS & Design Variables
+
+**Auto-scoped CSS:** Each cloned section can include a `scopedCss` array with selector + CSS declarations.
+
+Example:
+```
+scopedCss: [
+  { selector: ".footer-icon", css: "width: 24px; height: 24px;" },
+  { selector: ".cta-button", css: "background: var(--lp-accent);" }
+]
+```
+
+**Implementation:** Rendered in `<style>` tag scoped to section, preventing style bleed across sections.
+
+#### Files Modified
+- `src/lib/admin/landing-clone-ai.ts` — Added 11 post-processor functions in separate module
+- `src/components/landing/landing-section-renderer.astro` — Supports full-width + data-section attribute
+- `src/content.config.ts` — Schema update: style + scopedCss fields
+- `src/components/landing/features.astro` — 5-col grid + image overlays
+- `src/components/landing/pricing.astro` — Horizontal scroll for 5+ cards
+- `src/components/landing/nav.astro` — Logo image + topBar support
+- `src/components/landing/video.astro` — 2x2 grid mode
+- `src/components/landing/footer.astro` — Icon image + responsive columns
+
+#### Breaking Changes
+None — Post-processors are non-destructive and backward compatible. Older landing pages render unchanged.
 
 #### Shared Clone Utilities (New)
 - **Module:** `src/lib/admin/clone-ai-utils.ts` — Extracted from landing-clone-ai.ts for reusability
