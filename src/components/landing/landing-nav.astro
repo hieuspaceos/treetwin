@@ -13,7 +13,7 @@ interface Props extends NavData {
   sectionStyle?: SectionStyle
 }
 
-const { brandName, logo, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle } = Astro.props
+const { brandName, logo, topBar, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle } = Astro.props
 
 /** Build inline style from section style overrides (background, textColor, padding) */
 const navStyleParts: string[] = []
@@ -45,6 +45,15 @@ const brandLogo = logo
   : null
 ---
 
+{/* Top info bar — rendered above nav when topBar data exists */}
+{topBar && topBar.length > 0 && (
+  <div style={`display: flex; justify-content: center; gap: 1.5rem; padding: 0.4rem 1rem; font-size: 0.75rem; background: ${sectionStyle?.background ? 'color-mix(in srgb, ' + sectionStyle.background + ' 80%, #000)' : '#1e3a2f'}; color: rgba(255,255,255,0.8)`}>
+    {topBar.map(item => item.href
+      ? <a href={item.href} style="color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem">{item.icon && <span>{item.icon}</span>}{item.text}</a>
+      : <span style="display: inline-flex; align-items: center; gap: 0.3rem">{item.icon && <span>{item.icon}</span>}{item.text}</span>
+    )}
+  </div>
+)}
 {/* Default: logo left, links right */}
 {variant === 'default' && (
   <nav class="landing-nav sticky top-0 z-50" style={navInlineStyle} aria-label="Landing page navigation">

@@ -19,6 +19,13 @@ sections:
         - label: Rencontre avec un personnage
           href: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
       logo: https://aucoeurvietnam.com/wp-content/uploads/2024/04/logo-aucoeurvietnam.jpg
+      topBar:
+        - icon: "\U0001F4DE"
+          text: Whatsapp +84 979 833 666
+          href: https://wa.me/84979833666
+        - icon: "\U00002709"
+          text: info@aucoeurvietnam.com
+          href: mailto:info@aucoeurvietnam.com
       variant: default
     style:
       fullWidth: true
@@ -333,11 +340,29 @@ sections:
     style:
       background: '#faf6f1'
       padding: 4rem 2rem
+  - type: logo-wall
+    order: 7.5
+    enabled: true
+    data:
+      heading: Nos clients parlent de nous
+      logos:
+        - name: Google
+          url: https://www.google.com/maps/place/AucoeurVietnam/
+          image: https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png
+        - name: Petit Futé
+          url: https://www.petitfute.com/
+          image: https://upload.wikimedia.org/wikipedia/fr/thumb/e/ed/Logo_du_Petit_Fut%C3%A9.svg/200px-Logo_du_Petit_Fut%C3%A9.svg.png
+        - name: TripAdvisor
+          url: https://www.tripadvisor.com/
+          image: https://static.tacdn.com/img2/brand_refresh/Tripadvisor_lockup_horizontal_secondary_registered.svg
+    style:
+      background: '#faf6f1'
+      padding: 2rem 2rem 0
   - type: testimonials
     order: 8
     enabled: true
     data:
-      heading: Nos clients parlent de nous
+      heading: ''
       items:
         - quote: >-
             Organisation très professionnelle,excellents guides,hôtels conformes à notre demande,programme bien
@@ -719,30 +744,45 @@ design:
 scopedCss:
   - selector: '.landing-page-root'
     css: >-
+      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
       .landing-btn-primary { background: #e67e22; border-radius: 25px; }
       .landing-btn-primary:hover { background: #d35400; }
       h2 { font-family: var(--lp-font-heading), 'Playfair Display', serif; }
   - selector: '[data-section="section-hero"]'
     css: >-
-      .landing-section { background: #1b2c25; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      rgba(255,255,255,0.8); } .landing-btn-primary { background: #e67e22; border-radius: 25px; padding: 0.85rem 2.5rem; }
+      .landing-section { background: #1b2c25; }
+      h1, h2 { color: #fff; font-family: 'Dancing Script', cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); }
+      p, li, span { color: rgba(255,255,255,0.85); }
+      .landing-btn-primary { background: #e67e22; border-radius: 25px; padding: 0.85rem 2.5rem; }
       .landing-btn-primary:hover { background: #d35400; }
   - selector: '[data-section="section-features"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: >-
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
   - selector: '[data-section="section-features-2"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: >-
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
   - selector: '[data-section="section-pricing"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: >-
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
   - selector: '[data-section="section-video"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: >-
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
   - selector: '[data-section="section-testimonials"]'
     css: >-
-      .landing-section { background: #faf6f1; } .lp-stars { color: #e67e22; }
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
+      .lp-stars { color: #e67e22; }
       .lp-card-hover { background: #fff; border-color: rgba(0,0,0,0.06); }
   - selector: '[data-section="section-team"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: >-
+      .landing-section { background: #faf6f1 url(https://aucoeurvietnam.com/wp-content/uploads/2024/04/background-lotus-leaf.jpg)
+      center/cover no-repeat; background-blend-mode: soft-light; }
   - selector: '[data-section="section-how-it-works"]'
-    css: '.landing-section { background: #faf6f1; }'
+    css: '.landing-section { background: transparent; }'
   - selector: '[data-section="section-footer"]'
     css: >-
       .landing-section { background: #2d4a3e; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
