@@ -460,7 +460,31 @@ Use WebP, size appropriately:
 - Extract business logic to `lib/` utilities
 - Minimize client-side code (React islands only)
 
-## Landing Page Components (v3.1.0+)
+## Landing Page Components (v3.2.0+)
+
+### Layout System (8 Variants)
+
+Each section supports a `layout` prop with 8 responsive variants:
+
+| Layout | Description | Example |
+|--------|-------------|---------|
+| **grid** | Multi-column responsive grid (1-6 cols) | Features, team, testimonials |
+| **sidebar-left** | Fixed left sidebar + main content | Pricing, documentation |
+| **sidebar-right** | Fixed right sidebar + main content | Blog, product pages |
+| **asymmetric** | Unequal columns (2:1 or 1:2 ratio) | Hero with image, feature showcase |
+| **thirds** | Three equal columns (desktop), stacked (mobile) | Stats, stats counter |
+| **hero-split** | 50/50 split with image + text | Hero, testimonials |
+| **stacked** | Full-width vertical stacking | Content-heavy sections |
+| **masonry** | CSS columns for gallery layouts | Portfolio, gallery sections |
+
+**LayoutData schema:**
+```typescript
+interface LayoutData {
+  variant: 'grid' | 'sidebar-left' | 'sidebar-right' | 'asymmetric' | 'thirds' | 'hero-split' | 'stacked' | 'masonry'
+  mobileReverse?: boolean  // Swap order on mobile (hero-split only)
+  alignItems?: 'start' | 'center' | 'end'  // Vertical alignment
+}
+```
 
 ### Full-Width Section Layout
 
@@ -558,22 +582,39 @@ Rendered as:
 </style>
 ```
 
+### Section Variants (48 Total)
+
+All section types support multiple variants (v3.2.0):
+
+| Section Type | Variants | Total | Examples |
+|--------------|----------|-------|----------|
+| Hero | 6 | 6 | centered, split, video-bg, minimal, fullscreen, slider |
+| Features | 6 | 6 | grid, list, alternating, masonry, icon-strip, bento |
+| Pricing | 5 | 5 | cards, simple, highlight-center, comparison, toggle |
+| Testimonials | 5 | 5 | cards, single, minimal, quote-wall, logo-strip |
+| CTA | 5 | 5 | default, split, banner, minimal, with-image |
+| Nav | 5 | 5 | default, centered, transparent, hamburger, mega |
+| Footer | 5 | 5 | simple, columns, minimal, mega, centered-social |
+| Stats | 4 | 4 | row, cards, large, counter |
+| FAQ | 4 | 4 | accordion, two-column, simple, searchable |
+| Others | 3 | 3 | rich-text, video, contact-form (simplified layout) |
+
+**Total: 48 variants** across 10+ section types.
+
 ### Component Size Limits
 
 Landing page components **must stay under 200 LOC**:
 
-| Component | Max LOC | Split if | Example |
-|-----------|---------|----------|---------|
-| Features | 150 | Multi-variant | grid, list, alternating |
-| Pricing | 120 | Complex logic | card styles, comparisons |
-| Hero | 100 | Large variants | centered, split, video |
-| Nav | 100 | Deep nesting | logo, topbar, social |
-| Footer | 120 | Many columns | icons, links, responsive |
+| Component Type | Max LOC | Modularization Strategy |
+|--------|---------|----------|
+| Base section | 100 | Extract complex variant logic to separate files |
+| Variant component | 150 | Single variant per file, shared utilities via `src/lib/landing-helpers.ts` |
+| Nested child | 80 | Use sub-components for repeated patterns (cards, items, buttons) |
 
-If logic exceeds limit:
+**If logic exceeds limit:**
 - Extract variant logic to separate `{name}-{variant}.astro` files
 - Move calculations to `src/lib/landing-helpers.ts`
-- Use sub-components for repeated patterns
+- Use sub-components for repeated patterns (cards, testimonials, team items, etc.)
 
 ## Testing
 

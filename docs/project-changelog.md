@@ -4,6 +4,91 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v3.2.0 — Clone v3: Layout System + Section Variants + Enhanced Pipeline (2026-03-29)
+
+**Status:** Complete
+
+Layout-first redesign with 8 responsive layout variants, 48 total section variants (expanded from 34), smart style defaults from AI clone post-processor, and enhanced Gemini prompts for variant-aware section extraction.
+
+#### Phase 1: Layout System (8 Variants)
+
+**Mobile-first responsive layouts** with per-section override support:
+
+| Variant | Description | Use Case |
+|---------|-------------|----------|
+| **grid** | Responsive multi-column grid (1-6 cols) | Default, flexible layouts |
+| **sidebar-left** | Fixed left sidebar + main content | Documentation, blog layout |
+| **sidebar-right** | Fixed right sidebar + main content | Product pages, tutorials |
+| **asymmetric** | Unequal columns (2:1 or 1:2 ratio) | Feature highlights |
+| **thirds** | Three equal columns (desktop), stacked (mobile) | Statistics, team grids |
+| **hero-split** | Split viewport: image left/right, text opposite | Hero intro, showcase |
+| **stacked** | Full-width vertical stacking, no columns | Content-heavy sections |
+| **masonry** | Masonry grid (CSS columns) | Portfolio, gallery layout |
+
+**LayoutData schema update:**
+- `variant: string` — Which layout to use
+- `mobileReverse: boolean` — Swap order on mobile (hero-split only)
+- `alignItems: 'start' | 'center' | 'end'` — Vertical alignment
+
+All layouts mobile-first with responsive breakpoints (375px, 768px, 1024px+).
+
+#### Phase 2: Section Variants (34 → 48)
+
+**14 new variants across 7 section types:**
+
+| Section | New Variants | Total | Details |
+|---------|-------------|-------|---------|
+| Hero | fullscreen (100vh + ken-burns), slider (multi-slide) | 6 | + centered, split, video-bg, minimal |
+| Features | masonry, icon-strip, bento | 6 | + grid, list, alternating |
+| Pricing | comparison (table), toggle (monthly/annual) | 5 | + cards, simple, highlight-center |
+| Testimonials | quote-wall, logo-strip | 5 | + cards, single, minimal |
+| Nav | hamburger (overlay), mega (dropdown panels) | 5 | + default, centered, transparent |
+| Footer | mega (newsletter), centered-social | 5 | + simple, columns, minimal |
+| CTA | — | 5 | (existing) |
+| Stats | counter | 4 | + row, cards, large |
+| FAQ | searchable | 4 | + accordion, two-column, simple |
+
+**Total: 48 section variants** (up from 34), organized by type in section picker UI.
+
+#### Phase 3: Enhanced Clone Pipeline
+
+**AI variant selection:** Updated Gemini prompts include all 48 variants so Gemini can intelligently select appropriate variants during HTML analysis phase.
+
+**Style defaults:** AI clone now extracts section styles (colors, fonts, spacing) and applies as `style` and `scopedCss` during post-processing, reducing manual design tweaks.
+
+#### Component Modularization
+
+13 new `.astro` files created for variant components:
+- `hero-{fullscreen|slider}.astro` — Hero variants
+- `features-{masonry|icon-strip|bento}.astro` — Feature variants
+- `pricing-{comparison|toggle}.astro` — Pricing variants
+- `testimonials-{quote-wall|logo-strip}.astro` — Testimonial variants
+- `nav-{hamburger|mega}.astro` — Nav variants
+- `footer-{mega|centered-social}.astro` — Footer variants
+- `stats-counter.astro` — Stats counter
+- `faq-searchable.astro` — Searchable FAQ
+
+Each under 200 LOC, following component size limits in code standards.
+
+#### Files Modified/Created
+
+**Modified:**
+- `src/content.config.ts` — Added `layout` field with variant/mobileReverse/alignItems
+- `src/lib/admin/landing-clone-ai.ts` — Enhanced Gemini prompts with all 48 variants + style extraction
+- `src/lib/admin/landing-clone-post-processor.ts` — Style defaults from clone analysis
+
+**Created:**
+- 13 new variant component files (listed above)
+
+#### Success Metrics
+
+- All 48 variants render correctly with responsive breakpoints
+- Clone prompts successfully select variants matching original site design
+- Layout system reduces manual re-sizing in admin UI
+- Backward compatible: existing landings render unchanged
+
+---
+
 ### v3.1.0 — AI Clone Auto-Improve & Post-Processing (2026-03-29)
 
 **Status:** Complete

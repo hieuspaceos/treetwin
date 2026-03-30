@@ -4,10 +4,18 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-29)
 
-**Phase:** v3.1.0 — AI Clone Auto-Improve & Post-Processing ✓ COMPLETE
-**Completion:** v3.0.0 + v3.1.0 complete (Marketplace v1 + AI Clone v2.8 shipped)
+**Phase:** v3.2.0 — Clone v3: Layout System + Section Variants ✓ COMPLETE
+**Completion:** v3.0.0 + v3.1.0 + v3.2.0 complete (Marketplace v1 + AI Clone v3 shipped)
 **Active Team:** Solo (HieuSpace)
-**Key Features Completed (v3.1.0):**
+**Key Features Completed (v3.2.0):**
+- Layout System: 8 responsive layout variants (grid, sidebar, asymmetric, thirds, hero-split, stacked, masonry)
+- Section Variants: 14 new variants, 48 total (Hero: fullscreen/slider, Features: masonry/icon-strip/bento, Pricing: comparison/toggle, etc.)
+- Smart Style Defaults: AI clone extracts colors/fonts and applies as section styles
+- Variant-Aware Prompts: Gemini can select appropriate variant from all 48 during clone analysis
+- Component Modularization: 13 new variant components, all under 200 LOC
+- Backward Compatibility: Existing landings render unchanged, LayoutData optional
+
+**Previous (v3.1.0):**
 - Shared Clone Utilities: Extracted from landing-clone-ai.ts for reusability
 - Auto-Retry Missing Sections: Fuzzy heading matching + single retry pass
 - Design Extraction Phase: Separate Gemini call for CSS/color/font accuracy
@@ -15,15 +23,83 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - Layout System v2: Full-width sections, scoped CSS, data-section attributes
 - 11 Auto-Fix Post-Processors: Hero bg, fonts, icons, contrast, color cleanup, etc.
 - Enhanced Components: Features (5-col grid), pricing (horizontal scroll), nav (logo/topbar), video (2x2 grid)
-- Framework Detection: 15+ patterns with tier/score analysis
-- Admin UI Polish: Retry notice, quality badges, missing sections button
-- Site Tier Analysis: Real-time compatibility scoring while typing URL
 
-**Previous (v3.0.0):**
+**v3.0.0:**
 - Marketplace backbone: Supabase + Google OAuth + license key delivery
 - Astro Hybrid SSR: Server mode for marketplace/auth routes
 - AI Intent Search: Gemini-powered product semantic matching
 - Payment skeleton: `/checkout/[slug]` and `/dashboard` (local simulation)
+
+---
+
+## Phase 14 — Clone v3: Layout System + Section Variants ✓ COMPLETE
+
+**Timeline:** 2026-03-29
+**Status:** Complete
+**Effort:** 6 hours (3 hrs layouts + 2 hrs variants + 1 hr prompts)
+
+### Deliverables
+
+**Layout System (8 Variants):**
+- [x] Grid: Responsive multi-column (1-6 cols per device tier)
+- [x] Sidebar-left/right: Fixed sidebar + main content area
+- [x] Asymmetric: Unequal column ratios (2:1, 1:2)
+- [x] Thirds: 3-column equal layout, stacked on mobile
+- [x] Hero-split: 50/50 split with image + text, swappable via `mobileReverse`
+- [x] Stacked: Full-width vertical stacking
+- [x] Masonry: CSS columns for gallery-like layouts
+- [x] Mobile-first CSS: All layouts responsive from 375px → 1024px+
+- [x] LayoutData schema: variant, mobileReverse, alignItems fields
+
+**Section Variants (34 → 48):**
+- [x] Hero: fullscreen (100vh + ken-burns), slider (multi-slide)
+- [x] Features: masonry, icon-strip, bento
+- [x] Pricing: comparison (table layout), toggle (monthly/annual switch)
+- [x] Testimonials: quote-wall, logo-strip
+- [x] Nav: hamburger (overlay menu), mega (dropdown panels)
+- [x] Footer: mega (newsletter signup), centered-social (stacked social icons)
+- [x] Stats: counter (animated number count on scroll)
+- [x] FAQ: searchable (keyword filter + instant results)
+
+**Component Modularization (13 New Files):**
+- [x] `hero-fullscreen.astro`, `hero-slider.astro`
+- [x] `features-masonry.astro`, `features-icon-strip.astro`, `features-bento.astro`
+- [x] `pricing-comparison.astro`, `pricing-toggle.astro`
+- [x] `testimonials-quote-wall.astro`, `testimonials-logo-strip.astro`
+- [x] `nav-hamburger.astro`, `nav-mega.astro`
+- [x] `footer-mega.astro`, `footer-centered-social.astro`
+- [x] `stats-counter.astro`, `faq-searchable.astro`
+
+**Clone Pipeline Enhancements:**
+- [x] Variant-aware prompts: All 48 variants in Gemini system prompt
+- [x] Smart style defaults: Clone extracts section colors/fonts and applies styles
+- [x] Layout inference: AI suggests layout variant based on HTML structure analysis
+
+### Files Created/Modified
+
+**New:**
+- 13 variant component files (listed above), all <200 LOC
+
+**Modified:**
+- `src/content.config.ts` — Added `layout` field to landing sections
+- `src/lib/admin/landing-clone-ai.ts` — Enhanced prompts + style extraction
+- `src/lib/admin/landing-clone-post-processor.ts` — Apply layout defaults
+- `src/components/landing/landing-section-renderer.astro` — Support layout props
+
+### Architecture
+
+- **Layout Flexibility:** Sections can override layout independently
+- **Variant Selection:** Gemini selects best variant during clone analysis
+- **Style Confidence:** Extracted styles applied via `scopedCss` for visual accuracy
+- **Modular Components:** Each variant is self-contained, <200 LOC
+
+### Success Criteria
+
+- [x] All 8 layouts render correctly on mobile/tablet/desktop
+- [x] All 48 variants instantiate without errors
+- [x] Clone prompts successfully select variants matching original design
+- [x] Backward compatible: existing landing pages unchanged
+- [x] Zero regressions in existing functionality
 
 ---
 

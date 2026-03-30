@@ -1,4 +1,4 @@
-# Landing Page Design System (v2.6.0)
+# Landing Page Design System (v3.2.0)
 
 ## Per-Page Design Customization
 
@@ -45,31 +45,69 @@ All landing section components use `--lp-*` variables:
 --lp-spacing-base: 1rem;
 ```
 
-## Section Layout Variants (36 Total)
+## Section Layout Variants (48 Total)
 
-Each section type supports multiple layout/design variants:
+Each section type supports multiple layout/design variants (v3.2.0):
 
-| Section | Variants | Example |
-|---------|----------|---------|
-| Hero | 4 | centered, split, video-bg, minimal |
-| CTA | 5 | default, split, banner, minimal, with-image |
-| Features | 3 | grid, list, alternating |
-| Pricing | 3 | cards, simple, highlight-center |
-| Testimonials | 3 | cards, single, minimal |
-| FAQ | 3 | accordion, two-column, simple |
-| Stats | 3 | row, cards, large |
-| How It Works | 3 | numbered, timeline, cards |
-| Team | 3 | grid, list, compact |
-| Nav | 3 | default, centered, transparent |
-| Footer | 3 | simple, columns, minimal |
+| Section | Variants | Count | Examples |
+|---------|----------|-------|----------|
+| Hero | 6 | 6 | centered, split, video-bg, minimal, fullscreen, slider |
+| Features | 6 | 6 | grid, list, alternating, masonry, icon-strip, bento |
+| Pricing | 5 | 5 | cards, simple, highlight-center, comparison, toggle |
+| Testimonials | 5 | 5 | cards, single, minimal, quote-wall, logo-strip |
+| CTA | 5 | 5 | default, split, banner, minimal, with-image |
+| Nav | 5 | 5 | default, centered, transparent, hamburger, mega |
+| Footer | 5 | 5 | simple, columns, minimal, mega, centered-social |
+| Stats | 4 | 4 | row, cards, large, counter |
+| FAQ | 4 | 4 | accordion, two-column, simple, searchable |
+| Others | 2 | 2 | rich-text, video |
 
-**Implementation:** Each variant is a separate `.astro` component or conditional branch. Admin section picker shows variant selector.
+**Total: 48 variants** (up from 36 in v3.1.0).
 
-## Layout System v2 (Full-Width Sections)
+**Implementation:** Each variant is a separate `.astro` component file. All components must stay under 200 LOC. Admin section picker shows variant selector with tabbed categories (All/Structure/Content/Conversion/Media).
+
+## Layout System v3 (Responsive Layout Variants)
 
 **Released:** 2026-03-29
 
-All landing page sections now render full-width with edge-to-edge background support and scoped CSS styling.
+8 responsive layout variants enable flexible section composition without hardcoding grid/column logic.
+
+### 8 Layout Variants
+
+| Variant | Layout | Use Case | Mobile |
+|---------|--------|----------|--------|
+| **grid** | Flexible multi-column (1-6 cols) | Default for most sections | 1 col, responsive |
+| **sidebar-left** | Fixed left sidebar + main | Pricing, docs, blog layouts | Stacked (full-width) |
+| **sidebar-right** | Fixed right sidebar + main | Product pages, tutorials | Stacked (full-width) |
+| **asymmetric** | Unequal 2:1 or 1:2 columns | Feature showcase, hero pairs | Full-width, ordered |
+| **thirds** | 3 equal columns | Stats grid, team grid | Stacked on mobile |
+| **hero-split** | 50/50 left/right split | Hero + image, testimonial + quote | Stacked, reversible |
+| **stacked** | Full-width vertical stack | Content sections, single column | Full-width (native) |
+| **masonry** | CSS columns (gallery style) | Portfolio, testimonials, gallery | Single column |
+
+### LayoutData Props
+
+```typescript
+interface Props {
+  data: Record<string, any>
+  layout?: {
+    variant: 'grid' | 'sidebar-left' | 'sidebar-right' | 'asymmetric' | 'thirds' | 'hero-split' | 'stacked' | 'masonry'
+    mobileReverse?: boolean    // Swap left/right on mobile (hero-split)
+    alignItems?: 'start' | 'center' | 'end'  // Vertical alignment
+    cols?: number              // Override column count (grid only)
+  }
+}
+```
+
+All layouts are mobile-first with responsive breakpoints: 375px (mobile), 768px (tablet), 1024px+ (desktop).
+
+---
+
+## Layout System v2 (Full-Width Sections)
+
+**Released:** 2026-03-28
+
+All landing page sections render full-width with edge-to-edge background support and scoped CSS styling.
 
 ### Structure
 
@@ -231,5 +269,24 @@ Response:
 
 ---
 
-**Last updated:** 2026-03-27
-**Version:** v2.6.0
+## AI Clone Variant Selection (v3.2.0)
+
+Gemini clone pipeline now includes all 48 variants in system prompts, enabling intelligent variant selection:
+
+**Clone Flow:**
+1. **HTML Analysis:** Gemini analyzes site structure and extracts sections
+2. **Variant Selection:** Gemini selects best variant for each section (e.g., "masonry" for portfolio grid, "toggle" for pricing with monthly/annual)
+3. **Style Extraction:** Separate call extracts colors/fonts and applies as section styles
+4. **Post-Processing:** Auto-fixes apply layout defaults and scoped CSS
+
+**Example:**
+```
+Input: Portfolio site with 3-column masonry grid
+→ Clone identifies: features-section with masonry layout
+→ Output: { type: 'features', variant: 'masonry', layout: { variant: 'masonry' } }
+```
+
+---
+
+**Last updated:** 2026-03-29
+**Version:** v3.2.0
