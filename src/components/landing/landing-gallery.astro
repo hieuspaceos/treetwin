@@ -46,26 +46,32 @@ const gridClass = `landing-grid-${Math.min(columns, 5)}`
     </div>
   )}
 
-  {/* Carousel: horizontal scroll with snap + arrows + dots */}
-  {variant === 'carousel' && (
-    <div class="lp-gallery-carousel-wrapper" style="position:relative">
-      <button class="lp-gallery-arrow lp-gallery-arrow-prev" aria-label="Previous">‹</button>
-      <div class="lp-gallery-carousel" id="gallery-carousel">
-        {images.map((img, i) => (
-          <div class="lp-gallery-carousel-item" data-slide={i}>
-            <img src={img.src} alt={img.alt || ''} style="width:100%;height:100%;object-fit:cover;border-radius:var(--lp-radius, 12px)" loading="lazy" decoding="async" />
-            {img.caption && <p style="position:absolute;bottom:0;left:0;right:0;padding:0.5rem;background:linear-gradient(transparent,rgba(0,0,0,0.6));color:#fff;font-size:0.75rem;border-radius:0 0 var(--lp-radius, 12px) var(--lp-radius, 12px)">{img.caption}</p>}
+  {/* Carousel: auto-scroll with mask, arrows, dots — same pattern as testimonials */}
+  {variant === 'carousel' && (() => {
+    const carouselImages = [...images, ...images] // duplicate for infinite loop
+    const carouselId = `lp-gallery-carousel-${Math.random().toString(36).slice(2, 8)}`
+    return (
+      <div class="lp-carousel-wrapper" id={carouselId} style="overflow:hidden;padding-left:0;padding-right:0">
+        <button class="lp-carousel-arrow lp-carousel-prev" aria-label="Previous" data-dir="prev">‹</button>
+        <button class="lp-carousel-arrow lp-carousel-next" aria-label="Next" data-dir="next">›</button>
+        <div class="lp-gallery-carousel-track-wrap">
+          <div class="lp-gallery-carousel-track">
+            {carouselImages.map((img, i) => (
+              <div class="lp-gallery-carousel-slide lp-card-hover">
+                <img src={img.src} alt={img.alt || ''} style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" />
+                {img.caption && <p style="position:absolute;bottom:0;left:0;right:0;padding:0.5rem;background:linear-gradient(transparent,rgba(0,0,0,0.6));color:#fff;font-size:0.75rem;margin:0">{img.caption}</p>}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+        <div class="lp-carousel-dots">
+          {Array.from({ length: Math.min(6, images.length) }, (_, i) => (
+            <button class={`lp-carousel-dot${i === 0 ? ' active' : ''}`} data-index={i} aria-label={`Group ${i + 1}`} />
+          ))}
+        </div>
       </div>
-      <button class="lp-gallery-arrow lp-gallery-arrow-next" aria-label="Next">›</button>
-      <div class="lp-gallery-dots">
-        {images.map((_, i) => (
-          <button class={`lp-gallery-dot${i === 0 ? ' active' : ''}`} data-dot={i} aria-label={`Go to slide ${i + 1}`} />
-        ))}
-      </div>
-    </div>
-  )}
+    )
+  })()}
 
   {/* Lightbox: grid + click to enlarge */}
   {variant === 'lightbox' && (
@@ -129,39 +135,27 @@ const gridClass = `landing-grid-${Math.min(columns, 5)}`
   @media (min-width: 640px) { .lp-gallery-masonry { columns: 3; } }
   @media (min-width: 1024px) { .lp-gallery-masonry { columns: 4; } }
 
-  /* Carousel */
-  .lp-gallery-carousel-wrapper { position: relative; }
-  .lp-gallery-carousel {
-    display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
-    scrollbar-width: none; padding-bottom: 0.5rem; scroll-behavior: smooth;
+  /* Carousel — reuses lp-carousel-wrapper/arrow/dot from testimonials CSS */
+  .lp-gallery-carousel-track-wrap {
+    width: 100%; overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
   }
-  .lp-gallery-carousel::-webkit-scrollbar { display: none; }
-  .lp-gallery-carousel-item {
+  .lp-gallery-carousel-track {
+    display: flex; gap: 1rem; width: max-content;
+    animation: lp-gallery-scroll 25s linear infinite;
+  }
+  .lp-gallery-carousel-track:hover { animation-play-state: paused; }
+  .lp-gallery-carousel-slide {
     flex-shrink: 0; width: 320px; height: 240px; position: relative;
-    scroll-snap-align: start; border-radius: var(--lp-radius, 12px); overflow: hidden;
+    border-radius: var(--lp-radius, 12px); overflow: hidden;
   }
-  @media (min-width: 640px) { .lp-gallery-carousel-item { width: 400px; height: 300px; } }
-  /* Arrows */
-  .lp-gallery-arrow {
-    position: absolute; top: 50%; transform: translateY(-60%); z-index: 2;
-    width: 40px; height: 40px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,0.9); color: #1e293b; font-size: 1.5rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: opacity 0.2s;
+  @media (min-width: 640px) { .lp-gallery-carousel-slide { width: 400px; height: 300px; } }
+  @media (max-width: 640px) { .lp-gallery-carousel-slide { width: 280px; height: 200px; } }
+  @keyframes lp-gallery-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
-  .lp-gallery-arrow:hover { background: #fff; }
-  .lp-gallery-arrow-prev { left: 0.5rem; }
-  .lp-gallery-arrow-next { right: 0.5rem; }
-  /* Dots */
-  .lp-gallery-dots {
-    display: flex; justify-content: center; gap: 6px; margin-top: 0.75rem;
-  }
-  .lp-gallery-dot {
-    width: 8px; height: 8px; border-radius: 50%; border: none;
-    background: var(--lp-text-muted, #94a3b8); opacity: 0.4; cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
-  }
-  .lp-gallery-dot.active { opacity: 1; transform: scale(1.3); background: var(--lp-primary, #3b82f6); }
 
   /* Lightbox overlay */
   .lp-gallery-lightbox-overlay {
@@ -182,33 +176,41 @@ const gridClass = `landing-grid-${Math.min(columns, 5)}`
   }
 </style>
 
+<!-- Gallery carousel JS uses same pattern as testimonials carousel -->
 <script>
-  /* Gallery carousel: arrow navigation + dot sync */
   document.addEventListener('DOMContentLoaded', () => {
-    const wrapper = document.querySelector('.lp-gallery-carousel-wrapper')
-    if (!wrapper) return
-    const track = wrapper.querySelector('.lp-gallery-carousel') as HTMLElement
-    const dots = wrapper.querySelectorAll<HTMLButtonElement>('.lp-gallery-dot')
-    const prev = wrapper.querySelector('.lp-gallery-arrow-prev')
-    const next = wrapper.querySelector('.lp-gallery-arrow-next')
-    if (!track) return
+    document.querySelectorAll('.lp-gallery-carousel-track-wrap').forEach(wrap => {
+      const wrapper = wrap.closest('.lp-carousel-wrapper')
+      if (!wrapper) return
+      const track = wrap.querySelector('.lp-gallery-carousel-track') as HTMLElement
+      const dots = wrapper.querySelectorAll('.lp-carousel-dot')
+      if (!track) return
 
-    const items = track.querySelectorAll('.lp-gallery-carousel-item')
-    function getItemWidth() { return items[0] ? items[0].clientWidth + 12 : 320 }
+      const slideWidth = 320 + 16
 
-    function updateDots() {
-      const scrollLeft = track.scrollLeft
-      const itemW = getItemWidth()
-      const activeIdx = Math.round(scrollLeft / itemW)
-      dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx))
-    }
+      function scrollBy(offset: number) {
+        track.style.animation = 'none'
+        const current = -new DOMMatrix(getComputedStyle(track).transform).m41
+        track.style.transform = `translateX(${-(current + offset)}px)`
+        clearTimeout((track as any)._resume)
+        ;(track as any)._resume = setTimeout(() => {
+          track.style.transform = ''
+          track.style.animation = ''
+        }, 4000)
+      }
 
-    prev?.addEventListener('click', () => { track.scrollBy({ left: -getItemWidth(), behavior: 'smooth' }) })
-    next?.addEventListener('click', () => { track.scrollBy({ left: getItemWidth(), behavior: 'smooth' }) })
-    dots.forEach(d => d.addEventListener('click', () => {
-      const idx = Number(d.getAttribute('data-dot'))
-      track.scrollTo({ left: idx * getItemWidth(), behavior: 'smooth' })
-    }))
-    track.addEventListener('scroll', updateDots)
+      wrapper.querySelector('.lp-carousel-prev')?.addEventListener('click', () => scrollBy(-slideWidth))
+      wrapper.querySelector('.lp-carousel-next')?.addEventListener('click', () => scrollBy(slideWidth))
+
+      const dotCount = dots.length
+      const totalSlides = track.children.length / 2
+      const slidesPerDot = Math.ceil(totalSlides / dotCount)
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          const current = -new DOMMatrix(getComputedStyle(track).transform).m41
+          scrollBy(i * slidesPerDot * slideWidth - current)
+        })
+      })
+    })
   })
 </script>
