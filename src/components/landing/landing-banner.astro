@@ -1,76 +1,78 @@
 ---
 /**
  * Banner section with 7 variants:
- * - info: blue info bar
- * - warning: amber warning bar
- * - success: green success bar
- * - promo: gradient promotional banner with large text
- * - announcement: dark full-width announcement with icon
- * - countdown: urgent banner with countdown feel
- * - minimal: subtle text-only strip
+ * - info/warning/success: colored status bars
+ * - promo: gradient promotional banner
+ * - announcement: dark full-width bar
+ * - countdown: urgent red with pulsing CTA
+ * - minimal: subtle text strip
  */
 import type { BannerData } from '@/lib/landing/landing-types'
 
 interface Props extends BannerData {}
 const { text, subtext, icon, cta, variant = 'info', dismissible = false, background } = Astro.props
 
-const bgOverride = background ? `background:${background}` : ''
+const bgOverride = background || ''
+
+// Color configs for info/warning/success
+const colorMap: Record<string, { bg: string; border: string; text: string; btn: string }> = {
+  info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', btn: '#2563eb' },
+  warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', btn: '#d97706' },
+  success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', btn: '#16a34a' },
+}
+const isStatusVariant = variant === 'info' || variant === 'warning' || variant === 'success'
+const c = isStatusVariant ? colorMap[variant] : null
 ---
 
-{/* Info / Warning / Success — colored bar */}
-{(variant === 'info' || variant === 'warning' || variant === 'success') && (() => {
-  const colors = { info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', btn: '#2563eb' }, warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', btn: '#d97706' }, success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', btn: '#16a34a' } }
-  const c = colors[variant]
-  return (
-    <div class="lp-banner" style={`background:${c.bg};border-top:1px solid ${c.border};border-bottom:1px solid ${c.border};color:${c.text};${bgOverride}`}>
-      {icon && <span class="lp-banner-icon">{icon}</span>}
-      <p class="lp-banner-text">{text}</p>
-      {subtext && <span class="lp-banner-subtext">{subtext}</span>}
-      {cta && <a href={cta.url} class="lp-banner-btn" style={`background:${c.btn}`}>{cta.text}</a>}
-      {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">×</button>}
-    </div>
-  )
-})()}
+{/* Info / Warning / Success */}
+{isStatusVariant && c && (
+  <div class="lp-banner" style={`background:${bgOverride || c.bg};border-top:1px solid ${c.border};border-bottom:1px solid ${c.border};color:${c.text}`}>
+    {icon && <span class="lp-banner-icon">{icon}</span>}
+    <p class="lp-banner-text">{text}</p>
+    {subtext && <span class="lp-banner-subtext">{subtext}</span>}
+    {cta && <a href={cta.url} class="lp-banner-btn" style={`background:${c.btn}`}>{cta.text}</a>}
+    {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">&times;</button>}
+  </div>
+)}
 
-{/* Promo — gradient banner with large text */}
+{/* Promo */}
 {variant === 'promo' && (
-  <div class="lp-banner lp-banner-promo" style={bgOverride || 'background:linear-gradient(135deg, var(--lp-primary), var(--lp-secondary, var(--lp-primary)))'}>
+  <div class="lp-banner lp-banner-promo" style={`background:${bgOverride || 'linear-gradient(135deg, var(--lp-primary), var(--lp-secondary, var(--lp-primary)))'}`}>
     {icon && <span style="font-size:1.5rem">{icon}</span>}
     <div style="flex:1;text-align:center">
       <p class="lp-banner-text" style="color:#fff;font-size:1rem;font-weight:700">{text}</p>
       {subtext && <p style="color:rgba(255,255,255,0.8);font-size:0.8rem;margin:0.25rem 0 0">{subtext}</p>}
     </div>
     {cta && <a href={cta.url} class="lp-banner-btn" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3)">{cta.text}</a>}
-    {dismissible && <button class="lp-banner-dismiss" style="color:rgba(255,255,255,0.7)" aria-label="Dismiss">×</button>}
+    {dismissible && <button class="lp-banner-dismiss" style="color:rgba(255,255,255,0.7)" aria-label="Dismiss">&times;</button>}
   </div>
 )}
 
-{/* Announcement — dark bar, icon + text */}
+{/* Announcement */}
 {variant === 'announcement' && (
-  <div class="lp-banner" style={`background:#1e293b;color:#f1f5f9;${bgOverride}`}>
+  <div class="lp-banner" style={`background:${bgOverride || '#1e293b'};color:#f1f5f9`}>
     {icon && <span class="lp-banner-icon">{icon}</span>}
     <p class="lp-banner-text" style="color:#f1f5f9">{text}</p>
     {subtext && <span class="lp-banner-subtext" style="color:#94a3b8">{subtext}</span>}
     {cta && <a href={cta.url} class="lp-banner-btn" style="background:var(--lp-primary);color:#fff">{cta.text}</a>}
-    {dismissible && <button class="lp-banner-dismiss" style="color:#94a3b8" aria-label="Dismiss">×</button>}
+    {dismissible && <button class="lp-banner-dismiss" style="color:#94a3b8" aria-label="Dismiss">&times;</button>}
   </div>
 )}
 
-{/* Countdown — urgent red/orange banner */}
+{/* Countdown */}
 {variant === 'countdown' && (
-  <div class="lp-banner" style={`background:#fef2f2;border-top:2px solid #fca5a5;border-bottom:2px solid #fca5a5;color:#991b1b;${bgOverride}`}>
-    {icon && <span class="lp-banner-icon">{icon}</span>}
-    {!icon && <span class="lp-banner-icon">⏰</span>}
+  <div class="lp-banner" style={`background:${bgOverride || '#fef2f2'};border-top:2px solid #fca5a5;border-bottom:2px solid #fca5a5;color:#991b1b`}>
+    <span class="lp-banner-icon">{icon || '⏰'}</span>
     <p class="lp-banner-text" style="color:#991b1b;font-weight:700">{text}</p>
     {subtext && <span class="lp-banner-subtext" style="color:#b91c1c">{subtext}</span>}
     {cta && <a href={cta.url} class="lp-banner-btn" style="background:#dc2626;animation:lp-banner-pulse 2s infinite">{cta.text}</a>}
-    {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">×</button>}
+    {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">&times;</button>}
   </div>
 )}
 
-{/* Minimal — subtle text strip */}
+{/* Minimal */}
 {variant === 'minimal' && (
-  <div class="lp-banner" style={`background:var(--lp-surface, #f8fafc);${bgOverride}`}>
+  <div class="lp-banner" style={`background:${bgOverride || 'var(--lp-surface, #f8fafc)'}`}>
     {icon && <span style="font-size:0.85rem">{icon}</span>}
     <p style="font-size:0.8rem;color:var(--lp-text-muted);margin:0">{text}</p>
     {cta && <a href={cta.url} style="font-size:0.8rem;color:var(--lp-primary);text-decoration:underline;font-weight:500">{cta.text}</a>}
