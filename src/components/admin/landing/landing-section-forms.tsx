@@ -804,6 +804,12 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
           {/* contentEditable — user edits rendered HTML directly */}
           <div ref={editRef} contentEditable suppressContentEditableWarning
             onBlur={handleInput}
+            onInput={handleInput}
+            onClick={(e) => {
+              // Prevent links from navigating — allow editing instead
+              const target = e.target as HTMLElement
+              if (target.tagName === 'A' || target.closest('a')) e.preventDefault()
+            }}
             dangerouslySetInnerHTML={{ __html: content }}
             style={{ padding: '0.75rem', fontSize: '0.82rem', minHeight: '50px', background: '#fff', lineHeight: 1.6, outline: 'none', cursor: 'text' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0.6rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
