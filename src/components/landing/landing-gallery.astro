@@ -1,18 +1,151 @@
 ---
+/**
+ * Gallery section with 5 layout variants:
+ * - grid: responsive grid (default), configurable columns
+ * - masonry: CSS columns for mixed-height images
+ * - carousel: horizontal scroll with snap
+ * - lightbox: grid with click-to-enlarge overlay
+ * - filmstrip: single-row horizontal strip with peek
+ */
 import type { GalleryData } from '@/lib/landing/landing-types'
 
 interface Props extends GalleryData {}
-const { heading, images = [] } = Astro.props
+const { heading, subheading, images = [], variant = 'grid', columns = 4 } = Astro.props
+const gridClass = `landing-grid-${Math.min(columns, 5)}`
 ---
 
 <section class="landing-section">
-  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
-  <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-    {images.map((img) => (
-      <div class="overflow-hidden rounded-xl">
-        <img src={img.src} alt={img.alt || ''} class="w-full object-cover aspect-square hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-        {img.caption && <p class="mt-1 text-center text-xs text-slate-500">{img.caption}</p>}
+  {heading && (
+    <div class="lp-section-heading" style="text-align:center;margin-bottom:2rem">
+      <h2>{heading}</h2>
+      {subheading && <p style="color:var(--lp-text-muted);margin-top:0.5rem">{subheading}</p>}
+    </div>
+  )}
+
+  {/* Grid: responsive columns */}
+  {variant === 'grid' && (
+    <div class={gridClass} style="gap:0.75rem">
+      {images.map((img) => (
+        <div class="lp-card-hover" style="overflow:hidden;border-radius:var(--lp-radius, 12px)">
+          <img src={img.src} alt={img.alt || ''} style="width:100%;aspect-ratio:4/3;object-fit:cover" loading="lazy" decoding="async" />
+          {img.caption && <p style="padding:0.5rem;text-align:center;font-size:0.75rem;color:var(--lp-text-muted)">{img.caption}</p>}
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Masonry: CSS columns for mixed heights */}
+  {variant === 'masonry' && (
+    <div class="lp-gallery-masonry">
+      {images.map((img) => (
+        <div class="lp-card-hover" style="break-inside:avoid;margin-bottom:0.75rem;overflow:hidden;border-radius:var(--lp-radius, 12px)">
+          <img src={img.src} alt={img.alt || ''} style="width:100%;display:block" loading="lazy" decoding="async" />
+          {img.caption && <p style="padding:0.5rem;text-align:center;font-size:0.75rem;color:var(--lp-text-muted)">{img.caption}</p>}
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Carousel: horizontal scroll with snap */}
+  {variant === 'carousel' && (
+    <div class="lp-gallery-carousel">
+      {images.map((img) => (
+        <div class="lp-gallery-carousel-item">
+          <img src={img.src} alt={img.alt || ''} style="width:100%;height:100%;object-fit:cover;border-radius:var(--lp-radius, 12px)" loading="lazy" decoding="async" />
+          {img.caption && <p style="position:absolute;bottom:0;left:0;right:0;padding:0.5rem;background:linear-gradient(transparent,rgba(0,0,0,0.6));color:#fff;font-size:0.75rem;border-radius:0 0 var(--lp-radius, 12px) var(--lp-radius, 12px)">{img.caption}</p>}
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Lightbox: grid + click to enlarge */}
+  {variant === 'lightbox' && (
+    <>
+      <div class={gridClass} style="gap:0.75rem">
+        {images.map((img, i) => (
+          <div class="lp-card-hover lp-gallery-lightbox-thumb" data-lightbox-idx={i} style="overflow:hidden;border-radius:var(--lp-radius, 12px);cursor:zoom-in">
+            <img src={img.src} alt={img.alt || ''} style="width:100%;aspect-ratio:4/3;object-fit:cover" loading="lazy" decoding="async" />
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
+      <div class="lp-gallery-lightbox-overlay" id="lp-gallery-lightbox" style="display:none">
+        <button class="lp-gallery-lightbox-close" aria-label="Close">×</button>
+        <img class="lp-gallery-lightbox-img" src="" alt="" />
+        <p class="lp-gallery-lightbox-caption"></p>
+      </div>
+      <script define:vars={{ images }}>
+        document.addEventListener('DOMContentLoaded', () => {
+          const overlay = document.getElementById('lp-gallery-lightbox')
+          if (!overlay) return
+          const img = overlay.querySelector('.lp-gallery-lightbox-img')
+          const caption = overlay.querySelector('.lp-gallery-lightbox-caption')
+          document.querySelectorAll('.lp-gallery-lightbox-thumb').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+              const idx = Number(thumb.getAttribute('data-lightbox-idx'))
+              const item = images[idx]
+              if (!item || !img) return
+              img.src = item.src
+              img.alt = item.alt || ''
+              if (caption) caption.textContent = item.caption || ''
+              overlay.style.display = 'flex'
+              document.body.style.overflow = 'hidden'
+            })
+          })
+          overlay.querySelector('.lp-gallery-lightbox-close')?.addEventListener('click', () => {
+            overlay.style.display = 'none'
+            document.body.style.overflow = ''
+          })
+          overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.style.display = 'none'; document.body.style.overflow = '' } })
+        })
+      </script>
+    </>
+  )}
+
+  {/* Filmstrip: single-row horizontal strip */}
+  {variant === 'filmstrip' && (
+    <div class="lp-gallery-filmstrip">
+      {images.map((img) => (
+        <div style="flex-shrink:0;width:280px;height:200px;position:relative;border-radius:var(--lp-radius, 12px);overflow:hidden" class="lp-card-hover">
+          <img src={img.src} alt={img.alt || ''} style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" />
+          {img.caption && <p style="position:absolute;bottom:0;left:0;right:0;padding:0.4rem 0.6rem;background:linear-gradient(transparent,rgba(0,0,0,0.5));color:#fff;font-size:0.7rem">{img.caption}</p>}
+        </div>
+      ))}
+    </div>
+  )}
 </section>
+
+<style>
+  /* Masonry */
+  .lp-gallery-masonry { columns: 2; column-gap: 0.75rem; }
+  @media (min-width: 640px) { .lp-gallery-masonry { columns: 3; } }
+  @media (min-width: 1024px) { .lp-gallery-masonry { columns: 4; } }
+
+  /* Carousel */
+  .lp-gallery-carousel {
+    display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: thin; padding-bottom: 0.5rem;
+  }
+  .lp-gallery-carousel-item {
+    flex-shrink: 0; width: 320px; height: 240px; position: relative;
+    scroll-snap-align: start; border-radius: var(--lp-radius, 12px); overflow: hidden;
+  }
+  @media (min-width: 640px) { .lp-gallery-carousel-item { width: 400px; height: 300px; } }
+
+  /* Lightbox overlay */
+  .lp-gallery-lightbox-overlay {
+    position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.9);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .lp-gallery-lightbox-close {
+    position: absolute; top: 1rem; right: 1.5rem; background: none; border: none;
+    color: #fff; font-size: 2rem; cursor: pointer; z-index: 1;
+  }
+  .lp-gallery-lightbox-img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+  .lp-gallery-lightbox-caption { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 0.75rem; }
+
+  /* Filmstrip */
+  .lp-gallery-filmstrip {
+    display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: thin; padding-bottom: 0.5rem;
+  }
+</style>

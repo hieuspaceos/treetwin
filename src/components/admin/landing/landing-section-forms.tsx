@@ -705,21 +705,47 @@ export function ImageTextSectionForm({ data, onChange }: FormProps<ImageTextData
 export function GallerySectionForm({ data, onChange }: FormProps<GalleryData>) {
   const set = (k: keyof GalleryData, v: unknown) => onChange({ ...data, [k]: v })
   const images = data.images || []
+  const [openImg, setOpenImg] = useState<number | null>(null)
   return (
     <>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Images">
-        {images.map((img, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.5rem', marginBottom: '0.5rem' }}>
-            <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '4px' }} value={img.src} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], src: e.target.value }; set('images', n) }} />
-            <input placeholder="Alt text" style={inputStyle} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
-            <button type="button" onClick={() => set('images', images.filter((_, j) => j !== i))}
-              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => set('images', [...images, { src: '', alt: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Image</button>
-      </Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '60px', flexShrink: 0 }}><Field label="Cols">
+          <select style={inputStyle} value={data.columns || 4} onChange={(e) => set('columns', Number(e.target.value))}>
+            <option value={2}>2</option><option value={3}>3</option><option value={4}>4</option><option value={5}>5</option>
+          </select>
+        </Field></div>
+        <div style={{ width: '110px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="grid">Grid</option><option value="masonry">Masonry</option><option value="carousel">Carousel</option>
+            <option value="lightbox">Lightbox</option><option value="filmstrip">Filmstrip</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="Images" count={images.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('images', [...images, { src: '', alt: '' }])}
+          style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Image</button>}>
+        {images.map((img, i) => {
+          const isOpen = openImg === i
+          return (
+            <div key={i} style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.3rem', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div onClick={() => setOpenImg(isOpen ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+                <span style={{ fontSize: '0.55rem', color: '#94a3b8', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
+                {img.src && <img src={img.src} alt="" style={{ width: '24px', height: '24px', objectFit: 'cover', borderRadius: '3px', flexShrink: 0 }} />}
+                <span style={{ fontSize: '0.72rem', color: '#1e293b', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.alt || img.src?.split('/').pop() || `Image ${i + 1}`}</span>
+                <button type="button" onClick={(e) => { e.stopPropagation(); set('images', images.filter((_, j) => j !== i)) }}
+                  style={{ padding: '1px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+              </div>
+              {isOpen && (
+                <div style={{ padding: '0 0.5rem 0.4rem' }}>
+                  <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '3px', padding: '3px 6px', fontSize: '0.75rem' }} value={img.src} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], src: e.target.value }; set('images', n) }} />
+                  <input placeholder="Alt text" style={{ ...inputStyle, padding: '3px 6px', fontSize: '0.75rem' }} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </CollapsibleItems>
     </>
   )
 }

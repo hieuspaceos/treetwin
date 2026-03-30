@@ -206,7 +206,10 @@ export interface ImageTextData {
 export interface GalleryItem { src: string; alt?: string; caption?: string }
 export interface GalleryData {
   heading?: string
+  subheading?: string
   images: GalleryItem[]
+  variant?: 'grid' | 'masonry' | 'carousel' | 'lightbox' | 'filmstrip'
+  columns?: number
 }
 
 export interface MapData {
