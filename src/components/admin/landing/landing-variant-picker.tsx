@@ -40,8 +40,8 @@ export function VariantPicker({ sectionType, value, onChange }: Props) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '0.2rem',
-                padding: '0.3rem 0.4rem',
-                minWidth: '52px',
+                padding: '0.4rem 0.5rem',
+                minWidth: '60px',
                 flexShrink: 0,
                 border: isSelected ? '2px solid #3b82f6' : '1px solid #e2e8f0',
                 borderRadius: '6px',
@@ -66,8 +66,8 @@ export function VariantPicker({ sectionType, value, onChange }: Props) {
                 <pre style={{
                   margin: 0,
                   fontFamily: 'monospace',
-                  fontSize: '0.42rem',
-                  lineHeight: 1.4,
+                  fontSize: '0.55rem',
+                  lineHeight: 1.3,
                   color: isSelected ? '#1d4ed8' : '#64748b',
                   whiteSpace: 'pre',
                   textAlign: 'center',
@@ -77,12 +77,12 @@ export function VariantPicker({ sectionType, value, onChange }: Props) {
                 <span style={{ fontSize: '0.75rem', color: isSelected ? '#1d4ed8' : '#64748b' }}>▤</span>
               )}
               <span style={{
-                fontSize: '0.55rem',
+                fontSize: '0.6rem',
                 color: isSelected ? '#1d4ed8' : '#64748b',
                 fontWeight: isSelected ? 600 : 400,
                 textAlign: 'center',
                 lineHeight: 1.2,
-                maxWidth: '56px',
+                maxWidth: '64px',
                 overflow: 'hidden',
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
