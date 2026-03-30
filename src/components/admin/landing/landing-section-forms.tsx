@@ -787,7 +787,8 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> {
   const parts: Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> = []
   // Simple regex-based parser for common HTML elements
-  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<(?:p|div|span)[^>]*>([\s\S]*?)<\/(?:p|div|span)>/gi
+  // Order matters: match links/buttons BEFORE div/span to avoid nesting issues
+  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<(?:p|div|span)\b[^>]*>([^<]*)<\/(?:p|div|span)>/gi
   let match: RegExpExecArray | null
   let lastIndex = 0
 
@@ -883,8 +884,20 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
                 <>
                   <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem', fontWeight: 600 }} value={part.text}
                     onChange={(e) => updatePart(i, 'text', e.target.value)} placeholder="Button text" />
-                  <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.75rem', color: '#3b82f6' }} value={part.href || ''}
-                    onChange={(e) => updatePart(i, 'href', e.target.value)} placeholder="URL" />
+                  <select style={{ ...inputStyle, width: '80px', flexShrink: 0, padding: '4px 3px', fontSize: '0.68rem', color: part.href?.startsWith('#') ? '#3b82f6' : '#64748b' }}
+                    value={part.href?.startsWith('#section-') ? part.href : '_custom'}
+                    onChange={(e) => updatePart(i, 'href', e.target.value === '_custom' ? '' : e.target.value)}>
+                    <option value="_custom">URL</option>
+                    <option value="#section-features">→ Features</option>
+                    <option value="#section-pricing">→ Pricing</option>
+                    <option value="#section-testimonials">→ Testimonials</option>
+                    <option value="#section-faq">→ FAQ</option>
+                    <option value="#section-contact-form">→ Contact</option>
+                  </select>
+                  {!part.href?.startsWith('#section-') && (
+                    <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.75rem', color: '#3b82f6' }} value={part.href || ''}
+                      onChange={(e) => updatePart(i, 'href', e.target.value)} placeholder="https://..." />
+                  )}
                 </>
               )}
               {part.type === 'image' && (
