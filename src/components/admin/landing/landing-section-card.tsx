@@ -75,15 +75,15 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
     <div
       ref={setNodeRef}
       style={style}
-      className="glass-card"
+      className=""
       {...attributes}
     >
       <div
         style={{
-          borderRadius: '10px',
-          marginBottom: '0.5rem',
+          borderRadius: '8px',
+          marginBottom: '0.25rem',
           overflow: 'hidden',
-          border: expanded ? '1px solid #3b82f6' : '1px solid transparent',
+          border: expanded ? '1px solid #3b82f6' : '1px solid #e2e8f0',
         }}
       >
       {/* Collapsed header — always visible */}
@@ -91,25 +91,28 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem',
-          padding: '0.5rem 0.75rem',
+          gap: '0.5rem',
+          padding: '0.35rem 0.6rem',
           cursor: 'pointer',
           userSelect: 'none',
+          transition: 'background 0.15s',
         }}
+        onMouseEnter={e => { if (!expanded) e.currentTarget.style.background = '#f1f5f9' }}
+        onMouseLeave={e => e.currentTarget.style.background = ''}
         onClick={() => onSelect?.()}
       >
         {/* Drag handle */}
         <span
           {...listeners}
-          style={{ cursor: 'grab', color: '#94a3b8', fontSize: '1rem', touchAction: 'none' }}
+          style={{ cursor: 'grab', color: '#94a3b8', fontSize: '0.85rem', touchAction: 'none', lineHeight: 1 }}
           onClick={(e) => e.stopPropagation()}
           title="Drag to reorder"
         >⠿</span>
 
         {/* Expand/collapse chevron */}
-        <span style={{ color: '#94a3b8', fontSize: '0.8rem', transition: 'transform 0.15s', transform: expanded ? 'rotate(90deg)' : 'none' }}>▶</span>
+        <span style={{ color: '#94a3b8', fontSize: '0.6rem', transition: 'transform 0.15s', transform: expanded ? 'rotate(90deg)' : 'none' }}>▶</span>
 
-        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.8rem', color: '#1e293b' }}>{label}</span>
+        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.78rem', color: '#1e293b' }}>{label}</span>
 
         {/* Enabled toggle */}
         <label

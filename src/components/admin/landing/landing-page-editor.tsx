@@ -493,7 +493,7 @@ export function LandingPageEditor({ slug }: Props) {
   if (splitView) {
     return (
       <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}>
-        <div style={{ width: `${editorWidth}%`, minWidth: 0, overflowY: 'auto', scrollbarWidth: 'thin', flexShrink: 0 }}>
+        <div id="editor-scroll-container" style={{ width: `${editorWidth}%`, minWidth: 0, overflowY: 'auto', scrollbarWidth: 'thin', flexShrink: 0, scrollPaddingTop: '1rem' }}>
           {editorContent}
         </div>
         {/* Draggable resizer handle */}
@@ -547,11 +547,12 @@ export function LandingPageEditor({ slug }: Props) {
                 <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx}
                   onSectionClick={(idx) => {
                     setSelectedSectionIdx(idx)
-                    // Scroll builder sidebar to the section card
-                    setTimeout(() => {
-                      const card = document.getElementById(`section-card-${idx}`)
-                      card?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    }, 50)
+                    // Wait for card to expand, then scroll header into view
+                    requestAnimationFrame(() => {
+                      setTimeout(() => {
+                        document.getElementById(`section-card-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                      }, 50)
+                    })
                   }} />
               </div>
             )}

@@ -914,14 +914,30 @@ function PreviewAiSearch({ data }: { data: AiSearchData }) {
   )
 }
 
-/** Layout preview — renders columns with nested section previews recursively */
+/** Layout preview — renders columns with nested section previews, respects variant */
 function PreviewLayout({ data }: { data: LayoutData }) {
   const columns = data.columns || [1, 1]
   const gap = data.gap || '1rem'
   const children = data.children || []
-  const gridTemplate = columns.map(c => `${c}fr`).join(' ')
+  const v = data.variant || 'grid'
+
+  // Compute grid-template-columns based on variant (matches landing-layout.astro CSS)
+  const variantGridMap: Record<string, string> = {
+    'grid': columns.map(c => `${c}fr`).join(' '),
+    'sidebar-left': '280px 1fr',
+    'sidebar-right': '1fr 280px',
+    'asymmetric': '3fr 2fr',
+    'thirds': 'repeat(3, 1fr)',
+    'hero-split': '55fr 45fr',
+    'stacked': '1fr',
+    'masonry': columns.map(c => `${c}fr`).join(' '),
+  }
+  const gridTemplate = variantGridMap[v] || columns.map(c => `${c}fr`).join(' ')
+  const isMasonry = v === 'masonry'
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: gridTemplate, gap, padding: '0.5rem', border: '1px dashed #cbd5e1', borderRadius: '8px' }}>
+    <div className={`lp-layout${isMasonry ? ' lp-layout--masonry' : ''}`}
+      style={{ display: isMasonry ? 'block' : 'grid', gridTemplateColumns: isMasonry ? undefined : gridTemplate, gap, alignItems: v === 'hero-split' ? 'center' : undefined, columns: isMasonry ? columns.length : undefined }}>
       {columns.map((_, colIdx) => {
         const col = children.find(c => c.column === colIdx)
         const sections = (col?.sections || []).filter(s => s.enabled !== false).sort((a, b) => a.order - b.order)

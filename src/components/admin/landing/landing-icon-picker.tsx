@@ -2,7 +2,7 @@
  * Searchable icon picker — emoji grid with filter.
  * Used in section forms for icon fields (features, how-it-works, social-proof, banner).
  */
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 // Common icons organized by category
 const ICONS: Array<{ emoji: string; label: string; tags: string[] }> = [
@@ -56,11 +56,15 @@ interface Props {
   value: string
   onChange: (icon: string) => void
   placeholder?: string
+  /** Compact mode: only show icon button, no text input */
+  compact?: boolean
 }
 
-export function IconPicker({ value, onChange, placeholder }: Props) {
+export function IconPicker({ value, onChange, placeholder, compact }: Props) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const btnRef = useRef<HTMLButtonElement>(null)
 
   const filtered = search
     ? ICONS.filter(ic =>
@@ -69,40 +73,66 @@ export function IconPicker({ value, onChange, placeholder }: Props) {
       )
     : ICONS
 
+  // Calculate popup position when opening
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      // Show above if not enough space below
+      if (spaceBelow < 300) {
+        setPos({ top: rect.top - 290, left: rect.left })
+      } else {
+        setPos({ top: rect.bottom + 4, left: rect.left })
+      }
+    }
+  }, [open])
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (btnRef.current && !btnRef.current.contains(e.target as Node)) {
+        const popup = document.getElementById('icon-picker-popup')
+        if (popup && !popup.contains(e.target as Node)) setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
         <button
+          ref={btnRef}
           type="button"
           onClick={() => setOpen(!open)}
           style={{
-            width: '36px', height: '36px', fontSize: '1.2rem', border: '1px solid #d1d5db',
-            borderRadius: '6px', background: '#fff', cursor: 'pointer', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
+            width: compact ? '32px' : '36px', height: compact ? '32px' : '36px', fontSize: compact ? '1rem' : '1.2rem',
+            border: '1px solid #d1d5db', borderRadius: '6px', background: '#fff', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}
         >{value || '+'}</button>
-        <input
-          style={{
-            flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #d1d5db',
-            borderRadius: '6px', fontSize: '0.8rem',
-          }}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder || 'Icon or emoji'}
-        />
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}
-          >✕</button>
+        {!compact && (
+          <>
+            <input
+              style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '0.8rem' }}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder || 'Icon or emoji'}
+            />
+            {value && (
+              <button type="button" onClick={() => onChange('')}
+                style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>✕</button>
+            )}
+          </>
         )}
       </div>
       {open && (
-        <div style={{
-          position: 'absolute', top: '40px', left: 0, zIndex: 50, width: '280px',
+        <div id="icon-picker-popup" style={{
+          position: 'fixed', top: `${pos.top}px`, left: `${pos.left}px`, zIndex: 9999, width: '280px',
           background: '#fff', border: '1px solid #d1d5db', borderRadius: '8px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '0.5rem',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)', padding: '0.5rem',
         }}>
           <input
             autoFocus

@@ -5,7 +5,7 @@
  */
 import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
 import { IconPicker } from './landing-icon-picker'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 
 /** Lazy-load MarkdocEditor (CodeMirror) to avoid bundling in main chunk */
 const MarkdocEditor = lazy(() => import('../field-renderers/markdoc-editor'))
@@ -19,6 +19,44 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </div>
   )
+}
+
+/** Inline row — puts children side by side */
+function InlineRow({ children }: { children: React.ReactNode }) {
+  return <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', alignItems: 'flex-end' }}>{children}</div>
+}
+
+/** Collapsible items list — shows count when collapsed, expands on click */
+function CollapsibleItems({ label, count, children, addButton, defaultOpen = false }: { label: string; count: number; children: React.ReactNode; addButton: React.ReactNode; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div style={{ marginBottom: '0.75rem' }}>
+      <div onClick={() => setOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none', marginBottom: open ? '0.5rem' : 0 }}>
+        <span style={{ fontSize: '0.6rem', color: '#94a3b8', transition: 'transform 0.15s', transform: open ? 'rotate(90deg)' : 'none' }}>▶</span>
+        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>{label}</label>
+        <span style={{ fontSize: '0.65rem', color: '#94a3b8', background: '#f1f5f9', padding: '1px 6px', borderRadius: '99px' }}>{count}</span>
+      </div>
+      {open && <>{children}{addButton}</>}
+    </div>
+  )
+}
+
+/** Auto-detect social platform icon from URL */
+function detectSocialIcon(url: string): string {
+  const u = url.toLowerCase()
+  if (u.includes('facebook.com')) return '📘'
+  if (u.includes('x.com') || u.includes('twitter.com')) return '𝕏'
+  if (u.includes('instagram.com')) return '📷'
+  if (u.includes('youtube.com')) return '▶️'
+  if (u.includes('linkedin.com')) return '💼'
+  if (u.includes('discord')) return '💬'
+  if (u.includes('tiktok.com')) return '🎵'
+  if (u.includes('github.com')) return '💻'
+  if (u.includes('telegram')) return '✈️'
+  if (u.includes('reddit.com')) return '🔴'
+  if (u.includes('pinterest.com')) return '📌'
+  if (u.includes('whatsapp')) return '📱'
+  return '🔗'
 }
 
 const inputStyle = { width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem', background: 'white' }
@@ -74,15 +112,17 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
   const set = (k: keyof HeroData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'centered'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="centered">Centered (default)</option>
-          <option value="split">Split (text left + media right)</option>
-          <option value="video-bg">Video/Image Background</option>
-          <option value="minimal">Minimal (no CTA button)</option>
-        </select>
-      </Field>
-      <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'centered'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="centered">Centered</option>
+            <option value="split">Split</option>
+            <option value="video-bg">Video BG</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </Field></div>
+      </InlineRow>
       <Field label="Subheadline"><textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
       {data.variant !== 'minimal' && (
         <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
@@ -100,38 +140,93 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
 export function FeaturesSectionForm({ data, onChange }: FormProps<FeaturesData>) {
   const set = (k: keyof FeaturesData, v: unknown) => onChange({ ...data, [k]: v })
   const items = data.items || []
+  const [openItem, setOpenItem] = useState<number | null>(null)
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="grid">Grid (default)</option>
-          <option value="list">List (icon left, text right)</option>
-          <option value="alternating">Alternating (zigzag rows)</option>
-        </select>
-      </Field>
-      <Field label="Columns">
-        <select style={inputStyle} value={data.columns || 3} onChange={(e) => set('columns', Number(e.target.value))}>
-          <option value={2}>2</option>
-          <option value={3}>3 (default)</option>
-          <option value={4}>4</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
-      <Field label="Feature Items">
-        {items.map((item, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ marginBottom: '4px' }}><IconPicker value={item.icon || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], icon: v }; set('items', n) }} placeholder="Icon (emoji or text)" /></div>
-            <input placeholder="Title" style={{ ...inputStyle, marginBottom: '4px' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
-            <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
-            <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
-              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Feature</button>
-      </Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '60px', flexShrink: 0 }}><Field label="Cols">
+          <select style={inputStyle} value={data.columns || 3} onChange={(e) => set('columns', Number(e.target.value))}>
+            <option value={2}>2</option><option value={3}>3</option><option value={4}>4</option>
+          </select>
+        </Field></div>
+        <div style={{ width: '110px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="grid">Grid</option><option value="list">List</option><option value="alternating">Alternating</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="Features" count={items.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Feature</button>}>
+        {items.map((item, i) => {
+          const open = openItem === i
+          return (
+            <div key={i} style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.4rem', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div onClick={() => setOpenItem(open ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+                <span style={{ fontSize: '0.6rem', color: '#94a3b8', transition: 'transform 0.15s', transform: open ? 'rotate(90deg)' : 'none' }}>▶</span>
+                <span style={{ fontSize: '0.85rem' }}>{item.icon || '✦'}</span>
+                <span style={{ fontSize: '0.78rem', color: '#1e293b', fontWeight: 600, flex: 1 }}>{item.title || `Feature ${i + 1}`}</span>
+                <button type="button" onClick={(e) => { e.stopPropagation(); set('items', items.filter((_, j) => j !== i)) }}
+                  style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.65rem' }}>×</button>
+              </div>
+              {open && (
+                <div style={{ padding: '0 0.6rem 0.5rem' }}>
+                  <input placeholder="Title" style={{ ...inputStyle, marginBottom: '4px', padding: '4px 8px', fontSize: '0.8rem' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
+                  <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '40px', padding: '4px 8px', fontSize: '0.8rem' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </CollapsibleItems>
     </>
+  )
+}
+
+/** Collapsible plan item — shows name + price in header, expands to full form */
+function PlanItemAccordion({ plan, index, onUpdate, onRemove }: { plan: any; index: number; onUpdate: (p: any) => void; onRemove: () => void }) {
+  const [open, setOpen] = useState(false)
+  const up = (k: string, v: unknown) => onUpdate({ ...plan, [k]: v })
+  return (
+    <div style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.4rem', border: plan.highlighted ? '1.5px solid #3b82f6' : '1px solid #e2e8f0', overflow: 'hidden' }}>
+      <div onClick={() => setOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+        <span style={{ fontSize: '0.6rem', color: '#94a3b8', transition: 'transform 0.15s', transform: open ? 'rotate(90deg)' : 'none' }}>▶</span>
+        <strong style={{ fontSize: '0.8rem', color: '#1e293b', flex: 1 }}>{plan.name || `Plan ${index + 1}`}</strong>
+        <span style={{ fontSize: '0.75rem', color: '#3b82f6', fontWeight: 600 }}>{plan.price || '—'}</span>
+        {plan.highlighted && <span style={{ fontSize: '0.6rem', background: '#dbeafe', color: '#1d4ed8', padding: '1px 5px', borderRadius: '3px' }}>★</span>}
+        <button type="button" onClick={(e) => { e.stopPropagation(); onRemove() }}
+          style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.65rem' }}>×</button>
+      </div>
+      {open && (
+        <div style={{ padding: '0 0.6rem 0.6rem' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '4px' }}>
+            <input placeholder="Name" style={{ ...inputStyle, flex: 2, padding: '4px 8px', fontSize: '0.8rem' }} value={plan.name} onChange={(e) => up('name', e.target.value)} />
+            <input placeholder="$29" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={plan.price} onChange={(e) => up('price', e.target.value)} />
+            <input placeholder="/mo" style={{ ...inputStyle, width: '50px', flexShrink: 0, padding: '4px 8px', fontSize: '0.8rem' }} value={plan.period || ''} onChange={(e) => up('period', e.target.value)} />
+          </div>
+          <input placeholder="Description" style={{ ...inputStyle, marginBottom: '4px', padding: '4px 8px', fontSize: '0.8rem' }} value={plan.description || ''} onChange={(e) => up('description', e.target.value)} />
+          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '4px' }}>
+            <input placeholder="Badge" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={plan.badge || ''} onChange={(e) => up('badge', e.target.value)} />
+            <input placeholder="CTA text" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={plan.cta?.text || ''} onChange={(e) => up('cta', { ...plan.cta, text: e.target.value, url: plan.cta?.url || '#' })} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: '#475569', marginBottom: '0.4rem' }}>
+            <input type="checkbox" checked={!!plan.highlighted} onChange={(e) => up('highlighted', e.target.checked)} /> Featured
+          </label>
+          <CollapsibleItems label="Features" count={(plan.features || []).length}
+            addButton={<button type="button" onClick={() => up('features', [...(plan.features || []), ''])}
+              style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Feature</button>}>
+            {(plan.features || []).map((feat: string, fi: number) => (
+              <div key={fi} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                <input style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={feat} onChange={(e) => { const f = [...(plan.features || [])]; f[fi] = e.target.value; up('features', f) }} />
+                <button type="button" onClick={() => up('features', (plan.features || []).filter((_: unknown, j: number) => j !== fi))}
+                  style={{ padding: '2px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+              </div>
+            ))}
+          </CollapsibleItems>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -140,51 +235,24 @@ export function PricingSectionForm({ data, onChange }: FormProps<PricingData>) {
   const plans = data.plans || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="cards">Cards (default)</option>
-          <option value="simple">Simple (horizontal compact)</option>
-          <option value="highlight-center">Highlight Center (elevated middle plan)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="cards">Cards</option>
+            <option value="simple">Simple</option>
+            <option value="highlight-center">Highlight Center</option>
+          </select>
+        </Field></div>
+      </InlineRow>
       <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
-      <Field label="Plans">
+      <CollapsibleItems label="Plans" count={plans.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('plans', [...plans, { name: '', price: '', features: [], cta: { text: 'Get started', url: '#' } }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Plan</button>}>
         {plans.map((plan, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', border: plan.highlighted ? '1.5px solid #3b82f6' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <strong style={{ fontSize: '0.8rem', color: '#1e293b' }}>{plan.name || `Plan ${i + 1}`}</strong>
-              <button type="button" onClick={() => set('plans', plans.filter((_, j) => j !== i))}
-                style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
-            </div>
-            <input placeholder="Plan name" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.name} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], name: e.target.value }; set('plans', n) }} />
-            <input placeholder="Price (e.g. $29)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.price} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], price: e.target.value }; set('plans', n) }} />
-            <input placeholder="Period (e.g. /month)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.period || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], period: e.target.value }; set('plans', n) }} />
-            <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px', marginBottom: '4px' }} value={plan.description || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], description: e.target.value }; set('plans', n) }} />
-            <input placeholder="Badge (e.g. Most Popular)" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.badge || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], badge: e.target.value }; set('plans', n) }} />
-            <input placeholder="CTA Button Text" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.cta?.text || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], cta: { ...n[i].cta, text: e.target.value, url: n[i].cta?.url || '#' } }; set('plans', n) }} />
-            <input placeholder="CTA Button URL" style={{ ...inputStyle, marginBottom: '4px' }} value={plan.cta?.url || ''} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], cta: { ...n[i].cta, url: e.target.value, text: n[i].cta?.text || 'Get started' } }; set('plans', n) }} />
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#475569', marginBottom: '0.5rem' }}>
-              <input type="checkbox" checked={!!plan.highlighted} onChange={(e) => { const n = [...plans]; n[i] = { ...n[i], highlighted: e.target.checked }; set('plans', n) }} />
-              Highlighted (featured plan)
-            </label>
-            <div style={{ marginTop: '0.25rem' }}>
-              <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Features</label>
-              {(plan.features || []).map((feat, fi) => (
-                <div key={fi} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                  <input style={{ ...inputStyle, flex: 1 }} value={feat} onChange={(e) => { const n = [...plans]; const feats = [...(n[i].features || [])]; feats[fi] = e.target.value; n[i] = { ...n[i], features: feats }; set('plans', n) }} />
-                  <button type="button" onClick={() => { const n = [...plans]; n[i] = { ...n[i], features: (n[i].features || []).filter((_, fj) => fj !== fi) }; set('plans', n) }}
-                    style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
-                </div>
-              ))}
-              <button type="button" onClick={() => { const n = [...plans]; n[i] = { ...n[i], features: [...(n[i].features || []), ''] }; set('plans', n) }}
-                style={{ fontSize: '0.72rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Feature</button>
-            </div>
-          </div>
+          <PlanItemAccordion key={i} plan={plan} index={i} onUpdate={(updated) => { const n = [...plans]; n[i] = updated; set('plans', n) }} onRemove={() => set('plans', plans.filter((_, j) => j !== i))} />
         ))}
-        <button type="button" onClick={() => set('plans', [...plans, { name: '', price: '', features: [], cta: { text: 'Get started', url: '#' } }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Plan</button>
-      </Field>
+      </CollapsibleItems>
     </>
   )
 }
@@ -192,33 +260,51 @@ export function PricingSectionForm({ data, onChange }: FormProps<PricingData>) {
 export function TestimonialsSectionForm({ data, onChange }: FormProps<TestimonialsData>) {
   const set = (k: keyof TestimonialsData, v: unknown) => onChange({ ...data, [k]: v })
   const items = data.items || []
+  const [openItem, setOpenItem] = useState<number | null>(null)
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="cards">Cards (default)</option>
-          <option value="carousel">Carousel (auto-scrolling horizontal)</option>
-          <option value="single">Single (one large centered quote)</option>
-          <option value="minimal">Minimal (text-only, no avatars)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Testimonials">
-        {items.map((item, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
-            <textarea placeholder="Quote" style={{ ...textareaStyle, minHeight: '50px', marginBottom: '4px' }} value={item.quote} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], quote: e.target.value }; set('items', n) }} />
-            <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={item.name} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], name: e.target.value }; set('items', n) }} />
-            <input placeholder="Role" style={{ ...inputStyle, marginBottom: '4px' }} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
-            <input placeholder="Avatar URL (profile pic)" style={{ ...inputStyle, marginBottom: '4px' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
-            <input placeholder="Company" style={{ ...inputStyle, marginBottom: '4px' }} value={item.company || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], company: e.target.value }; set('items', n) }} />
-            <input placeholder="Image URL (screenshot)" style={inputStyle} value={item.image || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], image: e.target.value }; set('items', n) }} />
-            <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
-              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => set('items', [...items, { quote: '', name: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Testimonial</button>
-      </Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="cards">Cards</option>
+            <option value="carousel">Carousel</option>
+            <option value="single">Single</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="Testimonials" count={items.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('items', [...items, { quote: '', name: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Testimonial</button>}>
+        {items.map((item, i) => {
+          const open = openItem === i
+          return (
+            <div key={i} style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.4rem', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div onClick={() => setOpenItem(open ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+                <span style={{ fontSize: '0.6rem', color: '#94a3b8', transition: 'transform 0.15s', transform: open ? 'rotate(90deg)' : 'none' }}>▶</span>
+                <span style={{ fontSize: '0.78rem', color: '#1e293b', fontWeight: 600, flex: 1 }}>{item.name || `Testimonial ${i + 1}`}</span>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.quote?.slice(0, 40)}</span>
+                <button type="button" onClick={(e) => { e.stopPropagation(); set('items', items.filter((_, j) => j !== i)) }}
+                  style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.65rem' }}>×</button>
+              </div>
+              {open && (
+                <div style={{ padding: '0 0.6rem 0.5rem' }}>
+                  <textarea placeholder="Quote" style={{ ...textareaStyle, minHeight: '40px', padding: '4px 8px', fontSize: '0.8rem', marginBottom: '4px' }} value={item.quote} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], quote: e.target.value }; set('items', n) }} />
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '4px' }}>
+                    <input placeholder="Name" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.name} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], name: e.target.value }; set('items', n) }} />
+                    <input placeholder="Role" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <input placeholder="Company" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.company || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], company: e.target.value }; set('items', n) }} />
+                    <input placeholder="Avatar URL" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </CollapsibleItems>
     </>
   )
 }
@@ -228,15 +314,19 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
   const items = data.items || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'accordion'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="accordion">Accordion (default, expandable)</option>
-          <option value="two-column">Two Column (Q left, A right)</option>
-          <option value="simple">Simple (all expanded)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="FAQ Items">
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'accordion'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="accordion">Accordion</option>
+            <option value="two-column">Two Column</option>
+            <option value="simple">Simple</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="FAQ Items" count={items.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('items', [...items, { question: '', answer: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add FAQ</button>}>
         {items.map((item, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
             <input placeholder="Question" style={{ ...inputStyle, marginBottom: '4px' }} value={item.question} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], question: e.target.value }; set('items', n) }} />
@@ -245,9 +335,7 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
           </div>
         ))}
-        <button type="button" onClick={() => set('items', [...items, { question: '', answer: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add FAQ</button>
-      </Field>
+      </CollapsibleItems>
     </>
   )
 }
@@ -256,16 +344,18 @@ export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
   const set = (k: keyof CtaData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="default">Centered (default)</option>
-          <option value="split">Split (text left, button right)</option>
-          <option value="banner">Banner (full-width gradient)</option>
-          <option value="minimal">Minimal (text link only)</option>
-          <option value="with-image">With Image (background + overlay)</option>
-        </select>
-      </Field>
-      <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="default">Centered</option>
+            <option value="split">Split</option>
+            <option value="banner">Banner</option>
+            <option value="minimal">Minimal</option>
+            <option value="with-image">With Image</option>
+          </select>
+        </Field></div>
+      </InlineRow>
       <Field label="Subheadline"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
       <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
       {data.variant === 'with-image' && (
@@ -280,32 +370,26 @@ export function StatsSectionForm({ data, onChange }: FormProps<StatsData>) {
   const items = data.items || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'row'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="row">Row (default, horizontal)</option>
-          <option value="cards">Cards (each stat in a card)</option>
-          <option value="large">Large (big numbers, vertical)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Stats">
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'row'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="row">Row</option><option value="cards">Cards</option><option value="large">Large</option><option value="counter">Counter</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="Stats" count={items.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('items', [...items, { value: '', label: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Stat</button>}>
         {items.map((item, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.6rem', marginBottom: '0.5rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '4px' }}>
-              <input placeholder="Prefix (e.g. $)" style={{ ...inputStyle, flex: 1 }} value={item.prefix || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], prefix: e.target.value }; set('items', n) }} />
-              <input placeholder="Value (e.g. 10k)" style={{ ...inputStyle, flex: 2 }} value={item.value} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], value: e.target.value }; set('items', n) }} />
-              <input placeholder="Suffix (e.g. +)" style={{ ...inputStyle, flex: 1 }} value={item.suffix || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], suffix: e.target.value }; set('items', n) }} />
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <input placeholder="Label" style={{ ...inputStyle, flex: 1 }} value={item.label} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], label: e.target.value }; set('items', n) }} />
-              <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
-                style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
-            </div>
+          <div key={i} style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.4rem', background: '#f8fafc', borderRadius: '6px', padding: '0.4rem' }}>
+            <input placeholder="Value" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.value} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], value: e.target.value }; set('items', n) }} />
+            <input placeholder="Label" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.label} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], label: e.target.value }; set('items', n) }} />
+            <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
+              style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
           </div>
         ))}
-        <button type="button" onClick={() => set('items', [...items, { value: '', label: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Stat</button>
-      </Field>
+      </CollapsibleItems>
     </>
   )
 }
@@ -315,27 +399,28 @@ export function HowItWorksSectionForm({ data, onChange }: FormProps<HowItWorksDa
   const items = data.items || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'numbered'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="numbered">Numbered (default)</option>
-          <option value="timeline">Timeline (vertical with dots)</option>
-          <option value="cards">Cards (icon-forward grid)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Steps">
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'numbered'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="numbered">Numbered</option><option value="timeline">Timeline</option><option value="cards">Cards</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <CollapsibleItems label="Steps" count={items.length}
+        addButton={<button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Step</button>}>
         {items.map((item, i) => (
-          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ marginBottom: '4px' }}><IconPicker value={item.icon || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], icon: v }; set('items', n) }} placeholder="Icon (emoji or text)" /></div>
-            <input placeholder="Step title" style={{ ...inputStyle, marginBottom: '4px' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
-            <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
-            <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
-              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+          <div key={i} style={{ background: '#f8fafc', borderRadius: '6px', padding: '0.5rem', marginBottom: '0.4rem' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '4px' }}>
+              <input placeholder="Title" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
+              <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
+                style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
+            </div>
+            <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '40px', padding: '4px 8px', fontSize: '0.8rem' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
           </div>
         ))}
-        <button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Step</button>
-      </Field>
+      </CollapsibleItems>
     </>
   )
 }
@@ -345,16 +430,20 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
   const members = data.members || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="grid">Grid (default, photo cards)</option>
-          <option value="list">List (horizontal rows with photos)</option>
-          <option value="compact">Compact (names only, no photos)</option>
-        </select>
-      </Field>
-      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="grid">Grid</option>
+            <option value="list">List</option>
+            <option value="compact">Compact</option>
+          </select>
+        </Field></div>
+      </InlineRow>
       <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
-      <Field label="Team Members">
+      <CollapsibleItems label="Members" count={members.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('members', [...members, { name: '', role: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Member</button>}>
         {members.map((m, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={m.name} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], name: e.target.value }; set('members', n) }} />
@@ -365,9 +454,7 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
           </div>
         ))}
-        <button type="button" onClick={() => set('members', [...members, { name: '', role: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Member</button>
-      </Field>
+      </CollapsibleItems>
     </>
   )
 }
@@ -403,35 +490,68 @@ function NavSectionForm({ data, onChange }: FormProps<NavData>) {
   const links = data.links || []
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="default">Default (logo left, links right)</option>
-          <option value="centered">Centered (logo center, links split)</option>
-          <option value="transparent">Transparent (no background, overlay)</option>
-        </select>
-      </Field>
-      <Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field>
-      <Field label="Nav Links (leave empty to auto-generate from sections)">
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="default">Default</option>
+            <option value="centered">Centered</option>
+            <option value="transparent">Transparent</option>
+            <option value="hamburger">Hamburger</option>
+            <option value="mega">Mega</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <Field label="Logo URL"><input style={inputStyle} value={data.logo || ''} onChange={(e) => set('logo', e.target.value)} placeholder="https://example.com/logo.png" /></Field>
+      <CollapsibleItems label="Nav Links" count={links.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>}>
         {links.map((link, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
+          <div key={i} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.25rem', alignItems: 'center' }}>
+            <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={link.label} placeholder="Label"
               onChange={(e) => { const n = [...links]; n[i] = { ...n[i], label: e.target.value }; set('links', n) }} />
-            <input style={{ ...inputStyle, flex: 1 }} value={link.href} placeholder="#section-features"
-              onChange={(e) => { const n = [...links]; n[i] = { ...n[i], href: e.target.value }; set('links', n) }} />
+            <select style={{ ...inputStyle, width: '90px', flexShrink: 0, padding: '4px 4px', fontSize: '0.72rem', color: link.href?.startsWith('#') ? '#3b82f6' : '#64748b' }}
+              value={link.href?.startsWith('#section-') ? link.href : '_custom'}
+              onChange={(e) => {
+                const v = e.target.value
+                if (v === '_custom') { const n = [...links]; n[i] = { ...n[i], href: '' }; set('links', n) }
+                else { const n = [...links]; n[i] = { ...n[i], href: v, label: n[i].label || v.replace('#section-', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }; set('links', n) }
+              }}>
+              <option value="_custom">URL...</option>
+              <option value="#section-hero">→ Hero</option>
+              <option value="#section-features">→ Features</option>
+              <option value="#section-pricing">→ Pricing</option>
+              <option value="#section-testimonials">→ Testimonials</option>
+              <option value="#section-faq">→ FAQ</option>
+              <option value="#section-stats">→ Stats</option>
+              <option value="#section-how-it-works">→ How It Works</option>
+              <option value="#section-team">→ Team</option>
+              <option value="#section-cta">→ CTA</option>
+              <option value="#section-contact-form">→ Contact</option>
+            </select>
+            {(!link.href?.startsWith('#section-')) && (
+              <>
+                <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={link.href} placeholder="https://..."
+                  onChange={(e) => { const n = [...links]; n[i] = { ...n[i], href: e.target.value }; set('links', n) }} />
+                <label title="Open in new tab" style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '0.65rem', color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }}>
+                  <input type="checkbox" checked={!!(link as any).target} onChange={(e) => { const n = [...links]; n[i] = { ...n[i], target: e.target.checked ? '_blank' : undefined } as any; set('links', n) }}
+                    style={{ width: '12px', height: '12px' }} />↗
+                </label>
+              </>
+            )}
             <button type="button" onClick={() => set('links', links.filter((_, j) => j !== i))}
-              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+              style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
           </div>
         ))}
-        <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
-      </Field>
+      </CollapsibleItems>
       <Field label="Social Links">
         {(data.socialLinks || []).map((sl, i) => (
           <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
-            <div style={{ width: '140px', flexShrink: 0 }}><IconPicker value={sl.icon} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} placeholder="Icon" /></div>
-            <input style={{ ...inputStyle, flex: 1 }} value={sl.url} placeholder="https://twitter.com/..." onChange={(e) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], url: e.target.value }; set('socialLinks', n) }} />
+            <IconPicker value={sl.icon || detectSocialIcon(sl.url)} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} compact />
+            <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={sl.url} placeholder="https://twitter.com/..."
+              onChange={(e) => { const n = [...(data.socialLinks || [])]; const autoIcon = detectSocialIcon(e.target.value); n[i] = { ...n[i], url: e.target.value, icon: autoIcon }; set('socialLinks', n) }} />
             <button type="button" onClick={() => set('socialLinks', (data.socialLinks || []).filter((_, j) => j !== i))}
-              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+              style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
           </div>
         ))}
         <button type="button" onClick={() => set('socialLinks', [...(data.socialLinks || []), { icon: '', url: '' }])}
@@ -446,48 +566,63 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
   const set = (k: keyof FooterData, v: unknown) => onChange({ ...data, [k]: v })
   const links = data.links || []
   const columns = data.columns || []
+  const [openCol, setOpenCol] = useState<number | null>(null)
   return (
     <>
-      <Field label="Layout Variant">
-        <select style={inputStyle} value={data.variant || 'simple'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="simple">Simple (default, centered text)</option>
-          <option value="columns">Columns (multi-column link groups)</option>
-          <option value="minimal">Minimal (copyright only)</option>
-        </select>
-      </Field>
-      <Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field></div>
+        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'simple'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="simple">Simple</option>
+            <option value="columns">Columns</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </Field></div>
+      </InlineRow>
 
       {/* Column groups editor — shown when variant is columns */}
       {data.variant === 'columns' && (
-        <Field label="Column Groups">
-          {columns.map((col, ci) => (
-            <div key={ci} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <input style={{ ...inputStyle, flex: 1, fontWeight: 600 }} value={col.heading} placeholder="Column heading"
-                  onChange={(e) => { const n = [...columns]; n[ci] = { ...n[ci], heading: e.target.value }; set('columns', n) }} />
-                <button type="button" onClick={() => set('columns', columns.filter((_, j) => j !== ci))}
-                  style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>Remove</button>
-              </div>
-              {(col.links || []).map((link, li) => (
-                <div key={li} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem', paddingLeft: '0.5rem' }}>
-                  <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
-                    onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], label: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
-                  <input style={{ ...inputStyle, flex: 1 }} value={link.href} placeholder="/page"
-                    onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], href: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
-                  <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: (n[ci].links || []).filter((_, j) => j !== li) }; set('columns', n) }}
-                    style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+        <CollapsibleItems label="Column Groups" count={columns.length} defaultOpen
+          addButton={<button type="button" onClick={() => set('columns', [...columns, { heading: '', links: [] }])}
+            style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add column group</button>}>
+          {columns.map((col, ci) => {
+            const isOpen = openCol === ci
+            return (
+              <div key={ci} style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.4rem', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                <div onClick={() => setOpenCol(isOpen ? null : ci)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+                  <span style={{ fontSize: '0.6rem', color: '#94a3b8', transition: 'transform 0.15s', transform: isOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
+                  <span style={{ fontSize: '0.78rem', color: '#1e293b', fontWeight: 600, flex: 1 }}>{col.heading || `Column ${ci + 1}`}</span>
+                  <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{(col.links || []).length} links</span>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); set('columns', columns.filter((_, j) => j !== ci)) }}
+                    style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.65rem' }}>×</button>
                 </div>
-              ))}
-              <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: [...(n[ci].links || []), { label: '', href: '' }] }; set('columns', n) }}
-                style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', paddingLeft: '0.5rem' }}>+ Add link</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => set('columns', [...columns, { heading: '', links: [] }])}
-            style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add column group</button>
-        </Field>
+                {isOpen && (
+                  <div style={{ padding: '0 0.6rem 0.5rem' }}>
+                    <input style={{ ...inputStyle, marginBottom: '0.4rem', padding: '4px 8px', fontSize: '0.8rem', fontWeight: 600 }} value={col.heading} placeholder="Column heading"
+                      onChange={(e) => { const n = [...columns]; n[ci] = { ...n[ci], heading: e.target.value }; set('columns', n) }} />
+                    {(col.links || []).map((link, li) => (
+                      <div key={li} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                        <input style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={link.label} placeholder="Label"
+                          onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], label: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
+                        <input style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={link.href} placeholder="/page"
+                          onChange={(e) => { const n = [...columns]; const lks = [...(n[ci].links || [])]; lks[li] = { ...lks[li], href: e.target.value }; n[ci] = { ...n[ci], links: lks }; set('columns', n) }} />
+                        <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: (n[ci].links || []).filter((_, j) => j !== li) }; set('columns', n) }}
+                          style={{ padding: '2px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => { const n = [...columns]; n[ci] = { ...n[ci], links: [...(n[ci].links || []), { label: '', href: '' }] }; set('columns', n) }}
+                      style={{ fontSize: '0.68rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </CollapsibleItems>
       )}
 
-      <Field label={data.variant === 'columns' ? 'Bottom Bar Links (e.g. Privacy, Terms)' : 'Footer Links'}>
+      <CollapsibleItems label={data.variant === 'columns' ? 'Bottom Bar Links' : 'Footer Links'} count={links.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>}>
         {links.map((link, i) => (
           <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
             <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
@@ -498,16 +633,15 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
               style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
           </div>
         ))}
-        <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
-          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
-      </Field>
+      </CollapsibleItems>
       <Field label="Social Links">
         {(data.socialLinks || []).map((sl, i) => (
           <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
-            <div style={{ width: '140px', flexShrink: 0 }}><IconPicker value={sl.icon} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} placeholder="Icon" /></div>
-            <input style={{ ...inputStyle, flex: 1 }} value={sl.url} placeholder="https://twitter.com/..." onChange={(e) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], url: e.target.value }; set('socialLinks', n) }} />
+            <IconPicker value={sl.icon || detectSocialIcon(sl.url)} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} compact />
+            <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={sl.url} placeholder="https://twitter.com/..."
+              onChange={(e) => { const n = [...(data.socialLinks || [])]; const autoIcon = detectSocialIcon(e.target.value); n[i] = { ...n[i], url: e.target.value, icon: autoIcon }; set('socialLinks', n) }} />
             <button type="button" onClick={() => set('socialLinks', (data.socialLinks || []).filter((_, j) => j !== i))}
-              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+              style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
           </div>
         ))}
         <button type="button" onClick={() => set('socialLinks', [...(data.socialLinks || []), { icon: '', url: '' }])}
@@ -689,9 +823,14 @@ const LAYOUT_PRESETS: Array<{ label: string; cols: number[] }> = [
   { label: '1:1', cols: [1, 1] },
   { label: '1:2', cols: [1, 2] },
   { label: '2:1', cols: [2, 1] },
+  { label: '3:1', cols: [3, 1] },
+  { label: '1:3', cols: [1, 3] },
+  { label: '2:3', cols: [2, 3] },
+  { label: '3:2', cols: [3, 2] },
   { label: '1:1:1', cols: [1, 1, 1] },
-  { label: '1:1:1:1', cols: [1, 1, 1, 1] },
   { label: '1:2:1', cols: [1, 2, 1] },
+  { label: '1:1:1:1', cols: [1, 1, 1, 1] },
+  { label: 'Full', cols: [1] },
 ]
 
 /** Nested section types available inside a layout column (excludes nav, footer, layout) */
@@ -777,28 +916,65 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
 
   return (
     <>
-      <Field label="Column Preset">
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-          {LAYOUT_PRESETS.map(p => {
-            const active = p.cols.join(',') === columns.join(',')
-            return (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => setColumns(p.cols)}
-                style={{
-                  padding: '4px 10px', borderRadius: '6px', border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`,
-                  background: active ? '#eff6ff' : 'white', color: active ? '#1d4ed8' : '#475569',
-                  fontSize: '0.75rem', cursor: 'pointer', fontWeight: active ? 600 : 400,
-                }}
-              >{p.label}</button>
-            )
-          })}
-        </div>
-      </Field>
-      <Field label="Gap">
-        <input style={inputStyle} value={gap} onChange={(e) => onChange({ ...data, gap: e.target.value })} placeholder="1rem" />
-      </Field>
+      {(() => {
+        const v = data.variant || 'grid'
+        // Variants with fixed column layouts — columns preset disabled
+        const fixedVariants: Record<string, { cols: number[]; desc: string }> = {
+          'sidebar-left': { cols: [1, 3], desc: '280px + fluid' },
+          'sidebar-right': { cols: [3, 1], desc: 'fluid + 280px' },
+          'asymmetric': { cols: [3, 2], desc: '60% / 40%' },
+          'thirds': { cols: [1, 1, 1], desc: '3 equal' },
+          'hero-split': { cols: [1, 1], desc: '55% / 45%' },
+          'stacked': { cols: [1], desc: 'full width' },
+        }
+        const isFixed = v in fixedVariants
+        // Auto-set columns when switching to a fixed variant
+        function handleVariantChange(newVariant: string) {
+          const fixed = fixedVariants[newVariant]
+          if (fixed) {
+            setColumns(fixed.cols)
+            onChange({ ...data, variant: newVariant as any, columns: fixed.cols })
+          } else {
+            onChange({ ...data, variant: newVariant as any })
+          }
+        }
+        return (
+          <InlineRow>
+            <div style={{ flex: 1 }}>
+              {isFixed ? (
+                <Field label="Columns">
+                  <div style={{ padding: '5px 10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.78rem', color: '#64748b' }}>
+                    {fixedVariants[v].desc} <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>(fixed by variant)</span>
+                  </div>
+                </Field>
+              ) : (
+                <Field label="Columns">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
+                    {LAYOUT_PRESETS.map(p => {
+                      const active = p.cols.join(',') === columns.join(',')
+                      return (
+                        <button key={p.label} type="button" onClick={() => setColumns(p.cols)}
+                          style={{ padding: '2px 7px', borderRadius: '4px', border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`, background: active ? '#eff6ff' : 'white', color: active ? '#1d4ed8' : '#64748b', fontSize: '0.68rem', cursor: 'pointer', fontWeight: active ? 600 : 400 }}
+                        >{p.label}</button>
+                      )
+                    })}
+                  </div>
+                </Field>
+              )}
+            </div>
+            <div style={{ width: '120px', flexShrink: 0 }}><Field label="Variant">
+              <select style={inputStyle} value={v} onChange={(e) => handleVariantChange(e.target.value)}>
+                <option value="grid">Grid</option><option value="sidebar-left">Sidebar L</option><option value="sidebar-right">Sidebar R</option>
+                <option value="asymmetric">Asymmetric</option><option value="thirds">Thirds</option><option value="hero-split">Hero Split</option>
+                <option value="stacked">Stacked</option><option value="masonry">Masonry</option>
+              </select>
+            </Field></div>
+            <div style={{ width: '70px', flexShrink: 0 }}><Field label="Gap">
+              <input style={inputStyle} value={gap} onChange={(e) => onChange({ ...data, gap: e.target.value })} placeholder="1rem" />
+            </Field></div>
+          </InlineRow>
+        )
+      })()}
       {columns.map((_, colIdx) => {
         const col = children.find(c => c.column === colIdx) || { column: colIdx, sections: [] }
         return (
@@ -838,32 +1014,48 @@ export function ComparisonSectionForm({ data, onChange }: FormProps<ComparisonDa
   const set = (k: keyof ComparisonData, v: unknown) => onChange({ ...data, [k]: v })
   const columns = data.columns || []
   const rows = data.rows || []
+  const [openRow, setOpenRow] = useState<number | null>(null)
   return (
     <>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
-      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
-      <Field label="Columns">
-        {columns.map((col, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <input style={{ ...inputStyle, flex: 1 }} value={col.label} onChange={(e) => { const c = [...columns]; c[i] = { ...c[i], label: e.target.value }; set('columns', c) }} placeholder="Column label" />
-            <button type="button" onClick={() => set('columns', columns.filter((_, j) => j !== i))} style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => set('columns', [...columns, { label: '' }])} style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Column</button>
-      </Field>
-      <Field label="Rows">
-        {rows.map((row, i) => (
-          <div key={i} style={{ marginBottom: '0.75rem', padding: '0.5rem', background: '#f8fafc', borderRadius: '6px' }}>
-            <input style={{ ...inputStyle, marginBottom: '0.25rem' }} value={row.label} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], label: e.target.value }; set('rows', r) }} placeholder="Row label" />
-            {(row.values || []).map((val, vi) => (
-              <input key={vi} style={{ ...inputStyle, marginBottom: '0.25rem' }} value={val} onChange={(e) => { const r = [...rows]; const vals = [...(r[i].values || [])]; vals[vi] = e.target.value; r[i] = { ...r[i], values: vals }; set('rows', r) }} placeholder={`Value for ${columns[vi]?.label || `col ${vi + 1}`}`} />
-            ))}
-            <label style={{ fontSize: '0.7rem', color: '#64748b' }}><input type="checkbox" checked={row.highlight || false} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], highlight: e.target.checked }; set('rows', r) }} /> Highlight</label>
-            <button type="button" onClick={() => set('rows', rows.filter((_, j) => j !== i))} style={{ marginLeft: '0.5rem', fontSize: '0.7rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => set('rows', [...rows, { label: '', values: columns.map(() => ''), highlight: false }])} style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Row</button>
-      </Field>
+      <CollapsibleItems label="Columns" count={columns.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('columns', [...columns, { label: '' }])} style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Column</button>}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+          {columns.map((col, i) => (
+            <div key={i} style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+              <input style={{ ...inputStyle, width: '90px', padding: '3px 6px', fontSize: '0.75rem' }} value={col.label} onChange={(e) => { const c = [...columns]; c[i] = { ...c[i], label: e.target.value }; set('columns', c) }} placeholder={`Col ${i + 1}`} />
+              <button type="button" onClick={() => set('columns', columns.filter((_, j) => j !== i))} style={{ padding: '1px 4px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+            </div>
+          ))}
+        </div>
+      </CollapsibleItems>
+      <CollapsibleItems label="Rows" count={rows.length} defaultOpen
+        addButton={<button type="button" onClick={() => set('rows', [...rows, { label: '', values: columns.map(() => ''), highlight: false }])} style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Row</button>}>
+        {rows.map((row, i) => {
+          const isOpen = openRow === i
+          return (
+            <div key={i} style={{ background: '#f8fafc', borderRadius: '6px', marginBottom: '0.3rem', border: row.highlight ? '1px solid #3b82f6' : '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div onClick={() => setOpenRow(isOpen ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+                <span style={{ fontSize: '0.55rem', color: '#94a3b8', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e293b', flex: 1 }}>{row.label || `Row ${i + 1}`}</span>
+                {row.highlight && <span style={{ fontSize: '0.6rem', background: '#dbeafe', color: '#1d4ed8', padding: '1px 4px', borderRadius: '3px' }}>★</span>}
+                <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>{(row.values || []).filter(Boolean).length}/{columns.length}</span>
+                <button type="button" onClick={(e) => { e.stopPropagation(); set('rows', rows.filter((_, j) => j !== i)) }}
+                  style={{ padding: '1px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+              </div>
+              {isOpen && (
+                <div style={{ padding: '0 0.5rem 0.4rem' }}>
+                  <input style={{ ...inputStyle, marginBottom: '0.3rem', padding: '3px 6px', fontSize: '0.75rem', fontWeight: 600 }} value={row.label} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], label: e.target.value }; set('rows', r) }} placeholder="Row label" />
+                  {(row.values || []).map((val, vi) => (
+                    <input key={vi} style={{ ...inputStyle, marginBottom: '0.2rem', padding: '3px 6px', fontSize: '0.75rem' }} value={val} onChange={(e) => { const r = [...rows]; const vals = [...(r[i].values || [])]; vals[vi] = e.target.value; r[i] = { ...r[i], values: vals }; set('rows', r) }} placeholder={columns[vi]?.label || `Col ${vi + 1}`} />
+                  ))}
+                  <label style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><input type="checkbox" checked={row.highlight || false} onChange={(e) => { const r = [...rows]; r[i] = { ...r[i], highlight: e.target.checked }; set('rows', r) }} style={{ width: '12px', height: '12px' }} /> Highlight</label>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </CollapsibleItems>
     </>
   )
 }
