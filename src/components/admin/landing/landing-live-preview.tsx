@@ -717,17 +717,30 @@ function PreviewImageText({ data }: { data: ImageTextData }) {
 }
 
 function PreviewGallery({ data }: { data: GalleryData }) {
+  const v = data.variant || 'grid'
+  const cols = data.columns || 4
+  const images = data.images || []
+  const imgEl = (img: { src: string; alt?: string; caption?: string }, i: number) => (
+    <div key={i} className="lp-card-hover" style={{ overflow: 'hidden', borderRadius: 'var(--lp-radius, 8px)' }}>
+      {img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', aspectRatio: v === 'masonry' ? undefined : '4/3', objectFit: 'cover', display: 'block' }} /> :
+        <div style={{ background: '#e2e8f0', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: '#94a3b8' }}>No image</div>}
+      {img.caption && <p style={{ padding: '0.4rem', textAlign: 'center', fontSize: '0.7rem', color: 'var(--lp-text-muted)' }}>{img.caption}</p>}
+    </div>
+  )
   return (
-    <div style={{ padding: '1rem' }}>
-      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.75rem' }}>{data.heading}</h2>}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-        {(data.images || []).map((_, i) => (
-          <div key={i} style={{ background: 'var(--lp-text-muted, #94a3b8)', borderRadius: '6px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: 'var(--lp-text-muted)' }}>img</div>
-        ))}
-        {(data.images || []).length === 0 && [0,1,2].map(i => (
-          <div key={i} style={{ background: 'var(--lp-text-muted, #94a3b8)', borderRadius: '6px', aspectRatio: '1' }} />
-        ))}
-      </div>
+    <div className="landing-section">
+      {data.heading && (
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <h2>{data.heading}</h2>
+          {data.subheading && <p style={{ color: 'var(--lp-text-muted)', marginTop: '0.5rem' }}>{data.subheading}</p>}
+        </div>
+      )}
+      {v === 'grid' && <div className={`landing-grid-${Math.min(cols, 5)}`} style={{ gap: '0.75rem' }}>{images.map((img, i) => imgEl(img, i))}</div>}
+      {v === 'masonry' && <div className="lp-gallery-masonry">{images.map((img, i) => imgEl(img, i))}</div>}
+      {v === 'carousel' && <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto' }}>{images.map((img, i) => <div key={i} style={{ flexShrink: 0, width: '200px', height: '150px', borderRadius: '8px', overflow: 'hidden' }}>{img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ background: '#e2e8f0', height: '100%' }} />}</div>)}</div>}
+      {v === 'filmstrip' && <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto' }}>{images.map((img, i) => <div key={i} style={{ flexShrink: 0, width: '180px', height: '130px', borderRadius: '8px', overflow: 'hidden' }}>{img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ background: '#e2e8f0', height: '100%' }} />}</div>)}</div>}
+      {v === 'lightbox' && <div className={`landing-grid-${Math.min(cols, 5)}`} style={{ gap: '0.75rem' }}>{images.map((img, i) => <div key={i} style={{ position: 'relative' }}>{imgEl(img, i)}<div style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', color: '#fff', borderRadius: '4px', padding: '1px 5px', fontSize: '0.6rem' }}>🔍</div></div>)}</div>}
+      {images.length === 0 && <p style={{ textAlign: 'center', color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>No images added</p>}
     </div>
   )
 }
