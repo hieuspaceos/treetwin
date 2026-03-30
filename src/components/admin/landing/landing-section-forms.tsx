@@ -820,7 +820,8 @@ function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'butto
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
   const [showCode, setShowCode] = useState(false)
   const content = data.content || ''
-  const parts = parseHtmlParts(content)
+  const isHtml = content.includes('<') && content.includes('>')
+  const parts = isHtml ? parseHtmlParts(content) : []
 
   /** Rebuild HTML from edited parts */
   function updatePart(idx: number, field: 'text' | 'href' | 'src', value: string) {
@@ -857,7 +858,15 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
     <>
       {data.heading !== undefined && <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => onChange({ ...data, heading: e.target.value })} /></Field>}
 
-      {!showCode ? (
+      {/* Markdown content — default editor */}
+      {!isHtml && !showCode && (
+        <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
+          <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
+        </Suspense>
+      )}
+
+      {/* HTML content — parsed parts or code editor */}
+      {isHtml && !showCode && (
         <>
           {parts.map((part, i) => (
             <div key={i} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.3rem', alignItems: 'center' }}>
@@ -894,7 +903,8 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
               style={{ fontSize: '0.65rem', color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}>&lt;/&gt; HTML</button>
           </div>
         </>
-      ) : (
+      )}
+      {isHtml && showCode && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
           <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
             <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
