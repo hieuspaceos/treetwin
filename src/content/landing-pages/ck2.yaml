@@ -7,14 +7,14 @@ sections:
       brandName: ClaudeKit
       logo: https://claudekit.cc/_next/image?url=%2Flogo.png&w=128&q=75
       links:
-        - label: Home
-          href: /
-        - label: Blog
-          href: /blog
-        - label: Community
-          href: https://claudekit.cc/discord
-        - label: Docs
-          href: https://docs.claudekit.cc
+        - label: Testimols
+          href: '#section-testimonials'
+        - label: Features
+          href: '#section-features'
+        - label: Pricing
+          href: '#section-pricing'
+        - label: CTA
+          href: '#section-cta'
       variant: centered
       socialLinks: []
       groups:
@@ -305,7 +305,7 @@ sections:
           company: null
           avatar: null
           image: https://claudekit.cc/_next/image?url=%2Fassets%2Ftestimonials%2F12.jpeg&w=3840&q=75
-      variant: cards
+      variant: carousel
     style:
       fullWidth: true
       background: var(--bg-secondary)
