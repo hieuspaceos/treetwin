@@ -113,8 +113,15 @@ const landingPages = defineCollection({
       }).optional(),
       borderRadius: z.string().nullable().optional(),
     }).nullable().optional(),
+    /** SEO settings (ogImage, keywords, canonical, noindex) */
+    seo: z.object({
+      ogImage: z.string().optional(),
+      keywords: z.string().optional(),
+      canonicalUrl: z.string().optional(),
+      noindex: z.boolean().optional(),
+    }).optional(),
     sections: z.array(z.object({
-      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof']),
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup']),
       order: z.number(),
       enabled: z.boolean().default(true),
       data: z.record(z.unknown()),
@@ -138,7 +145,7 @@ const templates = defineCollection({
     targetAudience: z.string().optional(),
     previewImage: z.string().optional(),
     sections: z.array(z.object({
-      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof']),
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup']),
       order: z.number(),
       enabled: z.boolean().default(true),
       data: z.record(z.unknown()),

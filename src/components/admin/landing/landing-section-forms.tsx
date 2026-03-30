@@ -3,7 +3,7 @@
  * Each form renders inputs for its typed section data.
  * Dynamic array support: items[] with add/remove.
  */
-import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
+import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData, PopupData } from '@/lib/landing/landing-types'
 import { IconPicker } from './landing-icon-picker'
 import { lazy, Suspense, useState } from 'react'
 import { VariantPicker } from './landing-variant-picker'
@@ -1250,6 +1250,43 @@ export function SocialProofSectionForm({ data, onChange }: FormProps<SocialProof
   )
 }
 
+export function PopupSectionForm({ data, onChange }: FormProps<PopupData>) {
+  const set = (k: keyof PopupData, v: unknown) => onChange({ ...data, [k]: v })
+  const trigger = data.trigger || { type: 'exit-intent' as const }
+  const cta = data.cta || { text: '', url: '' }
+  return (
+    <>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} placeholder="Wait! Before You Go..." /></Field>
+      <Field label="Text"><textarea style={{ ...inputStyle, minHeight: '50px' }} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Get 20% off..." /></Field>
+      <Field label="Image URL"><ImageField value={data.image || ''} onChange={(v) => set('image', v)} /></Field>
+      <InlineRow>
+        <Field label="CTA Text"><input style={inputStyle} value={cta.text} onChange={(e) => set('cta', { ...cta, text: e.target.value })} placeholder="Claim Discount" /></Field>
+        <Field label="CTA URL"><input style={inputStyle} value={cta.url} onChange={(e) => set('cta', { ...cta, url: e.target.value })} placeholder="#pricing" /></Field>
+      </InlineRow>
+      <InlineRow>
+        <Field label="Trigger">
+          <select style={inputStyle} value={trigger.type} onChange={(e) => set('trigger', { ...trigger, type: e.target.value as PopupData['trigger']['type'] })}>
+            <option value="exit-intent">Exit Intent</option>
+            <option value="scroll">Scroll %</option>
+            <option value="time">Time Delay (seconds)</option>
+          </select>
+        </Field>
+        {trigger.type !== 'exit-intent' && (
+          <Field label={trigger.type === 'scroll' ? 'Scroll %' : 'Delay (s)'}>
+            <input style={inputStyle} type="number" min={0} max={trigger.type === 'scroll' ? 100 : 999} value={trigger.value ?? (trigger.type === 'scroll' ? 50 : 3)} onChange={(e) => set('trigger', { ...trigger, value: Number(e.target.value) })} />
+          </Field>
+        )}
+      </InlineRow>
+      <VariantPicker sectionType="popup" value={data.variant || 'centered'} onChange={(v) => set('variant', v)} />
+      <Field label="Dismiss Label"><input style={inputStyle} value={data.dismissLabel || ''} onChange={(e) => set('dismissLabel', e.target.value)} placeholder="✕" /></Field>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: '#475569', cursor: 'pointer' }}>
+        <input type="checkbox" checked={data.showOnce !== false} onChange={(e) => set('showOnce', e.target.checked)} />
+        Show once per session
+      </label>
+    </>
+  )
+}
+
 /** Maps section type to its form component */
 export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>> = {
   nav: NavSectionForm,
@@ -1278,4 +1315,5 @@ export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>>
   'ai-search': AiSearchSectionForm,
   'social-proof': SocialProofSectionForm,
   layout: LayoutSectionForm,
+  popup: PopupSectionForm,
 }

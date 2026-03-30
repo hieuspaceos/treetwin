@@ -1,0 +1,98 @@
+---
+/**
+ * Popup/modal overlay — renders as a <dialog> element with inline trigger script.
+ * Supports 3 triggers: scroll %, time delay, exit-intent.
+ * Uses sessionStorage to respect showOnce setting.
+ * No React island needed — pure HTML + vanilla JS.
+ */
+import type { PopupData } from '@/lib/landing/landing-types'
+
+interface Props extends PopupData {
+  pageSlug?: string
+}
+
+const {
+  heading,
+  text,
+  image,
+  cta,
+  trigger = { type: 'exit-intent' },
+  showOnce = true,
+  dismissLabel = '✕',
+  variant = 'centered',
+  pageSlug = 'page',
+} = Astro.props
+
+const popupId = `popup-${Math.random().toString(36).slice(2, 8)}`
+const storageKey = `popup-dismissed-${pageSlug}`
+---
+
+<dialog id={popupId} class={`lp-popup lp-popup--${variant}`}>
+  <div class="lp-popup__content">
+    <button class="lp-popup__close" aria-label="Close popup">{dismissLabel}</button>
+    {image && <img src={image} alt="" class="lp-popup__image" loading="lazy" />}
+    {heading && <h2 class="lp-popup__heading">{heading}</h2>}
+    {text && <p class="lp-popup__text">{text}</p>}
+    {cta && <a href={cta.url} class="lp-popup__cta">{cta.text}</a>}
+  </div>
+</dialog>
+
+<script define:vars={{ popupId, trigger, showOnce, storageKey }}>
+  (function() {
+    const dialog = document.getElementById(popupId)
+    if (!dialog) return
+
+    // Respect showOnce — skip if already dismissed this session
+    if (showOnce && sessionStorage.getItem(storageKey)) return
+
+    const closeBtn = dialog.querySelector('.lp-popup__close')
+    function dismiss() {
+      dialog.close()
+      if (showOnce) sessionStorage.setItem(storageKey, '1')
+    }
+    closeBtn?.addEventListener('click', dismiss)
+    dialog.addEventListener('click', (e) => {
+      // Click on backdrop (outside content) to dismiss
+      if (e.target === dialog) dismiss()
+    })
+
+    function show() { dialog.showModal() }
+
+    // Trigger logic
+    if (trigger.type === 'time') {
+      setTimeout(show, (trigger.value || 3) * 1000)
+    } else if (trigger.type === 'scroll') {
+      const pct = trigger.value || 50
+      function onScroll() {
+        const scrollPct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+        if (scrollPct >= pct) {
+          window.removeEventListener('scroll', onScroll)
+          show()
+        }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true })
+    } else {
+      // exit-intent: mouseleave on top edge (desktop), fallback to 75% scroll on touch
+      const hasHover = window.matchMedia('(hover: hover)').matches
+      if (hasHover) {
+        function onLeave(e) {
+          if (e.clientY <= 0) {
+            document.removeEventListener('mouseleave', onLeave)
+            show()
+          }
+        }
+        document.addEventListener('mouseleave', onLeave)
+      } else {
+        // Touch devices: fallback to 75% scroll
+        function onScroll() {
+          const scrollPct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+          if (scrollPct >= 75) {
+            window.removeEventListener('scroll', onScroll)
+            show()
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+      }
+    }
+  })()
+</script>

@@ -32,6 +32,7 @@ export const SECTION_TYPE_LABELS: Record<string, string> = {
   'ai-search': 'Smart Search',
   'social-proof': 'Trust Badge',
   layout: 'Columns',
+  popup: 'Popup',
 }
 
 /** User-friendly variant labels per section type */
@@ -145,5 +146,10 @@ export const VARIANT_LABELS: Record<string, Record<string, string>> = {
     line: 'Horizontal Line',
     dots: 'Dotted Line',
     space: 'Empty Space',
+  },
+  popup: {
+    centered: 'Centered Modal',
+    'bottom-bar': 'Bottom Bar',
+    'slide-in-right': 'Slide In from Right',
   },
 }

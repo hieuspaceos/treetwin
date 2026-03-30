@@ -31,6 +31,7 @@ import LandingComparison from './landing-comparison.astro'
 import LandingAiSearch from './landing-ai-search.astro'
 import LandingLayout from './landing-layout.astro'
 import LandingSocialProof from './landing-social-proof.astro'
+import LandingPopup from './landing-popup.astro'
 import type { LandingSection, SectionStyle } from '@/lib/landing/landing-types'
 
 import '@/styles/landing.css'
@@ -55,9 +56,12 @@ const enabled = sections.filter(s => s.enabled !== false)
 const navSection = enabled.find(s => s.type === 'nav')
 const footerSection = enabled.find(s => s.type === 'footer')
 
-// Body sections — everything except nav and footer, sorted by order
+// Popup sections — rendered outside body flow as overlays
+const popupSections = enabled.filter(s => s.type === 'popup')
+
+// Body sections — everything except nav, footer, and popup, sorted by order
 const bodySections = enabled
-  .filter(s => s.type !== 'nav' && s.type !== 'footer')
+  .filter(s => s.type !== 'nav' && s.type !== 'footer' && s.type !== 'popup')
   .sort((a, b) => a.order - b.order)
 
 // Track type counts to generate unique IDs (e.g. section-cta, section-cta-2)
@@ -115,6 +119,7 @@ const componentMap: Record<string, any> = {
   'ai-search': LandingAiSearch,
   layout: LandingLayout,
   'social-proof': LandingSocialProof,
+  popup: LandingPopup,
 }
 ---
 
@@ -158,6 +163,9 @@ const componentMap: Record<string, any> = {
     <LandingFooter {...footerSection.data as any} pageTitle={pageTitle} />
   </div>
 )}
+
+{/* Popup overlays — rendered outside body/footer flow */}
+{popupSections.map(s => <LandingPopup {...s.data as any} pageSlug={pageTitle} />)}
 
 {/* AI-generated scoped CSS for visual fidelity */}
 {scopedCss && scopedCss.length > 0 && (

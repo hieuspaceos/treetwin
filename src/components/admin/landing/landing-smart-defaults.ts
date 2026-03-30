@@ -154,6 +154,14 @@ export function getSmartDefault(type: SectionType): SectionData {
     },
     'social-proof': { text: 'Trusted by 100+ businesses', variant: 'inline' },
     layout: { columns: [1, 1], gap: '1rem', children: [] },
+    popup: {
+      heading: 'Wait! Before You Go...',
+      text: 'Get 20% off your first order with code WELCOME20',
+      cta: { text: 'Claim Discount', url: '#pricing' },
+      trigger: { type: 'exit-intent' },
+      showOnce: true,
+      variant: 'centered',
+    },
   }
 
   return defaults[type] ?? ({} as SectionData)

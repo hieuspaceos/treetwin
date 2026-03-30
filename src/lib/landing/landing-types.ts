@@ -326,6 +326,24 @@ export interface AiSearchData {
   intents?: AiSearchIntent[]
 }
 
+/** Popup/modal overlay — triggered by scroll %, time delay, or exit intent */
+export interface PopupData {
+  heading?: string
+  text?: string
+  image?: string
+  cta?: { text: string; url: string }
+  trigger: {
+    type: 'scroll' | 'time' | 'exit-intent'
+    /** Scroll %: 0-100. Time: delay in seconds */
+    value?: number
+  }
+  /** Show once per session (sessionStorage) vs every page load */
+  showOnce?: boolean
+  /** Dismiss button label (default: "✕") */
+  dismissLabel?: string
+  variant?: 'centered' | 'bottom-bar' | 'slide-in-right'
+}
+
 /** Per-page design settings — colors, fonts, border radius */
 export interface LandingDesign {
   preset?: string
@@ -346,10 +364,10 @@ export interface LandingDesign {
 }
 
 /** All possible section type identifiers */
-export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout' | 'comparison' | 'ai-search' | 'social-proof'
+export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout' | 'comparison' | 'ai-search' | 'social-proof' | 'popup'
 
 /** Union of all section data types */
-export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData
+export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData | PopupData
 
 /** Per-section visual style overrides — extracted by AI or set manually in editor */
 export interface SectionStyle {
@@ -380,12 +398,21 @@ export interface LandingSection {
   style?: SectionStyle
 }
 
+/** SEO settings for landing pages */
+export interface LandingSeo {
+  ogImage?: string
+  keywords?: string
+  canonicalUrl?: string
+  noindex?: boolean
+}
+
 export interface LandingPageConfig {
   slug: string
   title: string
   description?: string
   template?: string
   design?: LandingDesign
+  seo?: LandingSeo
   sections: LandingSection[]
   /** AI-generated scoped CSS for visual fidelity — injected as <style> block */
   scopedCss?: Array<{ selector: string; css: string }>

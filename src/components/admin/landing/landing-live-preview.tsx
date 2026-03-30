@@ -1037,6 +1037,7 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'comparison': return <PreviewComparison data={d as unknown as ComparisonData} />
     case 'ai-search': return <PreviewAiSearch data={d as unknown as AiSearchData} />
     case 'layout': return <PreviewLayout data={d as unknown as LayoutData} />
+    case 'popup': return <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--lp-text-muted)', background: 'var(--lp-surface)', borderRadius: '8px', border: '1px dashed var(--lp-text-muted, #94a3b8)' }}>🪟 Popup — appears as overlay on published page</div>
     default: return <div style={{ padding: '1rem', color: 'var(--lp-text-muted)', textAlign: 'center' }}>[{section.type}]</div>
   }
 }
@@ -1045,7 +1046,8 @@ export function LandingLivePreview({ sections, pageTitle, design, selectedSectio
   const enabled = sections.filter(s => s.enabled !== false)
   const navSection = enabled.find(s => s.type === 'nav')
   const footerSection = enabled.find(s => s.type === 'footer')
-  const body = enabled.filter(s => s.type !== 'nav' && s.type !== 'footer').sort((a, b) => a.order - b.order)
+  const body = enabled.filter(s => s.type !== 'nav' && s.type !== 'footer' && s.type !== 'popup').sort((a, b) => a.order - b.order)
+  const popups = enabled.filter(s => s.type === 'popup')
 
   // Map original section index → body index for highlight matching
   const sectionOriginalIndices = body.map(s => sections.indexOf(s))
@@ -1150,6 +1152,16 @@ export function LandingLivePreview({ sections, pageTitle, design, selectedSectio
           <PreviewFooter data={footerSection.data as FooterData} pageTitle={pageTitle} />
         </div>
       )}
+      {/* Popup sections — show as placeholder cards in preview */}
+      {popups.map((s) => {
+        const origIdx = sections.indexOf(s)
+        return (
+          <div key={`popup-${origIdx}`} onClick={() => onSectionClick?.(origIdx)}
+            style={{ cursor: 'pointer', margin: '0.5rem 1rem', ...(isSelected(origIdx) ? highlightStyle : {}) }}>
+            {renderSection(s, enabled, pageTitle)}
+          </div>
+        )
+      })}
     </div>
   )
 }

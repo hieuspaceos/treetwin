@@ -1,7 +1,7 @@
 ---
 title: "Landing Page Feature Gaps — Quick Wins"
 description: "5 quick-win features to close landing builder coverage gaps"
-status: pending
+status: complete
 priority: P2
 effort: 8h
 branch: main
@@ -17,11 +17,11 @@ created: 2026-03-30
 
 | # | Phase | Effort | Status | File |
 |---|-------|--------|--------|------|
-| 1 | Section Duplicate | 30min | pending | [phase-01](phase-01-section-duplicate.md) |
-| 2 | Undo/Redo | 1h | pending | [phase-02](phase-02-undo-redo.md) |
-| 3 | Template Library UI | 2h | pending | [phase-03](phase-03-template-library.md) |
-| 4 | SEO Fields | 1h | pending | [phase-04](phase-04-seo-fields.md) |
-| 5 | Popup/Modal Section | 3h | pending | [phase-05](phase-05-popup-section.md) |
+| 1 | Section Duplicate | 30min | complete | [phase-01](phase-01-section-duplicate.md) |
+| 2 | Undo/Redo | 1h | complete | [phase-02](phase-02-undo-redo.md) |
+| 3 | Template Library UI | 2h | complete | [phase-03](phase-03-template-library.md) |
+| 4 | SEO Fields | 1h | complete | [phase-04](phase-04-seo-fields.md) |
+| 5 | Popup/Modal Section | 3h | complete | [phase-05](phase-05-popup-section.md) |
 
 ## Key Dependencies
 

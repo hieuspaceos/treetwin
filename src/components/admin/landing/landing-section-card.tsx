@@ -21,6 +21,8 @@ interface Props {
   onMove: (direction: 'up' | 'down') => void
   onRemove: () => void
   onToggle: (enabled: boolean) => void
+  /** Called when user duplicates this section */
+  onDuplicate: () => void
   /** Called when section is expanded/selected for editing */
   onSelect?: () => void
   /** Whether this card is selected (from preview click) — auto-expands when true */
@@ -30,7 +32,7 @@ interface Props {
   onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
 }
 
-export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onDuplicate, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
   const expanded = !!selected
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
@@ -112,6 +114,14 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
           onClick={(e) => { e.stopPropagation(); onMove('down') }}
           style={{ padding: '2px 6px', fontSize: '0.7rem', background: '#f1f5f9', border: 'none', borderRadius: '4px', cursor: index === total - 1 ? 'not-allowed' : 'pointer', opacity: index === total - 1 ? 0.4 : 1 }}
         >↓</button>
+
+        {/* Duplicate section */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDuplicate() }}
+          style={{ padding: '2px 6px', fontSize: '0.7rem', background: '#f0f9ff', color: '#3b82f6', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          title="Duplicate section"
+        >⧉</button>
 
         {/* Move to layout column */}
         {layoutTargets && layoutTargets.length > 0 && section.type !== 'layout' && section.type !== 'nav' && section.type !== 'footer' && onMoveToLayout && (

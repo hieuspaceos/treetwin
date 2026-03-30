@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { api } from '@/lib/admin/api-client'
+import { LandingTemplatePicker } from './landing-template-picker'
 
 interface PageMeta {
   slug: string
@@ -22,6 +23,7 @@ export function LandingPagesList() {
   const [improving, setImproving] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [templateOpen, setTemplateOpen] = useState(false)
 
   useEffect(() => {
     api.landing.list().then((res) => {
@@ -97,6 +99,9 @@ export function LandingPagesList() {
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button className="admin-btn" onClick={() => navigate('/landing/wizard')}>
             AI Wizard
+          </button>
+          <button className="admin-btn" onClick={() => setTemplateOpen(true)}>
+            Templates
           </button>
           <button className="admin-btn admin-btn-primary" onClick={() => navigate('/landing/new')}>
             + New Page
@@ -176,6 +181,14 @@ export function LandingPagesList() {
           </div>
         ))}
       </div>
+
+      {/* Template picker modal */}
+      {templateOpen && (
+        <LandingTemplatePicker
+          onClose={() => setTemplateOpen(false)}
+          onSelect={(name) => { setTemplateOpen(false); navigate(`/landing/new?template=${encodeURIComponent(name)}`) }}
+        />
+      )}
 
       {/* Section Backlog — AI clone quality tracker */}
       {backlog && backlog.sections && backlog.sections.length > 0 && (

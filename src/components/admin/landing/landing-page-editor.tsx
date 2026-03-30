@@ -8,12 +8,56 @@ import { useLocation } from 'wouter'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { api } from '@/lib/admin/api-client'
-import type { LandingPageConfig, LandingSection, LandingDesign, SectionType, SectionData } from '@/lib/landing/landing-types'
+import type { LandingPageConfig, LandingSection, LandingDesign, LandingSeo, SectionType, SectionData } from '@/lib/landing/landing-types'
 import { LandingSectionCard } from './landing-section-card'
 import { LandingLivePreview } from './landing-live-preview'
 import { LandingDesignPanel } from './landing-design-panel'
 import { LandingCloneModal } from './landing-clone-modal'
 import { getSmartDefault } from './landing-smart-defaults'
+
+/** Collapsible SEO settings panel for landing pages */
+function SeoSettingsPanel({ seo, onChange }: { seo?: LandingSeo; onChange: (seo: LandingSeo) => void }) {
+  const [open, setOpen] = useState(false)
+  const s = seo || {}
+  const set = (patch: Partial<LandingSeo>) => onChange({ ...s, ...patch })
+  const inputStyle = { width: '100%', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.8rem' } as const
+  const labelStyle = { display: 'block', fontSize: '0.7rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' } as const
+
+  return (
+    <div className="glass-panel" style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', padding: '0.75rem 1rem', cursor: 'pointer', userSelect: 'none' }}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span style={{ color: '#94a3b8', fontSize: '0.7rem', marginRight: '0.5rem', transition: 'transform 0.15s', transform: open ? 'rotate(90deg)' : 'none' }}>▶</span>
+        <h2 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', flex: 1, margin: 0 }}>SEO Settings</h2>
+        <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{s.ogImage ? 'OG image set' : 'optional'}</span>
+      </div>
+      {open && (
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <div>
+              <label style={labelStyle}>OG Image URL</label>
+              <input style={inputStyle} placeholder="https://..." value={s.ogImage || ''} onChange={e => set({ ogImage: e.target.value || undefined })} />
+            </div>
+            <div>
+              <label style={labelStyle}>Keywords</label>
+              <input style={inputStyle} placeholder="keyword1, keyword2" value={s.keywords || ''} onChange={e => set({ keywords: e.target.value || undefined })} />
+            </div>
+          </div>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <label style={labelStyle}>Canonical URL (override)</label>
+            <input style={inputStyle} placeholder="https://..." value={s.canonicalUrl || ''} onChange={e => set({ canonicalUrl: e.target.value || undefined })} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: '#475569', cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!s.noindex} onChange={e => set({ noindex: e.target.checked || undefined })} />
+            Noindex (hide from search engines)
+          </label>
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface Props { slug?: string }
 
@@ -46,6 +90,7 @@ const SECTION_GROUPS: Array<{ group: string; items: SectionCatalogItem[] }> = [
     { type: 'comparison', label: 'Comparison Table', icon: '⚖️', desc: 'Compare features side by side — you vs competitors.' },
     { type: 'ai-search', label: 'Smart Search', icon: '🔍', desc: 'A search box that suggests products or services as visitors type.' },
     { type: 'social-proof', label: 'Trust Badge', icon: '🏅', desc: 'A short trust line like "Trusted by 100+ businesses" — builds credibility.' },
+    { type: 'popup', label: 'Popup', icon: '🪟', desc: 'A popup that appears based on scroll position, time delay, or exit intent.' },
   ]},
   { group: 'Images & Video', items: [
     { type: 'video', label: 'Video', icon: '🎬', desc: 'Embed a YouTube or Vimeo video directly in your page.' },
@@ -83,11 +128,60 @@ export function LandingPageEditor({ slug }: Props) {
 
   const configRef = useRef(config)
   configRef.current = config
+
+  /** Undo/redo history stack — max 20 snapshots */
+  const historyRef = useRef<{ past: LandingPageConfig[]; future: LandingPageConfig[] }>({ past: [], future: [] })
+
+  /** Wraps setConfig to push current state onto undo history. Use for user actions only. */
+  function updateConfig(updater: (c: LandingPageConfig) => LandingPageConfig) {
+    setConfig((current) => {
+      const next = updater(current)
+      if (JSON.stringify(next) !== JSON.stringify(current)) {
+        historyRef.current.past = [...historyRef.current.past.slice(-19), current]
+        historyRef.current.future = []
+      }
+      return next
+    })
+  }
+
+  function undo() {
+    const { past, future } = historyRef.current
+    if (past.length === 0) return
+    const prev = past[past.length - 1]
+    historyRef.current = { past: past.slice(0, -1), future: [configRef.current, ...future].slice(0, 20) }
+    setConfig(prev)
+  }
+
+  function redo() {
+    const { past, future } = historyRef.current
+    if (future.length === 0) return
+    const next = future[0]
+    historyRef.current = { past: [...past, configRef.current].slice(-20), future: future.slice(1) }
+    setConfig(next)
+  }
+
   const [editorWidth, setEditorWidth] = useState(40) // percentage
   const resizing = useRef(false)
 
   useEffect(() => {
-    if (!slug) return
+    if (!slug) {
+      // New page — check for ?template= query param to pre-fill from template
+      const templateSlug = new URLSearchParams(window.location.search).get('template')
+      if (templateSlug) {
+        api.templates.read(templateSlug).then((res) => {
+          if (res.ok && res.data) {
+            const tpl = res.data as Record<string, unknown>
+            setConfig(c => ({
+              ...c,
+              title: (tpl.name as string) || '',
+              template: templateSlug,
+              sections: (tpl.sections as LandingSection[]) || [],
+            }))
+          }
+        })
+      }
+      return
+    }
     api.landing.read(slug).then((res) => {
       if (res.ok && res.data) setConfig(res.data as LandingPageConfig)
       else setError('Failed to load page')
@@ -95,12 +189,21 @@ export function LandingPageEditor({ slug }: Props) {
     })
   }, [slug])
 
-  /** Ctrl+S shortcut: save */
+  /** Keyboard shortcuts: Ctrl+S save, Ctrl+Z undo, Ctrl+Shift+Z/Ctrl+Y redo */
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()
         handleSave()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault(); undo()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+        e.preventDefault(); redo()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault(); redo()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -108,7 +211,7 @@ export function LandingPageEditor({ slug }: Props) {
   }, [slug, isNew, config])
 
   function updateSection(index: number, data: SectionData) {
-    setConfig((c) => {
+    updateConfig((c) => {
       const sections = [...c.sections]
       sections[index] = { ...sections[index], data }
       return { ...c, sections }
@@ -116,7 +219,7 @@ export function LandingPageEditor({ slug }: Props) {
   }
 
   function moveSection(index: number, dir: 'up' | 'down') {
-    setConfig((c) => {
+    updateConfig((c) => {
       const sections = [...c.sections]
       const target = dir === 'up' ? index - 1 : index + 1
       if (target < 0 || target >= sections.length) return c;
@@ -126,11 +229,11 @@ export function LandingPageEditor({ slug }: Props) {
   }
 
   function removeSection(index: number) {
-    setConfig((c) => ({ ...c, sections: c.sections.filter((_, i) => i !== index) }))
+    updateConfig((c) => ({ ...c, sections: c.sections.filter((_, i) => i !== index) }))
   }
 
   function toggleSection(index: number, enabled: boolean) {
-    setConfig((c) => {
+    updateConfig((c) => {
       const sections = [...c.sections]
       sections[index] = { ...sections[index], enabled }
       return { ...c, sections }
@@ -140,12 +243,23 @@ export function LandingPageEditor({ slug }: Props) {
   function addSection(type?: SectionType) {
     const t = type || newType
     const section: LandingSection = { type: t, order: config.sections.length, enabled: true, data: getSmartDefault(t) }
-    setConfig((c) => ({ ...c, sections: [...c.sections, section] }))
+    updateConfig((c) => ({ ...c, sections: [...c.sections, section] }))
+  }
+
+  /** Deep-clone a section and insert copy immediately below the original */
+  function duplicateSection(index: number) {
+    updateConfig((c) => {
+      const clone = structuredClone(c.sections[index])
+      const sections = [...c.sections]
+      sections.splice(index + 1, 0, clone)
+      return { ...c, sections }
+    })
+    setSelectedSectionIdx(index + 1)
   }
 
   /** Move a section into a layout column — removes from top-level, adds to layout's children */
   function moveToLayout(sectionIndex: number, layoutIndex: number, columnIndex: number) {
-    setConfig((c) => {
+    updateConfig((c) => {
       const sections = [...c.sections]
       const section = sections[sectionIndex]
       const layout = sections[layoutIndex]
@@ -184,7 +298,7 @@ export function LandingPageEditor({ slug }: Props) {
     const oldIndex = sectionIds.indexOf(active.id as string)
     const newIndex = sectionIds.indexOf(over.id as string)
     if (oldIndex === -1 || newIndex === -1) return
-    setConfig((c) => ({ ...c, sections: arrayMove(c.sections, oldIndex, newIndex) }))
+    updateConfig((c) => ({ ...c, sections: arrayMove(c.sections, oldIndex, newIndex) }))
   }, [sectionIds])
 
   async function handleSave() {
@@ -208,6 +322,10 @@ export function LandingPageEditor({ slug }: Props) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <button className="admin-btn" onClick={() => navigate('/landing')} style={{ fontSize: '0.8rem' }}>← Back</button>
+        <button className="admin-btn" onClick={undo} disabled={historyRef.current.past.length === 0}
+          title="Undo (Ctrl+Z)" style={{ fontSize: '0.8rem', opacity: historyRef.current.past.length === 0 ? 0.4 : 1 }}>↩</button>
+        <button className="admin-btn" onClick={redo} disabled={historyRef.current.future.length === 0}
+          title="Redo (Ctrl+Shift+Z)" style={{ fontSize: '0.8rem', opacity: historyRef.current.future.length === 0 ? 0.4 : 1 }}>↪</button>
         <h1 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b', flex: 1 }}>
           {isNew ? 'New Landing Page' : `Edit: ${config.title}`}
         </h1>
@@ -228,7 +346,7 @@ export function LandingPageEditor({ slug }: Props) {
         <LandingCloneModal
           onClose={() => setCloneOpen(false)}
           onCloned={(cloned) => {
-            setConfig(c => ({
+            updateConfig(c => ({
               ...c,
               title: cloned.title || c.title,
               description: cloned.description || c.description,
@@ -304,9 +422,12 @@ export function LandingPageEditor({ slug }: Props) {
         {/* Design panel */}
         <LandingDesignPanel
           design={config.design || {}}
-          onChange={(design: LandingDesign) => setConfig(c => ({ ...c, design }))}
+          onChange={(design: LandingDesign) => updateConfig(c => ({ ...c, design }))}
         />
       </div>
+
+      {/* SEO Settings — collapsible */}
+      <SeoSettingsPanel seo={config.seo} onChange={(seo) => updateConfig(c => ({ ...c, seo }))} />
 
       {/* Section picker — tab groups, sticky */}
       <div style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--t-bg-base, #f8fafc)', paddingBottom: '0.3rem' }}>
@@ -404,6 +525,7 @@ export function LandingPageEditor({ slug }: Props) {
                 onChange={(data) => updateSection(i, data)}
                 onMove={(dir) => moveSection(i, dir)}
                 onRemove={() => removeSection(i)}
+                onDuplicate={() => duplicateSection(i)}
                 onToggle={(enabled) => toggleSection(i, enabled)}
                 onSelect={() => setSelectedSectionIdx(prev => prev === i ? null : i)}
                 selected={selectedSectionIdx === i}

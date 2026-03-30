@@ -10,7 +10,7 @@ export const prerender = false
 import { getCollection } from 'astro:content'
 import LandingLayout from '@/layouts/landing-layout.astro'
 import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
-import type { LandingSection, LandingDesign } from '@/lib/landing/landing-types'
+import type { LandingSection, LandingDesign, LandingSeo } from '@/lib/landing/landing-types'
 
 // SSR mode — fetch entry by slug from URL params
 const { landing } = Astro.params
@@ -26,6 +26,7 @@ const sections = page.data.sections as unknown as LandingSection[]
 const pageData = page.data as Record<string, unknown>
 const design = pageData.design as LandingDesign | undefined
 const scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
+const seo = pageData.seo as LandingSeo | undefined
 // If nav/footer section exists (even disabled), hide layout's nav/footer
 // User controls visibility via section enabled toggle — layout never overrides
 const hasNav = sections.some(s => s.type === 'nav')
@@ -42,5 +43,9 @@ const hasFooter = sections.some(s => s.type === 'footer')
   hideFooter={hasFooter}
   design={design}
 >
+  {seo?.ogImage && <meta slot="head" property="og:image" content={seo.ogImage} />}
+  {seo?.keywords && <meta slot="head" name="keywords" content={seo.keywords} />}
+  {seo?.noindex && <meta slot="head" name="robots" content="noindex, nofollow" />}
+  {seo?.canonicalUrl && <link slot="head" rel="canonical" href={seo.canonicalUrl} />}
   <LandingSectionRenderer sections={sections} pageTitle={page.data.title} scopedCss={scopedCss} />
 </LandingLayout>
