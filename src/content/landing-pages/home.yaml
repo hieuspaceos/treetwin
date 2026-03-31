@@ -29,8 +29,10 @@ sections:
           href: '#section-pricing'
         - label: FAQ
           href: '#section-faq'
+        - label: Sign In
+          href: '/auth/login'
       cta:
-        text: Sign Up
+        text: Sign Up Free
         url: '/auth/login'
       variant: default
       socialLinks: []
