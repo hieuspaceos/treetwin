@@ -18,7 +18,7 @@ import {
 let tempDir: string
 
 beforeAll(() => {
-  tempDir = mkdtempSync(join(tmpdir(), 'tree-id-subs-'))
+  tempDir = mkdtempSync(join(tmpdir(), 'treetwin-subs-'))
   setSubscribersDir(tempDir)
 })
 

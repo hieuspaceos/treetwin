@@ -1,11 +1,11 @@
-# Tree Identity
+# TreeTwin
 
 Your digital twin — a personal content engine. Fork, configure, deploy.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/hieuspaceos/tree-id.git my-site
+git clone https://github.com/hieuspaceos/treetwin.git my-site
 cd my-site
 npm install
 cp .env.example .env.local

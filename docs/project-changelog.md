@@ -598,7 +598,7 @@ Modular landing page builder with AI setup wizard, custom entity system, and 5 p
 6. **AI Setup Wizard** — Gemini Flash generates landing configs from product descriptions
 7. **GoClaw Landing API** — 9 REST endpoints for external AI agent integration
 8. **Feature Registry** — 3 new toggleable modules (landing, entities, setup-wizard)
-9. **GoClaw Hub Skill** — tree-id-manager skill for agent orchestration
+9. **GoClaw Hub Skill** — treetwin-manager skill for agent orchestration
 
 #### Key Deliverables
 - **10 section components** fully implemented (all in `src/components/landing/`)

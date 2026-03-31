@@ -347,7 +347,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - [x] **Phase 7.6:** AI setup wizard (Gemini Flash → product description → landing config)
 - [x] **Phase 7.7:** GoClaw landing API (9 REST endpoints for external AI integration)
 - [x] **Phase 7.8:** Feature registry (3 new toggleable modules: landing, entities, setup-wizard)
-- [x] **Phase 7.9:** GoClaw Hub skill (tree-id-manager for agent orchestration)
+- [x] **Phase 7.9:** GoClaw Hub skill (treetwin-manager for agent orchestration)
 
 **Architecture:**
 - 10 section components: props-driven Astro (zero JS)

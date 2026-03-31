@@ -129,7 +129,7 @@
       '<div class="ps-browser-frame">' +
         '<div class="ps-browser-bar">' +
           '<div class="ps-browser-dots"><span></span><span></span><span></span></div>' +
-          '<div class="ps-browser-url" id="ps-browser-url">tree-id.dev' + tabs[0].src + '</div>' +
+          '<div class="ps-browser-url" id="ps-browser-url">treetwin.io' + tabs[0].src + '</div>' +
         '</div>' +
         '<iframe id="ps-demo-frame" src="' + tabs[0].src + '" loading="lazy"></iframe>' +
       '</div>' +
@@ -155,7 +155,7 @@
     if (!tables.length) return ''
     var html = '<p class="ps-section-label">Honest comparison</p>'
     tables.forEach(function(table) {
-      var headerRow = '<tr><th></th><th class="ps-comp-highlight">tree-id</th>' +
+      var headerRow = '<tr><th></th><th class="ps-comp-highlight">TreeTwin</th>' +
         table.competitors.map(function(c) { return '<th>' + c + '</th>' }).join('') + '</tr>'
       var bodyRows = table.rows.map(function(row) {
         return '<tr><td class="ps-comp-label">' + row.label + '</td>' +
@@ -202,7 +202,7 @@
     var frame = document.getElementById('ps-demo-frame')
     var urlEl = document.getElementById('ps-browser-url')
     if (frame) frame.src = src
-    if (urlEl) urlEl.textContent = 'tree-id.dev' + src
+    if (urlEl) urlEl.textContent = 'treetwin.io' + src
     showcase.querySelectorAll('.ps-demo-tab').forEach(function(t) { t.classList.remove('active') })
     tab.classList.add('active')
   })

@@ -13,7 +13,7 @@
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/hieuspaceos/tree-id.git my-site
+git clone https://github.com/hieuspaceos/treetwin.git my-site
 cd my-site
 
 # 2. Install dependencies
@@ -76,7 +76,7 @@ Keystatic admin is **disabled** on production. To edit content:
 Click "Deploy to Vercel" in [README.md](../README.md) or:
 
 ```
-https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieuspaceos%2Ftree-id
+https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieuspaceos%2Ftreetwin
 ```
 
 **Option 2: Manual Setup**
@@ -134,7 +134,7 @@ Only needed if enabling `videoFactory` feature.
 
 1. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com)
 2. R2 → Create bucket
-3. Name: `tree-id-media` (or your choice)
+3. Name: `treetwin-media` (or your choice)
 4. Region: `wnam` or nearest
 5. Create
 
@@ -142,7 +142,7 @@ Only needed if enabling `videoFactory` feature.
 
 1. R2 → Settings → API Tokens
 2. Create API Token
-3. Name: `tree-id-api`
+3. Name: `treetwin-api`
 4. Permissions: Admin (all buckets)
 5. Copy credentials
 
@@ -154,7 +154,7 @@ In `.env.local` (local) or Vercel dashboard (production):
 R2_ACCESS_KEY_ID=xxxx
 R2_SECRET_ACCESS_KEY=xxxx
 R2_ENDPOINT=12345.r2.cloudflarestorage.com
-R2_BUCKET=tree-id-media
+R2_BUCKET=treetwin-media
 R2_REGION=auto
 R2_PUBLIC_URL=https://media.example.com  # Or R2 public URL
 ```

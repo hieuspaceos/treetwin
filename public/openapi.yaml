@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
-  title: Tree Identity API
+  title: TreeTwin API
   version: 1.0.0
   description: |
-    GoClaw adapter API for the Tree Identity site. Enables external agents to read and write
+    GoClaw adapter API for the TreeTwin site. Enables external agents to read and write
     content, retrieve voice profiles, and run SEO analysis.
 
     All endpoints require Bearer token authentication via the `GOCLAW_API_KEY` environment variable.
@@ -13,7 +13,7 @@ info:
     A human must review and publish through the admin UI.
 
 servers:
-  - url: https://tree-id.dev
+  - url: https://treetwin.io
     description: Production
   - url: http://localhost:4321
     description: Local development

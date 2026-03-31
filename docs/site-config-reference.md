@@ -70,7 +70,7 @@ All optional except `PUBLIC_SITE_URL`.
 | `R2_ACCESS_KEY_ID` | `abc123...` | S3 access key |
 | `R2_SECRET_ACCESS_KEY` | `xyz789...` | S3 secret key |
 | `R2_ENDPOINT` | `12345.r2.cloudflarestorage.com` | Account endpoint (no https://) |
-| `R2_BUCKET` | `tree-id-media` | Bucket name |
+| `R2_BUCKET` | `treetwin-media` | Bucket name |
 | `R2_REGION` | `auto` | Always `auto` |
 | `R2_PUBLIC_URL` | `https://media.example.com` | Public CDN URL |
 

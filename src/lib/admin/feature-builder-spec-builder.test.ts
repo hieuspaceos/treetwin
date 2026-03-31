@@ -313,7 +313,7 @@ describe('buildSkillSpec', () => {
     })
   })
 
-  describe('tree-id integration - components', () => {
+  describe('treetwin integration - components', () => {
     it('generates list-detail components', () => {
       const spec = buildSkillSpec(baseDescription)
       expect(spec.treeidIntegration.components).toContain('feature-test-feature-list.tsx')
@@ -349,7 +349,7 @@ describe('buildSkillSpec', () => {
     })
   })
 
-  describe('tree-id integration - registry', () => {
+  describe('treetwin integration - registry', () => {
     it('generates registry entry with name and label', () => {
       const spec = buildSkillSpec(baseDescription)
       expect(spec.treeidIntegration.registryEntry).toContain("'test-feature'")
@@ -362,7 +362,7 @@ describe('buildSkillSpec', () => {
     })
   })
 
-  describe('tree-id integration - nav item', () => {
+  describe('treetwin integration - nav item', () => {
     it('generates nav item with href and label', () => {
       const spec = buildSkillSpec(baseDescription)
       expect(spec.treeidIntegration.navItem.href).toBe('/test-feature')
@@ -387,7 +387,7 @@ describe('buildSkillSpec', () => {
     })
   })
 
-  describe('tree-id integration - general', () => {
+  describe('treetwin integration - general', () => {
     it('preserves section from description', () => {
       const desc = { ...baseDescription, section: 'marketing' as const }
       const spec = buildSkillSpec(desc)

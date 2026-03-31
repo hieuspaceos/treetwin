@@ -55,7 +55,7 @@ Tree Identity is a **hybrid platform** combining static content engine with digi
 ## Directory Structure
 
 ```
-tree-id/
+treetwin/
 ├── src/
 │   ├── content/                     # Keystatic-managed content (git-tracked)
 │   │   ├── articles/               # Long-form Markdoc articles

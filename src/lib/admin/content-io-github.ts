@@ -26,7 +26,7 @@ export class GitHubContentIO implements ContentIO {
   private branch: string
 
   constructor() {
-    const repoSlug = import.meta.env.GITHUB_REPO || process.env.GITHUB_REPO || 'hieuspaceos/tree-id'
+    const repoSlug = import.meta.env.GITHUB_REPO || process.env.GITHUB_REPO || 'hieuspaceos/treetwin'
     const [owner, repo] = repoSlug.split('/')
     this.owner = owner
     this.repo = repo

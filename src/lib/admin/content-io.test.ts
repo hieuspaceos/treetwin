@@ -12,7 +12,7 @@ let tempDir: string
 let io: LocalContentIO
 
 beforeAll(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'tree-id-test-'))
+  tempDir = await mkdtemp(join(tmpdir(), 'treetwin-test-'))
   // Create collection directories
   await mkdir(join(tempDir, 'articles'), { recursive: true })
   await mkdir(join(tempDir, 'notes'), { recursive: true })

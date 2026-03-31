@@ -32,7 +32,7 @@ Used by Claude Code, Gemini Flash, or any model in the distribution pipeline.
 - Repost full article with canonical_url pointing to original
 - Add front matter: `title`, `published: true`, `tags` (max 4), `canonical_url`
 - Keep all code blocks and formatting intact
-- Add "Originally published at [tree-id.dev](link)" at the bottom
+- Add "Originally published at [treetwin.io](link)" at the bottom
 - Tags: use popular Dev.to tags (webdev, javascript, tutorial, beginners, etc.)
 
 ### Hashnode Post
@@ -96,7 +96,7 @@ Used by Claude Code, Gemini Flash, or any model in the distribution pipeline.
 
 ## Output Format & Content Templates
 
-Generate each platform section using these templates. Example article: "Building a Content Engine with Astro and Keystatic" at `https://tree-id.dev/articles/building-content-engine`.
+Generate each platform section using these templates. Example article: "Building a Content Engine with Astro and Keystatic" at `https://treetwin.io/articles/building-content-engine`.
 
 ```
 === TWITTER THREAD ===
@@ -115,7 +115,7 @@ Total infrastructure cost: $0/month.
 
 [3/3] Full write-up with code examples:
 
-https://tree-id.dev/articles/building-content-engine?utm_source=twitter&utm_medium=social&utm_campaign=distribute
+https://treetwin.io/articles/building-content-engine?utm_source=twitter&utm_medium=social&utm_campaign=distribute
 
 === LINKEDIN ===
 
@@ -129,7 +129,7 @@ The result: a site that's faster, cheaper, and easier to maintain than anything 
 
 If you're running a personal blog on a full-stack framework, you might be overengineering it.
 
-https://tree-id.dev/articles/building-content-engine?utm_source=linkedin&utm_medium=social&utm_campaign=distribute
+https://treetwin.io/articles/building-content-engine?utm_source=linkedin&utm_medium=social&utm_campaign=distribute
 
 #webdev #astro #staticsite
 
@@ -139,21 +139,21 @@ https://tree-id.dev/articles/building-content-engine?utm_source=linkedin&utm_med
 title: Building a Content Engine with Astro and Keystatic
 published: true
 tags: webdev, astro, javascript, tutorial
-canonical_url: https://tree-id.dev/articles/building-content-engine
+canonical_url: https://treetwin.io/articles/building-content-engine
 ---
 
 [Full article content here — keep all markdown, code blocks, images intact]
 
 ---
 
-*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=devto&utm_medium=social&utm_campaign=distribute)*
+*Originally published at [treetwin.io](https://treetwin.io/articles/building-content-engine?utm_source=devto&utm_medium=social&utm_campaign=distribute)*
 
 === HASHNODE ===
 
 ---
 title: Building a Content Engine with Astro and Keystatic
 slug: building-content-engine-astro-keystatic
-canonical: https://tree-id.dev/articles/building-content-engine
+canonical: https://treetwin.io/articles/building-content-engine
 tags: webdev, astro, javascript, static-site, tutorial
 ---
 
@@ -161,7 +161,7 @@ tags: webdev, astro, javascript, static-site, tutorial
 
 ---
 
-*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=hashnode&utm_medium=social&utm_campaign=distribute)*
+*Originally published at [treetwin.io](https://treetwin.io/articles/building-content-engine?utm_source=hashnode&utm_medium=social&utm_campaign=distribute)*
 
 === REDDIT ===
 
@@ -172,7 +172,7 @@ I was paying $20/month to host a PostgreSQL database for a personal blog. Felt r
 
 Switched to Astro + Keystatic: content lives as markdown in git, Keystatic gives you a local CMS UI, Vercel deploys on push. Total cost: $0.
 
-Wrote up the full migration process with code: https://tree-id.dev/articles/building-content-engine?utm_source=reddit&utm_medium=social&utm_campaign=distribute
+Wrote up the full migration process with code: https://treetwin.io/articles/building-content-engine?utm_source=reddit&utm_medium=social&utm_campaign=distribute
 
 === FACEBOOK ===
 
@@ -182,7 +182,7 @@ Không database, không CMS server, không hosting phí. Chuyển sang Astro + K
 
 Nhanh hơn, rẻ hơn, dễ maintain hơn mọi stack trước đó.
 
-https://tree-id.dev/articles/building-content-engine?utm_source=facebook&utm_medium=social&utm_campaign=distribute
+https://treetwin.io/articles/building-content-engine?utm_source=facebook&utm_medium=social&utm_campaign=distribute
 
 === MEDIUM ===
 
@@ -193,14 +193,14 @@ Subtitle: How I eliminated my database and cut hosting costs to $0
 
 ---
 
-*Originally published at [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=medium&utm_medium=social&utm_campaign=distribute)*
+*Originally published at [treetwin.io](https://treetwin.io/articles/building-content-engine?utm_source=medium&utm_medium=social&utm_campaign=distribute)*
 
 Tags: Programming, JavaScript, Web Development, Static Site, Tutorial
 
 === HACKER NEWS ===
 
 Title: Building a content engine with Astro and Keystatic – zero database, git-based CMS
-URL: https://tree-id.dev/articles/building-content-engine?utm_source=hackernews&utm_medium=social&utm_campaign=distribute
+URL: https://treetwin.io/articles/building-content-engine?utm_source=hackernews&utm_medium=social&utm_campaign=distribute
 
 === THREADS ===
 
@@ -212,21 +212,21 @@ Cost went from $20/month to $0. Speed doubled.
 
 Sometimes the best architecture is the simplest one.
 
-https://tree-id.dev/articles/building-content-engine?utm_source=threads&utm_medium=social&utm_campaign=distribute
+https://treetwin.io/articles/building-content-engine?utm_source=threads&utm_medium=social&utm_campaign=distribute
 
 === VIBLO === (Vietnamese content only)
 
 ---
 title: Xây dựng Content Engine với Astro và Keystatic
 tags: javascript, web, astro, tutorial, devops
-canonical_url: https://tree-id.dev/articles/building-content-engine
+canonical_url: https://treetwin.io/articles/building-content-engine
 ---
 
 [Toàn bộ nội dung bài viết tiếng Việt — giữ nguyên markdown, code blocks]
 
 ---
 
-*Bài gốc tại [tree-id.dev](https://tree-id.dev/articles/building-content-engine?utm_source=viblo&utm_medium=social&utm_campaign=distribute)*
+*Bài gốc tại [treetwin.io](https://treetwin.io/articles/building-content-engine?utm_source=viblo&utm_medium=social&utm_campaign=distribute)*
 ```
 
 ## Quality Checklist

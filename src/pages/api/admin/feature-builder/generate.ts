@@ -1,6 +1,6 @@
 /**
  * POST /api/admin/feature-builder/generate
- * Reads SkillSpec, generates skill folder + tree-id code, writes to disk.
+ * Reads SkillSpec, generates skill folder + treetwin code, writes to disk.
  */
 import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'

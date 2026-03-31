@@ -108,7 +108,7 @@ export async function generateSocialPosts(
     ? `${entry.title}\n\n${entry.content}`
     : `${entry.title}\n\n${entry.description || ''}`
 
-  const siteUrl = import.meta.env.PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'https://tree-id.dev'
+  const siteUrl = import.meta.env.PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'https://treetwin.io'
 
   // Load brand rules as system instruction
   const systemPrompt = await loadBrandRules()

@@ -93,7 +93,7 @@ sections:
           type: built-in
         - icon: "🚀"
           name: Instant Publish
-          desc: Live at tree-id.dev/your-slug in minutes
+          desc: Live at treetwin.io/your-slug in minutes
           price: Free
           type: instant
       intents: []
@@ -139,7 +139,7 @@ sections:
                 values: ["Free / $19/mo", "$20/mo", "$19/yr", "$15/mo"]
           faq:
             - q: "How is this different from Carrd?"
-              a: "Carrd is a general site builder. tree-id generates a complete landing page from your product description — no drag-and-drop, no template picking."
+              a: "Carrd is a general site builder. TreeTwin generates a complete landing page from your product description — no drag-and-drop, no template picking."
             - q: "Can I customize the design?"
               a: "Yes. Change colors, fonts, reorder sections, edit all copy. Visual editor, no code."
           cta:
@@ -319,7 +319,7 @@ sections:
         <div style="text-align:center;margin-bottom:2.5rem">
           <p style="font-size:0.75rem;color:var(--lp-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:1rem">See it live</p>
           <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em">This is what you get.</h2>
-          <p style="color:var(--lp-text-muted);margin-top:0.5rem;max-width:500px;margin-left:auto;margin-right:auto">Real landing pages built with tree-id. Scroll through, click around — these are live.</p>
+          <p style="color:var(--lp-text-muted);margin-top:0.5rem;max-width:500px;margin-left:auto;margin-right:auto">Real landing pages built with TreeTwin. Scroll through, click around — these are live.</p>
         </div>
 
         <!-- Live iframe preview with tab switcher -->
@@ -338,7 +338,7 @@ sections:
                 <span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span>
                 <span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span>
               </div>
-              <div style="flex:1;text-align:center;font-size:0.75rem;color:rgba(240,237,232,0.3);font-family:monospace" id="demo-url">tree-id.dev/ck2</div>
+              <div style="flex:1;text-align:center;font-size:0.75rem;color:rgba(240,237,232,0.3);font-family:monospace" id="demo-url">treetwin.io/ck2</div>
             </div>
             <iframe id="demo-frame" src="/ck2" style="width:100%;height:500px;border:none;background:#0a0a0a" loading="lazy"></iframe>
           </div>
@@ -351,7 +351,7 @@ sections:
         <script>
           function switchDemo(url, frameId, btn) {
             document.getElementById(frameId).src = url;
-            document.getElementById('demo-url').textContent = 'tree-id.dev' + url;
+            document.getElementById('demo-url').textContent = 'treetwin.io' + url;
             document.querySelectorAll('.demo-tab').forEach(t => {
               t.style.background = 'transparent';
               t.style.color = 'rgba(240,237,232,0.45)';
@@ -378,7 +378,7 @@ sections:
       heading: Edit everything. See changes instantly.
       subheading: Sections on the left. Live preview on the right. No code needed.
       # Replace with Loom/YouTube URL when ready
-      url: /images/demo/tree-id-admin-editor-demo.gif
+      url: /images/demo/treetwin-admin-editor-demo.gif
       variant: inline
     style:
       fullWidth: true
@@ -408,7 +408,7 @@ sections:
           icon: "🎨"
         - number: 4
           title: Publish
-          description: Go live instantly at tree-id.dev/your-slug. Mobile responsive, SEO-ready, fast. Start getting users today.
+          description: Go live instantly at treetwin.io/your-slug. Mobile responsive, SEO-ready, fast. Start getting users today.
           icon: "🚀"
       variant: numbered
     style:
@@ -457,7 +457,7 @@ sections:
     enabled: true
     data:
       heading: Honest comparison
-      subheading: Why indie makers choose tree-id
+      subheading: Why indie makers choose TreeTwin
       columns:
         - label: Tree-id
         - label: Bolt / Lovable
@@ -520,7 +520,7 @@ sections:
           features:
             - 1 landing page
             - 3 AI generates/month
-            - Live at tree-id.dev/your-slug
+            - Live at treetwin.io/your-slug
             - All 25+ section types
             - Mobile responsive
             - SEO auto-generated
@@ -536,7 +536,7 @@ sections:
             - Unlimited landing pages
             - Unlimited AI generates
             - Custom domain (coming soon)
-            - No tree-id branding
+            - No TreeTwin branding
             - Priority support
             - Analytics dashboard
           cta:
@@ -558,11 +558,11 @@ sections:
       heading: Questions?
       items:
         - question: How is this different from Carrd or Framer?
-          answer: Carrd and Framer are general website builders. tree-id is purpose-built for product landing pages. You describe your product — AI generates a complete page. No drag-and-drop, no template hunting.
+          answer: Carrd and Framer are general website builders. TreeTwin is purpose-built for product landing pages. You describe your product — AI generates a complete page. No drag-and-drop, no template hunting.
         - question: What AI model do you use?
           answer: We use Google's Gemini API to generate landing page copy and suggest sections. You can edit everything after — the AI is a starting point, not a lock-in.
         - question: Can I use my own domain?
-          answer: Custom domain support is on the roadmap for Pro plan. For now, your page lives at tree-id.dev/your-slug — perfectly fine for a first launch.
+          answer: Custom domain support is on the roadmap for Pro plan. For now, your page lives at treetwin.io/your-slug — perfectly fine for a first launch.
         - question: Do I need to sign up to try?
           answer: No! Enter your product description on the homepage and we'll generate a landing page instantly. You only need to sign up when you want to save, customize, or publish.
         - question: Is there really a free plan?
@@ -599,7 +599,7 @@ sections:
     order: 9
     enabled: true
     data:
-      text: "© 2026 tree-id · Built for builders"
+      text: "© 2026 TreeTwin · Built for builders"
       links:
         - label: Articles
           href: /seeds
