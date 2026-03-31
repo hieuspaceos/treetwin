@@ -97,6 +97,183 @@ sections:
           price: Free
           type: instant
       intents: []
+      featureProducts:
+        - id: landing
+          label: "Landing Page"
+          tagline: "Professional product page in 5 minutes"
+          demo:
+            tabs:
+              - label: ClaudeKit
+                src: /ck2
+              - label: Dark Edition
+                src: /ck3
+          features:
+            - icon: "🎨"
+              title: "25+ Section Types"
+              desc: "Hero, features, pricing, FAQ, testimonials, comparison tables and more."
+            - icon: "🤖"
+              title: "AI-Generated Copy"
+              desc: "Describe your product. AI writes headlines, descriptions, CTAs."
+            - icon: "🔍"
+              title: "SEO Auto-Optimized"
+              desc: "JSON-LD, Open Graph, meta tags — generated automatically."
+            - icon: "⚡"
+              title: "Edge-Fast Loading"
+              desc: "Under 1 second load time. Built on Astro + edge network."
+          comparison:
+            competitors: ["Bolt/Lovable", "Carrd", "Framer"]
+            rows:
+              - label: "You describe → you get"
+                values: ["✓ Live landing page", "Code repo", "Blank canvas", "Template"]
+              - label: "Time to live"
+                values: ["✓ <5 minutes", "30min+ (deploy)", "1-3 hours", "1-2 hours"]
+              - label: "SEO"
+                values: ["✓ Auto JSON-LD + meta", "✗ SPA, Google struggles", "Basic meta", "Good"]
+              - label: "Edit after"
+                values: ["✓ Visual editor", "Code (React)", "Drag-drop", "Drag-drop"]
+              - label: "AI copy"
+                values: ["✓ Built-in", "✓ Built-in", "✗ None", "AI assist"]
+              - label: "Technical skill"
+                values: ["✓ Type words only", "Read code", "Some design", "Design sense"]
+              - label: "Price"
+                values: ["Free / $19/mo", "$20/mo", "$19/yr", "$15/mo"]
+          faq:
+            - q: "How is this different from Carrd?"
+              a: "Carrd is a general site builder. tree-id generates a complete landing page from your product description — no drag-and-drop, no template picking."
+            - q: "Can I customize the design?"
+              a: "Yes. Change colors, fonts, reorder sections, edit all copy. Visual editor, no code."
+          cta:
+            headline: "Your product deserves customers."
+            button: "Build your landing page"
+            url: "#section-ai-search"
+        - id: blog
+          label: "Blog"
+          tagline: "Content engine with AI writing"
+          demo:
+            tabs:
+              - label: Articles
+                src: /seeds
+          features:
+            - icon: "✍️"
+              title: "AI Voice Writing"
+              desc: "Train your writing voice. AI drafts in YOUR style, not generic."
+            - icon: "📰"
+              title: "Markdoc Articles"
+              desc: "Git-tracked markdown. Own your content forever."
+            - icon: "🔍"
+              title: "SEO Built-In"
+              desc: "Auto JSON-LD, meta tags, RSS feed. Findable from day one."
+            - icon: "📧"
+              title: "Newsletter"
+              desc: "Built-in email capture + broadcast via Resend."
+          comparison:
+            competitors: ["WordPress", "Ghost", "Medium"]
+            rows:
+              - label: "Setup"
+                values: ["✓ 5 minutes", "30min+ (hosting)", "15 minutes", "Instant"]
+              - label: "Own content"
+                values: ["✓ Git files (yours)", "DB (exportable)", "DB", "✗ Platform-locked"]
+              - label: "AI writing"
+                values: ["✓ Voice AI built-in", "Plugins ($)", "✗ None", "✗ None"]
+              - label: "SEO"
+                values: ["✓ Auto JSON-LD", "Plugin-heavy", "Good", "Platform SEO"]
+              - label: "Newsletter"
+                values: ["✓ Built-in (Resend)", "Plugin", "✓ Built-in", "✗ No"]
+              - label: "Cost"
+                values: ["Free / $19/mo", "$5-30/mo", "$9/mo", "Free (limited)"]
+          faq:
+            - q: "Can I migrate from WordPress?"
+              a: "Yes. Export your posts as markdown, drop them in. Git-tracked, no database needed."
+            - q: "How does AI writing work?"
+              a: "Create a voice profile with sample paragraphs. AI drafts new content matching your tone and style."
+          cta:
+            headline: "Write less. Publish more."
+            button: "Start your blog"
+            url: "#section-ai-search"
+        - id: ai-content
+          label: "AI Content"
+          tagline: "AI writes in your voice"
+          demo:
+            tabs:
+              - label: Voice Editor
+                src: /admin
+          features:
+            - icon: "🎤"
+              title: "Voice Profiles"
+              desc: "Define your tone, style, audience. AI learns and matches."
+            - icon: "📝"
+              title: "Auto-Draft"
+              desc: "One topic → full article draft in your voice. Edit and publish."
+            - icon: "📊"
+              title: "SEO Score"
+              desc: "Real-time SEO analysis. Fix issues before publishing."
+            - icon: "🌐"
+              title: "Multi-Platform Distribution"
+              desc: "Generate social posts for Twitter, LinkedIn, Dev.to from one article."
+          comparison:
+            competitors: ["ChatGPT/Claude", "Jasper", "Copy.ai"]
+            rows:
+              - label: "Learns your voice"
+                values: ["✓ Voice profiles", "✗ Prompt each time", "Templates", "Templates"]
+              - label: "Publishes direct"
+                values: ["✓ To your site", "✗ Copy-paste", "✗ Copy-paste", "✗ Copy-paste"]
+              - label: "SEO optimized"
+                values: ["✓ Auto score + fix", "Manual", "Basic", "Basic"]
+              - label: "Distribution"
+                values: ["✓ Multi-platform", "✗ Manual", "✗ Manual", "Social only"]
+              - label: "Price"
+                values: ["Included ($19/mo)", "$20/mo", "$49/mo", "$49/mo"]
+          faq:
+            - q: "Is the AI content any good?"
+              a: "It drafts based on your voice profile — tone, word choice, audience. You edit and refine. The AI handles structure, you add personality."
+            - q: "Which AI model?"
+              a: "Google Gemini for content generation. Quality comparable to GPT-4 at lower cost."
+          cta:
+            headline: "Content on autopilot."
+            button: "Try AI writing"
+            url: "#section-ai-search"
+        - id: chatbot
+          label: "AI Chatbot"
+          tagline: "24/7 support trained on your data"
+          demo:
+            tabs:
+              - label: Chat Widget
+                src: /ck2
+          features:
+            - icon: "💬"
+              title: "Trained On Your Site"
+              desc: "Chatbot learns from your pages, docs, FAQ. Answers accurately."
+            - icon: "🔌"
+              title: "One-Click Enable"
+              desc: "Toggle on in settings. Widget appears on your landing page."
+            - icon: "🧠"
+              title: "Smart Escalation"
+              desc: "Knows when to hand off to a human. Captures contact info."
+            - icon: "📈"
+              title: "Conversation Analytics"
+              desc: "See what visitors ask. Find gaps in your content."
+          comparison:
+            competitors: ["Intercom", "Crisp", "ChatBot.com"]
+            rows:
+              - label: "Train on your data"
+                values: ["✓ Auto from site", "✓ Docs/URLs", "✓ URLs", "✓ URLs"]
+              - label: "Setup"
+                values: ["✓ 1 click enable", "Complex", "Moderate", "Moderate"]
+              - label: "Integrated with site"
+                values: ["✓ Native", "Embed widget", "Embed", "Embed"]
+              - label: "AI quality"
+                values: ["Gemini/Claude", "GPT-4", "GPT", "GPT"]
+              - label: "Price"
+                values: ["Usage-based", "$74/mo+", "$25/mo", "$52/mo"]
+          faq:
+            - q: "Will it answer wrong things?"
+              a: "It only answers based on your site content. If unsure, it says so and offers to connect with you."
+            - q: "How much does usage-based cost?"
+              a: "Pay per conversation. Most small sites spend under $5/month."
+          cta:
+            headline: "Never miss a customer question."
+            button: "Enable chatbot"
+            url: "#section-ai-search"
     style:
       fullWidth: true
       background: '#0a0a0a'
@@ -121,6 +298,17 @@ sections:
       background: '#0a0a0a'
       textColor: '#f0ede8'
       padding: '2rem 2rem 5rem'
+
+  # --- Product Showcase (dynamic, rendered by client JS based on feature selection) ---
+  - type: product-showcase
+    order: 2.2
+    enabled: true
+    data: {}
+    style:
+      fullWidth: true
+      background: '#0a0a0a'
+      textColor: '#f0ede8'
+      padding: '0 2rem 4rem'
 
   # --- Live Demo Preview ---
   - type: rich-text

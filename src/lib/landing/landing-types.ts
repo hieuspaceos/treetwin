@@ -319,6 +319,45 @@ export interface AiSearchIntent {
   keywords: string[]
   suggestions: AiSearchSuggestion[]
 }
+
+/** Feature product — self-contained content for one selectable product feature */
+export interface FeatureProductDemoTab {
+  label: string
+  src: string
+}
+export interface FeatureProductFeature {
+  icon: string
+  title: string
+  desc: string
+}
+export interface FeatureProductComparisonRow {
+  label: string
+  values: string[]
+}
+export interface FeatureProductComparison {
+  competitors: string[]
+  rows: FeatureProductComparisonRow[]
+}
+export interface FeatureProductFaq {
+  q: string
+  a: string
+}
+export interface FeatureProductCta {
+  headline: string
+  button: string
+  url: string
+}
+export interface FeatureProduct {
+  id: string
+  label: string
+  tagline: string
+  demo: { tabs: FeatureProductDemoTab[] }
+  features: FeatureProductFeature[]
+  comparison: FeatureProductComparison
+  faq: FeatureProductFaq[]
+  cta: FeatureProductCta
+}
+
 export interface AiSearchData {
   placeholder?: string
   thinkingText?: string
@@ -328,6 +367,8 @@ export interface AiSearchData {
   defaultSuggestions?: AiSearchSuggestion[]
   /** Intent-based suggestion groups */
   intents?: AiSearchIntent[]
+  /** Selectable feature products — shown as multi-select cards after AI search */
+  featureProducts?: FeatureProduct[]
 }
 
 /** Popup/modal overlay — triggered by scroll %, time delay, or exit intent */
@@ -367,11 +408,17 @@ export interface LandingDesign {
   borderRadius?: string
 }
 
+/** Product showcase — dynamic section that morphs based on selected feature products */
+export interface ProductShowcaseData {
+  /** Feature products data passed from ai-search — rendered dynamically via client JS */
+  featureProducts: FeatureProduct[]
+}
+
 /** All possible section type identifiers */
-export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout' | 'comparison' | 'ai-search' | 'social-proof' | 'popup'
+export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner' | 'layout' | 'comparison' | 'ai-search' | 'social-proof' | 'popup' | 'product-showcase'
 
 /** Union of all section data types */
-export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData | PopupData
+export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData | PopupData | ProductShowcaseData
 
 /** Per-section visual style overrides — extracted by AI or set manually in editor */
 export interface SectionStyle {

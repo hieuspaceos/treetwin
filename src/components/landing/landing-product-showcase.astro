@@ -1,0 +1,17 @@
+---
+/**
+ * Product showcase section — dynamic content that morphs based on
+ * selected feature products from the AI search multi-select.
+ * Listens for 'features-selected' CustomEvent, merges content, renders.
+ * Pure inline JS + DOM manipulation, no React.
+ */
+---
+
+<!-- Product showcase container — hidden until features are selected -->
+<div id="product-showcase" style="display:none">
+  <div id="ps-demo"></div>
+  <div id="ps-features"></div>
+  <div id="ps-comparison"></div>
+  <div id="ps-faq"></div>
+  <div id="ps-cta"></div>
+</div>

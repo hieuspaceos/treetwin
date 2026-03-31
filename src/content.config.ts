@@ -121,7 +121,7 @@ const landingPages = defineCollection({
       noindex: z.boolean().optional(),
     }).optional(),
     sections: z.array(z.object({
-      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup']),
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup', 'product-showcase']),
       order: z.number(),
       enabled: z.boolean().default(true),
       data: z.record(z.unknown()),
@@ -145,7 +145,7 @@ const templates = defineCollection({
     targetAudience: z.string().optional(),
     previewImage: z.string().optional(),
     sections: z.array(z.object({
-      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup']),
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof', 'popup', 'product-showcase']),
       order: z.number(),
       enabled: z.boolean().default(true),
       data: z.record(z.unknown()),
