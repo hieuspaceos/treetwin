@@ -120,40 +120,63 @@ sections:
       textColor: '#f0ede8'
       padding: '2rem 2rem 5rem'
 
-  # --- Live Examples ---
+  # --- Live Demo Preview ---
   - type: rich-text
     order: 2.5
     enabled: true
     data:
       content: |
-        <div style="text-align:center;margin-bottom:2rem">
-          <p style="font-size:0.75rem;color:var(--lp-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:1rem">Built with tree-id</p>
-          <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em">Real landing pages. Live now.</h2>
-          <p style="color:var(--lp-text-muted);margin-top:0.5rem">Click to see them in action — all generated with tree-id.</p>
+        <div style="text-align:center;margin-bottom:2.5rem">
+          <p style="font-size:0.75rem;color:var(--lp-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:1rem">See it live</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em">This is what you get.</h2>
+          <p style="color:var(--lp-text-muted);margin-top:0.5rem;max-width:500px;margin-left:auto;margin-right:auto">Real landing pages built with tree-id. Scroll through, click around — these are live.</p>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;max-width:960px;margin:0 auto">
-          <a href="/ck2" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
-            <div style="font-size:1.5rem;margin-bottom:0.75rem">🚀</div>
-            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">ClaudeKit — AI Dev Teams</div>
-            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">SaaS product page with hero video, testimonials carousel, pricing table, social proof.</div>
-            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
-          </a>
-          <a href="/ck3" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
-            <div style="font-size:1.5rem;margin-bottom:0.75rem">⚡</div>
-            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">ClaudeKit V3 — Dark Edition</div>
-            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">Dark theme landing page with comparison table, FAQ accordion, multiple CTA sections.</div>
-            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
-          </a>
-          <a href="/toi-ban-hoa" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
-            <div style="font-size:1.5rem;margin-bottom:0.75rem">🌸</div>
-            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">Tôi Bán Hoa — Flower Shop</div>
-            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">Local business page with map, contact form, gallery. Vietnamese language, custom colors.</div>
-            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
-          </a>
+
+        <!-- Live iframe preview with tab switcher -->
+        <div style="max-width:960px;margin:0 auto">
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;justify-content:center;flex-wrap:wrap" id="demo-tabs">
+            <button onclick="switchDemo('/ck2','demo-frame',this)" style="padding:0.5rem 1.25rem;border-radius:100px;border:1px solid rgba(255,255,255,0.15);background:rgba(200,169,126,0.12);color:#c8a97e;font-size:0.85rem;cursor:pointer;font-family:inherit;font-weight:500" class="demo-tab active">🚀 ClaudeKit</button>
+            <button onclick="switchDemo('/ck3','demo-frame',this)" style="padding:0.5rem 1.25rem;border-radius:100px;border:1px solid rgba(255,255,255,0.07);background:transparent;color:rgba(240,237,232,0.45);font-size:0.85rem;cursor:pointer;font-family:inherit" class="demo-tab">⚡ Dark Edition</button>
+            <button onclick="switchDemo('/toi-ban-hoa','demo-frame',this)" style="padding:0.5rem 1.25rem;border-radius:100px;border:1px solid rgba(255,255,255,0.07);background:transparent;color:rgba(240,237,232,0.45);font-size:0.85rem;cursor:pointer;font-family:inherit" class="demo-tab">🌸 Flower Shop</button>
+          </div>
+
+          <!-- Browser mockup frame -->
+          <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07);background:#111">
+              <div style="display:flex;gap:6px">
+                <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span>
+                <span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span>
+                <span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span>
+              </div>
+              <div style="flex:1;text-align:center;font-size:0.75rem;color:rgba(240,237,232,0.3);font-family:monospace" id="demo-url">tree-id.dev/ck2</div>
+            </div>
+            <iframe id="demo-frame" src="/ck2" style="width:100%;height:500px;border:none;background:#0a0a0a" loading="lazy"></iframe>
+          </div>
+
+          <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--lp-text-muted)">
+            ↑ This is a real page. Scroll it. Click links. <a href="/ck2" target="_blank" style="color:var(--lp-accent);text-decoration:underline">Open full screen →</a>
+          </p>
         </div>
+
+        <script>
+          function switchDemo(url, frameId, btn) {
+            document.getElementById(frameId).src = url;
+            document.getElementById('demo-url').textContent = 'tree-id.dev' + url;
+            document.querySelectorAll('.demo-tab').forEach(t => {
+              t.style.background = 'transparent';
+              t.style.color = 'rgba(240,237,232,0.45)';
+              t.style.borderColor = 'rgba(255,255,255,0.07)';
+              t.style.fontWeight = '400';
+            });
+            btn.style.background = 'rgba(200,169,126,0.12)';
+            btn.style.color = '#c8a97e';
+            btn.style.borderColor = 'rgba(255,255,255,0.15)';
+            btn.style.fontWeight = '500';
+          }
+        </script>
     style:
       fullWidth: true
-      background: '#111111'
+      background: '#0a0a0a'
       textColor: '#f0ede8'
       padding: '5rem 2rem'
 
