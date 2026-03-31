@@ -6,12 +6,17 @@
  */
 import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
 
 export const prerender = false
 
 const GEMINI_MODEL = import.meta.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const POST: APIRoute = async ({ request }) => {
+  const ip = getClientIp(request)
+  const rl = checkRateLimit(`ai:${ip}`, 10, 60_000)
+  if (rl.limited) return rl.response
+
   const fc = checkFeatureEnabled('voices')
   if (!fc.enabled) return fc.response
   const apiKey = import.meta.env.GEMINI_API_KEY

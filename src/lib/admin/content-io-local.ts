@@ -12,6 +12,13 @@ import {
   serializeYamlContent,
 } from './content-io-shared'
 
+/** Validate slug — reject path traversal patterns */
+function validateSlug(slug: string): void {
+  if (!slug || slug.includes('..') || slug.includes('\0') || slug.startsWith('/')) {
+    throw new Error(`Invalid slug: ${slug}`)
+  }
+}
+
 export class LocalContentIO implements ContentIO {
   private fs: typeof import('node:fs/promises') | null = null
   private path: typeof import('node:path') | null = null
@@ -74,6 +81,7 @@ export class LocalContentIO implements ContentIO {
   }
 
   async readEntry(collection: CollectionName, slug: string): Promise<EntryData | null> {
+    validateSlug(slug)
     const { fs } = await this.getFs()
 
     try {
@@ -92,6 +100,7 @@ export class LocalContentIO implements ContentIO {
   }
 
   async writeEntry(collection: CollectionName, slug: string, data: EntryData): Promise<void> {
+    validateSlug(slug)
     const { fs } = await this.getFs()
     const { slug: _slug, ...fields } = data
 
@@ -107,6 +116,7 @@ export class LocalContentIO implements ContentIO {
   }
 
   async deleteEntry(collection: CollectionName, slug: string): Promise<void> {
+    validateSlug(slug)
     const { fs } = await this.getFs()
 
     if (isArticle(collection)) {

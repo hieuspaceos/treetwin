@@ -7,6 +7,7 @@ import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { addSubscriber, isSubscribed } from '@/lib/email/subscriber-io'
 import { sendEmail, isEmailConfigured } from '@/lib/email/resend-client'
 import { siteConfig } from '@/config/site-config'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
 
 export const prerender = false
 
@@ -20,6 +21,10 @@ function json(data: unknown, status = 200) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const ip = getClientIp(request)
+  const rl = checkRateLimit(`subscribe:${ip}`, 3, 60_000)
+  if (rl.limited) return rl.response
+
   const fc = checkFeatureEnabled('email')
   if (!fc.enabled) return fc.response
   try {

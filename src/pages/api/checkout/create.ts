@@ -99,7 +99,7 @@ export const POST: APIRoute = async ({ request }) => {
     )
   } catch (err: any) {
     console.error('[checkout/create] unexpected error:', err)
-    return new Response(JSON.stringify({ error: err?.message || 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })

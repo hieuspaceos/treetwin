@@ -40,6 +40,13 @@ export interface EntityInstance {
   [key: string]: unknown
 }
 
+/** Validate slug/name — reject path traversal patterns */
+function validateSlug(slug: string): void {
+  if (!slug || slug.includes('..') || slug.includes('\0') || slug.startsWith('/')) {
+    throw new Error(`Invalid slug: ${slug}`)
+  }
+}
+
 // ── Definitions ──
 
 export function listEntityDefinitions(basePath = process.cwd()): EntityDefinition[] {
@@ -55,6 +62,7 @@ export function listEntityDefinitions(basePath = process.cwd()): EntityDefinitio
 }
 
 export function getEntityDefinition(name: string, basePath = process.cwd()): EntityDefinition | null {
+  validateSlug(name)
   const filePath = path.join(basePath, DEFS_DIR, `${name}.yaml`)
   if (!fs.existsSync(filePath)) return null
   try {
@@ -64,6 +72,7 @@ export function getEntityDefinition(name: string, basePath = process.cwd()): Ent
 }
 
 export function writeEntityDefinition(name: string, def: Omit<EntityDefinition, 'name'>, basePath = process.cwd()): void {
+  validateSlug(name)
   const dir = path.join(basePath, DEFS_DIR)
   fs.mkdirSync(dir, { recursive: true })
   const { name: _n, ...rest } = def as any
@@ -71,6 +80,7 @@ export function writeEntityDefinition(name: string, def: Omit<EntityDefinition, 
 }
 
 export function deleteEntityDefinition(name: string, basePath = process.cwd()): boolean {
+  validateSlug(name)
   const filePath = path.join(basePath, DEFS_DIR, `${name}.yaml`)
   if (!fs.existsSync(filePath)) return false
   fs.unlinkSync(filePath)
@@ -91,6 +101,7 @@ export function getPublicConfig(name: string, basePath = process.cwd()): EntityP
 // ── Instances ──
 
 export function listEntityInstances(name: string, basePath = process.cwd()): EntityInstance[] {
+  validateSlug(name)
   const dir = path.join(basePath, ENTITIES_DIR, name)
   if (!fs.existsSync(dir)) return []
   return fs.readdirSync(dir)
@@ -103,6 +114,8 @@ export function listEntityInstances(name: string, basePath = process.cwd()): Ent
 }
 
 export function readEntityInstance(name: string, slug: string, basePath = process.cwd()): EntityInstance | null {
+  validateSlug(name)
+  validateSlug(slug)
   const filePath = path.join(basePath, ENTITIES_DIR, name, `${slug}.yaml`)
   if (!fs.existsSync(filePath)) return null
   try {
@@ -112,6 +125,8 @@ export function readEntityInstance(name: string, slug: string, basePath = proces
 }
 
 export function writeEntityInstance(name: string, slug: string, data: Record<string, unknown>, basePath = process.cwd()): void {
+  validateSlug(name)
+  validateSlug(slug)
   const dir = path.join(basePath, ENTITIES_DIR, name)
   fs.mkdirSync(dir, { recursive: true })
   const { slug: _s, ...rest } = data
@@ -119,6 +134,8 @@ export function writeEntityInstance(name: string, slug: string, data: Record<str
 }
 
 export function deleteEntityInstance(name: string, slug: string, basePath = process.cwd()): boolean {
+  validateSlug(name)
+  validateSlug(slug)
   const filePath = path.join(basePath, ENTITIES_DIR, name, `${slug}.yaml`)
   if (!fs.existsSync(filePath)) return false
   fs.unlinkSync(filePath)

@@ -4,6 +4,7 @@
  */
 import type { APIRoute } from 'astro'
 import { cloneLandingPage } from '@/lib/admin/landing-clone-ai'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
 
 export const prerender = false
 
@@ -13,6 +14,10 @@ function json(data: unknown, status = 200): Response {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const ip = getClientIp(request)
+    const rl = checkRateLimit(`ai:${ip}`, 10, 60_000)
+    if (rl.limited) return rl.response
+
     const body = await request.json()
     const url = body?.url?.trim()
     const intent = typeof body?.intent === 'string' ? body.intent.trim() : undefined

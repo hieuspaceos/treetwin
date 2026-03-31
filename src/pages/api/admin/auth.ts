@@ -6,12 +6,18 @@
 import type { APIRoute } from 'astro'
 import { authenticateUser, isMultiUserMode, signToken, buildSessionCookie, buildClearCookie, COOKIE_NAME, verifyToken, verifyPassword, timingSafeCompare } from '@/lib/admin/auth'
 import { readProduct } from '@/lib/admin/product-io'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
 
 export const prerender = false
 
 /** POST /api/admin/auth — login with username+password or password-only */
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // Rate limit: 5 login attempts per minute per IP
+    const ip = getClientIp(request)
+    const rl = checkRateLimit(`auth:${ip}`, 5, 60_000)
+    if (rl.limited) return rl.response
+
     const body = await request.json()
     const { password, username, product: productSlug } = body as {
       password?: string

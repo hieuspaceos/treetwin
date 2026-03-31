@@ -5,9 +5,14 @@
 import type { APIRoute } from 'astro'
 import { getMarketplaceClient } from '@/lib/supabase/client'
 import { listProducts } from '@/lib/supabase/marketplace-queries'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const ip = getClientIp(request)
+    const rl = checkRateLimit(`ai:${ip}`, 10, 60_000)
+    if (rl.limited) return rl.response
+
     const body = await request.json()
     const { query } = body as { query?: string }
 
