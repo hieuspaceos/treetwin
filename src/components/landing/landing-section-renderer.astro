@@ -34,6 +34,7 @@ import LandingSocialProof from './landing-social-proof.astro'
 import LandingPopup from './landing-popup.astro'
 import LandingProductShowcase from './landing-product-showcase.astro'
 import type { LandingSection, SectionStyle } from '@/lib/landing/landing-types'
+import { sanitizeCss } from '@/lib/landing/css-sanitizer'
 
 import '@/styles/landing.css'
 
@@ -171,5 +172,5 @@ const componentMap: Record<string, any> = {
 
 {/* AI-generated scoped CSS for visual fidelity */}
 {scopedCss && scopedCss.length > 0 && (
-  <style set:html={buildScopedCssString(scopedCss)} />
+  <style set:html={sanitizeCss(buildScopedCssString(scopedCss))} />
 )}

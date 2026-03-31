@@ -11,6 +11,7 @@
  * Supports: eyebrow label, cta array, embed (video/iframe), background image.
  */
 import type { HeroData } from '@/lib/landing/landing-types'
+import { sanitizeEmbed } from '@/lib/landing/html-sanitizer'
 import HeroFullscreen from './landing-hero-fullscreen.astro'
 import HeroSlider from './landing-hero-slider.astro'
 
@@ -68,7 +69,7 @@ function ctaClass(index: number, ctaVariant?: string): string {
         {isVideoEmbed ? (
           <video src={embed} autoplay muted loop playsinline style="max-width: 100%; border-radius: var(--lp-radius)" />
         ) : (
-          <div set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />
+          <div set:html={sanitizeEmbed(embed)} />
         )}
       </div>
     )}
@@ -99,7 +100,7 @@ function ctaClass(index: number, ctaVariant?: string): string {
         isVideoEmbed ? (
           <video src={embed} autoplay muted loop playsinline style="max-width: 100%; border-radius: var(--lp-radius)" poster={backgroundImage || undefined} />
         ) : (
-          <div set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />
+          <div set:html={sanitizeEmbed(embed)} />
         )
       )}
       {backgroundImage && !embed && (
@@ -142,7 +143,7 @@ function ctaClass(index: number, ctaVariant?: string): string {
           {isVideoEmbed ? (
             <video src={embed} autoplay muted loop playsinline style="max-width: 100%; border-radius: var(--lp-radius)" />
           ) : (
-            <div set:html={embed.replace(/<script[\s\S]*?<\/script>/gi, '')} />
+            <div set:html={sanitizeEmbed(embed)} />
           )}
         </div>
       )}

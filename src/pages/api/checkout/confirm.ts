@@ -8,6 +8,14 @@ import { generateLicenseKey } from '@/lib/supabase/marketplace-queries'
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const isLocalEnv = !import.meta.env.PUBLIC_SUPABASE_URL && !process.env.PUBLIC_SUPABASE_URL
+    if (import.meta.env.PROD && !isLocalEnv) {
+      return new Response(JSON.stringify({ error: 'Checkout requires authentication' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     const body = await request.json()
     const { orderId, productId } = body as { orderId?: string; productId?: string }
 

@@ -32,7 +32,14 @@ async function verifyHmacSignature(body: string, signature: string, secret: stri
     .join('')
   // Strip 'sha256=' prefix if present
   const incoming = signature.startsWith('sha256=') ? signature.slice(7) : signature
-  return expected === incoming
+  // Timing-safe comparison
+  const encoder2 = new TextEncoder()
+  const a = encoder2.encode(expected)
+  const b = encoder2.encode(incoming)
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i]
+  return diff === 0
 }
 
 /** POST /api/goclaw/webhook — receive GoClaw event callbacks */
@@ -43,6 +50,9 @@ export const POST: APIRoute = async ({ request }) => {
   if (!auth.ok) return auth.response
 
   const webhookSecret = import.meta.env.GOCLAW_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    console.warn('[goclaw/webhook] WARNING: GOCLAW_WEBHOOK_SECRET not configured — webhook signatures are NOT verified. Set this env var in production.')
+  }
   const rawBody = await request.text()
 
   // Verify HMAC signature if secret is configured

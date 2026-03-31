@@ -11,6 +11,7 @@ export const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
 
 export type AdminRole = 'admin' | 'editor'
 
+/** Password field supports PBKDF2 hashed (salt:hash) or plain strings */
 export interface AdminUser {
   username: string
   password: string
@@ -98,6 +99,21 @@ export async function verifyPassword(plain: string, stored: string): Promise<boo
   return actualHash === expectedHash
 }
 
+/** Constant-time string comparison using HMAC to prevent timing attacks */
+export async function timingSafeCompare(a: string, b: string): Promise<boolean> {
+  const encA = new TextEncoder().encode(a)
+  const encB = new TextEncoder().encode(b)
+  if (encA.length !== encB.length) return false
+  const key = await crypto.subtle.importKey('raw', encA, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = await crypto.subtle.sign('HMAC', key, encB)
+  const expected = await crypto.subtle.sign('HMAC', key, encA)
+  const sigArr = new Uint8Array(sig)
+  const expArr = new Uint8Array(expected)
+  let diff = 0
+  for (let i = 0; i < sigArr.length; i++) diff |= sigArr[i] ^ expArr[i]
+  return diff === 0
+}
+
 /**
  * Compare plaintext against ADMIN_PASSWORD env var.
  * If ADMIN_PASSWORD_HASH is set, verifies against stored hash.
@@ -139,8 +155,12 @@ export async function authenticateUser(
     if (!username) return null
     const user = users.find((u) => u.username === username)
     if (!user) return null
-    // Direct comparison (passwords stored in env var, not hashed)
-    if (user.password !== password) return null
+    // Support hashed passwords (salt:hash format) and plain with timing-safe compare
+    const isHashed = user.password.includes(':')
+    const valid = isHashed
+      ? await verifyPassword(password, user.password)
+      : await timingSafeCompare(password, user.password)
+    if (!valid) return null
     return { username: user.username, role: user.role }
   }
   // Single-user fallback: use existing checkAdminPassword

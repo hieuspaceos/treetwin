@@ -21,7 +21,22 @@ export function verifyGoclawApiKey(request: Request): AuthSuccess | AuthFailure 
   const authHeader = request.headers.get('Authorization') || ''
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
 
-  if (!token || token !== apiKey) {
+  if (!token) {
+    return {
+      ok: false,
+      response: json({ ok: false, error: 'Invalid API key' }, 401),
+    }
+  }
+  // Timing-safe comparison to prevent key extraction via timing attacks
+  const encoder = new TextEncoder()
+  const a = encoder.encode(token)
+  const b = encoder.encode(apiKey)
+  let mismatch = a.length !== b.length ? 1 : 0
+  const len = Math.max(a.length, b.length)
+  for (let i = 0; i < len; i++) {
+    mismatch |= (a[i] || 0) ^ (b[i] || 0)
+  }
+  if (mismatch !== 0) {
     return {
       ok: false,
       response: json({ ok: false, error: 'Invalid API key' }, 401),

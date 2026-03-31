@@ -6,7 +6,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
-import { verifyToken, COOKIE_NAME } from './auth'
+import { verifyToken, COOKIE_NAME, timingSafeCompare } from './auth'
 import type { ProductConfig } from './product-types'
 
 const PRODUCTS_DIR = 'src/content/products'
@@ -67,11 +67,12 @@ export async function validateProductAccess(
     }
   }
 
-  // Try Bearer token against ADMIN_SECRET or env-configured product API key
+  // Try Bearer token against dedicated ADMIN_API_KEY (never reuse JWT signing secret)
   if (bearerToken) {
-    const adminSecret = import.meta.env.ADMIN_SECRET || process.env.ADMIN_SECRET
-    if (adminSecret && bearerToken === adminSecret) {
-      return { ok: true, product }
+    const adminApiKey = import.meta.env.ADMIN_API_KEY || process.env.ADMIN_API_KEY
+    if (adminApiKey && adminApiKey.length > 0) {
+      const match = await timingSafeCompare(bearerToken, adminApiKey)
+      if (match) return { ok: true, product }
     }
   }
 

@@ -4,7 +4,7 @@
  * When `product` is provided in the request body, validates against product YAML users.
  */
 import type { APIRoute } from 'astro'
-import { authenticateUser, isMultiUserMode, signToken, buildSessionCookie, buildClearCookie, COOKIE_NAME, verifyToken } from '@/lib/admin/auth'
+import { authenticateUser, isMultiUserMode, signToken, buildSessionCookie, buildClearCookie, COOKIE_NAME, verifyToken, verifyPassword, timingSafeCompare } from '@/lib/admin/auth'
 import { readProduct } from '@/lib/admin/product-io'
 
 export const prerender = false
@@ -33,8 +33,16 @@ export const POST: APIRoute = async ({ request }) => {
       if (!username) {
         return json({ ok: false, error: 'Username is required for product login' }, 400)
       }
-      const match = productUsers.find((u) => u.username === username && u.password === password)
+      const match = productUsers.find((u) => u.username === username)
       if (!match) {
+        return json({ ok: false, error: 'Invalid credentials' }, 401)
+      }
+      // Support hashed passwords (salt:hash format) and plain with timing-safe compare
+      const isHashed = match.password.includes(':')
+      const passwordValid = isHashed
+        ? await verifyPassword(password, match.password)
+        : await timingSafeCompare(password, match.password)
+      if (!passwordValid) {
         return json({ ok: false, error: 'Invalid credentials' }, 401)
       }
       // Embed product slug in JWT so API middleware can enforce product scope

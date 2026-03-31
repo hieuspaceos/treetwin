@@ -5,6 +5,7 @@
  * Supports: headings (#), bold (**), italic (*), links ([text](url)), unordered/ordered lists, line breaks.
  */
 import type { RichTextData } from '@/lib/landing/landing-types'
+import { sanitizeLandingHtml } from '@/lib/landing/html-sanitizer'
 
 interface Props extends RichTextData {}
 const { content, heading, subheading } = Astro.props as RichTextData & { heading?: string; subheading?: string }
@@ -45,8 +46,8 @@ const safeContent = content || ''
 const isHtml = safeContent.trimStart().startsWith('<')
 const html = isHtml ? safeContent : parseMarkdown(safeContent)
 
-/** Strip script tags for basic XSS protection */
-const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
+/** Sanitize HTML — allowlist-based XSS protection */
+const safe = sanitizeLandingHtml(html)
 ---
 
 <section class="landing-section">

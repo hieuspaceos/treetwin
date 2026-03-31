@@ -8,6 +8,17 @@ import { getProduct, generateOrderNumber } from '@/lib/supabase/marketplace-quer
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // Block unauthenticated checkout in production
+    const isLocalEnv = !import.meta.env.PUBLIC_SUPABASE_URL && !process.env.PUBLIC_SUPABASE_URL
+    if (import.meta.env.PROD && !isLocalEnv) {
+      // TODO: Validate Better Auth / Supabase session here
+      // For now, reject in production until auth integration is complete
+      return new Response(JSON.stringify({ error: 'Checkout requires authentication' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     const body = await request.json()
     const { productSlug } = body as { productSlug?: string }
 

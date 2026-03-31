@@ -51,6 +51,13 @@ export const POST: APIRoute = async ({ request }) => {
     for (const fd of result.files) {
       const fullPath = path.join(root, fd.path)
 
+      // Prevent path traversal — ensure all writes stay within project root
+      const resolved = path.resolve(fullPath)
+      if (!resolved.startsWith(root)) {
+        warnings.push(`Blocked path traversal: ${fd.path}`)
+        continue
+      }
+
       // Detect overwrite
       try {
         await fs.access(fullPath)
