@@ -180,33 +180,16 @@ sections:
       textColor: '#f0ede8'
       padding: '5rem 2rem'
 
-  # --- Admin Editor Demo GIF ---
-  - type: rich-text
+  # --- Admin Editor Demo Video ---
+  - type: video
     order: 2.7
     enabled: true
     data:
-      content: |
-        <div style="text-align:center;margin-bottom:2rem">
-          <p style="font-size:0.75rem;color:var(--lp-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:1rem">Visual editor</p>
-          <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em">Edit everything. See changes instantly.</h2>
-          <p style="color:var(--lp-text-muted);margin-top:0.5rem;max-width:520px;margin-left:auto;margin-right:auto">Drag sections, change copy, pick variants — your landing page updates in real-time. No code needed.</p>
-        </div>
-        <div style="max-width:960px;margin:0 auto">
-          <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden">
-            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07);background:#111">
-              <div style="display:flex;gap:6px">
-                <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span>
-                <span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span>
-                <span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span>
-              </div>
-              <div style="flex:1;text-align:center;font-size:0.75rem;color:rgba(240,237,232,0.3);font-family:monospace">tree-id.dev/admin/landing/home</div>
-            </div>
-            <img src="/images/demo/tree-id-admin-editor-demo.gif" alt="tree-id admin editor with live preview" style="width:100%;display:block" loading="lazy" />
-          </div>
-          <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--lp-text-muted)">
-            Sections on the left. Live preview on the right. What you see is what you get.
-          </p>
-        </div>
+      heading: Edit everything. See changes instantly.
+      subheading: Sections on the left. Live preview on the right. No code needed.
+      # Replace with Loom/YouTube URL when ready
+      url: /images/demo/tree-id-admin-editor-demo.gif
+      variant: inline
     style:
       fullWidth: true
       background: '#111111'
