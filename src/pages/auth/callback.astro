@@ -1,28 +1,11 @@
 ---
-/** OAuth callback — Supabase handles token exchange from URL hash, then redirects to intended page. */
-const rawRedirect = Astro.url.searchParams.get('redirect') || '/dashboard'
-// Prevent open redirect: must be a relative path, not a protocol-relative URL
-const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard'
+/**
+ * OAuth callback — Better Auth handles token exchange via /api/auth/callback/*.
+ * This page is a fallback redirect in case users land here directly.
+ */
+export const prerender = false
+
+const raw = Astro.url.searchParams.get('redirect') || '/dashboard'
+const target = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard'
+return Astro.redirect(target)
 ---
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Signing in...</title>
-  </head>
-  <body>
-    <script is:inline define:vars={{ redirect }}>
-      // Supabase Auth exchanges the token from the URL hash automatically on page load.
-      // Redirect after a short delay to allow the exchange to complete.
-      // `redirect` is already validated server-side to be a safe relative path.
-      setTimeout(() => {
-        // Re-validate client-side in case define:vars is tampered with via devtools
-        let target = redirect
-        if (!target.startsWith('/') || target.startsWith('//')) target = '/dashboard'
-        window.location.href = target
-      }, 1000)
-    </script>
-    <p style="text-align: center; margin-top: 4rem; color: #64748b; font-family: sans-serif">
-      Signing in...
-    </p>
-  </body>
-</html>

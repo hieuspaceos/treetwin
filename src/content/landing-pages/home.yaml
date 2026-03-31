@@ -45,7 +45,7 @@ sections:
       subheadline: Describe your product. Get a professional landing page in 5 minutes. No code, no design skills — just words about what you built.
       cta:
         - text: Start Free
-          url: '#subscribe'
+          url: '/auth/login'
           variant: primary
         - text: See Examples
           url: '#section-features'
@@ -152,7 +152,7 @@ sections:
             - SEO auto-generated
           cta:
             text: Start Free
-            url: '#subscribe'
+            url: '/auth/login'
         - name: Pro
           price: "$19"
           period: "/month"
@@ -211,7 +211,7 @@ sections:
       subheadline: Stop building landing pages from scratch. Describe your product, launch in 5 minutes, and start getting users today.
       cta:
         text: Start Free — No Credit Card
-        url: '#subscribe'
+        url: '/auth/login'
       variant: banner
     style:
       fullWidth: true

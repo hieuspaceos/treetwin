@@ -1,23 +1,36 @@
 ---
-/** Login page — Google OAuth via Supabase Auth, or local-mode notice when Supabase is not configured. */
+/**
+ * Login page — Google OAuth via Better Auth.
+ * Redirects to /dashboard after successful sign-in.
+ */
 import BaseLayout from '@/layouts/base-layout.astro'
 
+export const prerender = false
+
+// Check if user already has session
+const { getAuth } = await import('@/lib/auth')
+const auth = getAuth()
+const session = await auth.api.getSession({ headers: Astro.request.headers })
+if (session?.session) {
+  return Astro.redirect('/dashboard')
+}
+
 const rawRedirect = Astro.url.searchParams.get('redirect') || '/dashboard'
-// Prevent open redirect: must be a relative path, not a protocol-relative URL
 const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard'
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'http://localhost:4321'
+const hasGoogle = !!(import.meta.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID)
 ---
+
 <BaseLayout title="Sign In">
   <div style="max-width: 400px; margin: 6rem auto; text-align: center; padding: 2rem">
     <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem">Sign In</h1>
-    <p style="color: #64748b; margin-bottom: 2rem">Sign in to access your purchases</p>
+    <p style="color: #64748b; margin-bottom: 2rem">Sign in to create your landing page</p>
 
-    {supabaseUrl && supabaseAnonKey ? (
+    {hasGoogle ? (
       <>
         <button
           id="google-login"
-          style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.75rem 2rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; cursor: pointer; font-size: 0.95rem; font-weight: 500"
+          style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.75rem 2rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: background 0.15s"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -27,30 +40,23 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
           </svg>
           Continue with Google
         </button>
-        <script is:inline define:vars={{ supabaseUrl, supabaseAnonKey, redirect }}>
-          document.getElementById('google-login')?.addEventListener('click', async () => {
-            const { createClient } = await import('@supabase/supabase-js')
-            const supabase = createClient(supabaseUrl, supabaseAnonKey)
-            await supabase.auth.signInWithOAuth({
-              provider: 'google',
-              options: {
-                redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
-              },
-            })
+        <script is:inline define:vars={{ siteUrl, redirect }}>
+          document.getElementById('google-login')?.addEventListener('click', () => {
+            // Better Auth handles the entire OAuth flow via its API endpoint
+            const callbackURL = encodeURIComponent(redirect)
+            window.location.href = `${siteUrl}/api/auth/sign-in/social?provider=google&callbackURL=${callbackURL}`
           })
         </script>
       </>
     ) : (
       <div style="padding: 1.5rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0">
-        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 500">Local Development Mode</p>
-        <p style="font-size: 0.8rem; color: #94a3b8">Supabase is not configured. Auth is disabled in local mode.</p>
-        <a
-          href="/marketplace"
-          style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1.5rem; background: #3b82f6; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem"
-        >
-          Browse Marketplace
-        </a>
+        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 500">Auth Not Configured</p>
+        <p style="font-size: 0.8rem; color: #94a3b8">Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and BETTER_AUTH_SECRET env vars to enable sign-in.</p>
       </div>
     )}
+
+    <p style="margin-top: 2rem; font-size: 0.8rem; color: #94a3b8">
+      Free account — no credit card required.
+    </p>
   </div>
 </BaseLayout>

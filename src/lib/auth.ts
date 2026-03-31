@@ -10,7 +10,7 @@ import { getDb } from '@/db/client'
 let _auth: ReturnType<typeof betterAuth> | null = null
 
 /** Get Better Auth instance — lazy-initialized singleton */
-export function getAuth() {
+export function getAuth(): ReturnType<typeof betterAuth> {
   if (_auth) return _auth
 
   _auth = betterAuth({
