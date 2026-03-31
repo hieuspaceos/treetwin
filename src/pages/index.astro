@@ -14,32 +14,27 @@ import { websiteJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
 const pages = await getCollection('landingPages')
 const page = pages.find(p => p.id === 'home')
 
-// Fallback: if no home.yaml exists, show a simple message
 if (!page) {
   return Astro.redirect('/404')
 }
 
-const sections = page.data.sections as unknown as LandingSection[]
-const pageData = page.data as Record<string, unknown>
-const design = pageData.design as LandingDesign | undefined
-const scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
-const seo = pageData.seo as LandingSeo | undefined
+const { data } = page
+const sections = (data.sections || []) as LandingSection[]
+const design = (data.design || {}) as LandingDesign
+const seo = (data.seo || {}) as LandingSeo
+const title = data.title || 'Home'
+const description = data.description || ''
 
 const hasNav = sections.some(s => s.type === 'nav')
 const hasFooter = sections.some(s => s.type === 'footer')
 ---
 
-<LandingLayout
-  title={page.data.title}
-  description={page.data.description}
-  hideNav={hasNav}
-  hideFooter={hasFooter}
-  design={design}
->
+<LandingLayout title={title} description={description} design={design} seo={seo} hideNav={hasNav} hideFooter={hasFooter}>
   <Fragment slot="head">
-    <script is:inline type="application/ld+json" set:html={safeJsonLd(websiteJsonLd())} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+    <script type="application/ld+json" set:html={safeJsonLd(websiteJsonLd())} />
   </Fragment>
-  {seo?.ogImage && <meta slot="head" property="og:image" content={seo.ogImage} />}
-  {seo?.keywords && <meta slot="head" name="keywords" content={seo.keywords} />}
-  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} scopedCss={scopedCss} />
+  <LandingSectionRenderer sections={sections} pageTitle={title} />
 </LandingLayout>

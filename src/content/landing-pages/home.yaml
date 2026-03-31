@@ -1,139 +1,232 @@
 title: Tree-id — Landing Pages for Indie Makers
-description: Describe your product. Get a professional landing page in 5 minutes. Start getting users today.
+description: Describe your product. Get a professional landing page in 5 minutes. No code, no design skills.
 design:
   colors:
-    primary: '#10b981'
-    secondary: '#6366f1'
-    accent: '#10b981'
+    primary: '#c8a97e'
+    secondary: '#c8a97e'
+    accent: '#c8a97e'
     background: '#0a0a0a'
-    surface: '#141414'
-    text: '#f1f5f9'
-    textMuted: '#94a3b8'
+    surface: '#111111'
+    text: '#f0ede8'
+    textMuted: 'rgba(240,237,232,0.45)'
   fonts:
-    heading: Inter
-    body: Inter
-  borderRadius: '0.75rem'
+    heading: DM Serif Display
+    body: DM Sans
+  borderRadius: '16px'
 sections:
   # --- Nav ---
   - type: nav
     order: -1
     enabled: true
     data:
-      brandName: tree-id
+      brandName: tree.id
       links:
-        - label: How It Works
-          href: '#section-how-it-works'
         - label: Features
           href: '#section-features'
+        - label: Compare
+          href: '#section-comparison'
         - label: Pricing
           href: '#section-pricing'
         - label: FAQ
           href: '#section-faq'
+      cta:
+        text: Sign In
+        url: '/auth/login'
       variant: default
       socialLinks: []
     style:
       fullWidth: true
       background: rgba(10,10,10,0.9)
-      textColor: '#f1f5f9'
+      textColor: '#f0ede8'
 
   # --- Hero ---
   - type: hero
     order: 0
     enabled: true
     data:
-      headline: Built something with AI? Now sell it.
-      subheadline: Describe your product. Get a professional landing page in 5 minutes. No code, no design skills — just words about what you built.
+      badge: AI-powered landing pages
+      headline: "Describe your product. Get a landing page."
+      subheadline: You built something with AI. Now sell it. Tell us what you made — we generate a professional landing page in minutes. No code, no design skills.
       cta:
-        - text: Start Free
-          url: '/auth/login'
+        - text: Try it free
+          url: '#section-ai-search'
           variant: primary
-        - text: See Examples
-          url: '#section-features'
+        - text: See how it works
+          url: '#section-how-it-works'
           variant: outline
       variant: centered
     style:
       fullWidth: true
-      background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)'
-      textColor: '#f1f5f9'
-      padding: '6rem 2rem'
+      background: '#0a0a0a'
+      textColor: '#f0ede8'
+      padding: '8rem 2rem 4rem'
 
-  # --- Social Proof ---
-  - type: social-proof
+  # --- AI Search Input ---
+  - type: ai-search
     order: 1
     enabled: true
     data:
-      text: "Join indie makers who shipped their landing page in under 5 minutes"
-      icon: "🚀"
-      variant: banner
-    style:
-      fullWidth: true
-      background: '#141414'
-      textColor: '#94a3b8'
-
-  # --- How It Works ---
-  - type: how-it-works
-    order: 2
-    enabled: true
-    data:
-      heading: From idea to live page in 3 steps
-      subheading: No templates to customize. No drag-and-drop headaches. Just describe what you built.
-      items:
-        - number: 1
-          title: Describe your product
-          description: Tell us what you built, who it's for, and what problem it solves. A few sentences is all it takes.
-          icon: "✍️"
-        - number: 2
-          title: AI builds your page
-          description: Our AI generates hero, features, pricing, FAQ — everything a professional landing page needs. Choose from 25+ section types.
-          icon: "⚡"
-        - number: 3
-          title: Go live instantly
-          description: Your page is live at tree-id.dev/your-name. Share it, get feedback, start getting users. Edit anytime.
-          icon: "🌐"
-      variant: numbered
+      placeholder: "I built an AI tool that turns screenshots into code..."
+      thinkingText: Generating your landing page...
+      resultsHeader: Your landing page
+      hints:
+        - label: "🧩 Chrome extension"
+          text: "I built a Chrome extension that blocks distractions and tracks focus time"
+        - label: "📋 Notion template"
+          text: "I made a Notion template for freelancers to track projects and invoices"
+        - label: "🎨 Image API"
+          text: "I created an API that generates social media images from templates"
+        - label: "📱 Mobile app"
+          text: "I built a mobile app for habit tracking with AI coaching"
+      defaultSuggestions:
+        - icon: "🏗️"
+          name: Landing Page
+          desc: Professional page with hero, features, pricing
+          price: Free
+          type: instant
+        - icon: "✨"
+          name: AI-Generated Copy
+          desc: Headlines, descriptions, CTAs written for you
+          price: Included
+          type: built-in
+        - icon: "🚀"
+          name: Instant Publish
+          desc: Live at tree-id.dev/your-slug in minutes
+          price: Free
+          type: instant
+      intents: []
     style:
       fullWidth: true
       background: '#0a0a0a'
-      textColor: '#f1f5f9'
+      textColor: '#f0ede8'
+      padding: '0 2rem 4rem'
+
+  # --- Stats ---
+  - type: stats
+    order: 2
+    enabled: true
+    data:
+      items:
+        - value: "5 min"
+          label: To launch
+        - value: "$0"
+          label: To start
+        - value: "25+"
+          label: Section types
+      variant: inline
+    style:
+      fullWidth: true
+      background: '#0a0a0a'
+      textColor: '#f0ede8'
+      padding: '2rem 2rem 5rem'
+
+  # --- How It Works ---
+  - type: how-it-works
+    order: 3
+    enabled: true
+    data:
+      heading: From idea to live page
+      subheading: No templates. No drag-and-drop. Just describe what you built.
+      items:
+        - number: 1
+          title: Describe
+          description: Tell us what you built. One sentence is enough. Our AI understands products, APIs, apps, templates — anything you ship.
+          icon: "💬"
+        - number: 2
+          title: Generate
+          description: AI creates a full landing page — hero, features, pricing, FAQ, CTA. Professional copy and layout, not generic templates.
+          icon: "✨"
+        - number: 3
+          title: Customize
+          description: Edit any section. Change colors, rewrite copy, reorder blocks. Visual editor — no code needed. Sign up to save your work.
+          icon: "🎨"
+        - number: 4
+          title: Publish
+          description: Go live instantly at tree-id.dev/your-slug. Mobile responsive, SEO-ready, fast. Start getting users today.
+          icon: "🚀"
+      variant: numbered
+    style:
+      fullWidth: true
+      background: '#111111'
+      textColor: '#f0ede8'
       padding: '5rem 2rem'
 
   # --- Features ---
   - type: features
-    order: 3
+    order: 4
     enabled: true
     data:
       heading: Everything you need to launch
-      subheading: Built by an indie maker, for indie makers. No bloat — just the features that matter.
+      subheading: Built by an indie maker, for indie makers.
       items:
-        - icon: "🎨"
-          title: 25+ Section Types
-          description: Hero, features, pricing, FAQ, testimonials, comparison tables, and more. Mix and match to build any page.
         - icon: "🤖"
           title: AI-Powered Generation
-          description: Describe your product in plain English. AI creates copy, picks layouts, suggests sections. Edit everything after.
+          description: Describe your product in plain English. AI creates copy, picks layouts, suggests sections.
+        - icon: "🎨"
+          title: 25+ Section Types
+          description: Hero, features, pricing, FAQ, testimonials, comparison, gallery, and more. Mix and match.
         - icon: "📱"
           title: Mobile-Ready
-          description: Every page looks great on phone, tablet, and desktop. Dark mode included. No extra work needed.
+          description: Every page looks great on phone, tablet, and desktop. Dark mode included.
         - icon: "🔍"
           title: SEO Built-In
-          description: Meta tags, Open Graph, JSON-LD structured data — auto-generated. Your page is findable from day one.
+          description: Meta tags, Open Graph, JSON-LD — auto-generated. Findable from day one.
         - icon: "⚡"
           title: Edge-Fast
-          description: Pages load in under 1 second. Built on Astro + Cloudflare edge network. No database bottleneck.
-        - icon: "🎯"
-          title: Landing-First Design
-          description: Not a website builder. Not another Carrd. Purpose-built for product landing pages that convert.
+          description: Pages load in under 1 second. Built on Astro + edge network.
+        - icon: "🔄"
+          title: Iterate Fast
+          description: Regenerate sections, test headlines, add blocks. Your page grows with your product.
       columns: 3
       variant: bento
     style:
       fullWidth: true
-      background: '#141414'
-      textColor: '#f1f5f9'
+      background: '#0a0a0a'
+      textColor: '#f0ede8'
+      padding: '5rem 2rem'
+
+  # --- Comparison ---
+  - type: comparison
+    order: 5
+    enabled: true
+    data:
+      heading: Honest comparison
+      subheading: Why indie makers choose tree-id
+      columns:
+        - name: ""
+        - name: Tree-id
+          highlighted: true
+        - name: Carrd / Framer
+      rows:
+        - label: Time to launch
+          values:
+            - "5 minutes"
+            - "2–4 hours"
+        - label: AI-generated copy
+          values:
+            - "Built-in"
+            - "Manual"
+        - label: Design skills needed
+          values:
+            - "None"
+            - "Some"
+        - label: Free tier
+          values:
+            - "1 page, 3 AI/mo"
+            - "Limited"
+        - label: Built for makers
+          values:
+            - "Yes"
+            - "Generic"
+    style:
+      fullWidth: true
+      background: '#111111'
+      textColor: '#f0ede8'
       padding: '5rem 2rem'
 
   # --- Pricing ---
   - type: pricing
-    order: 4
+    order: 6
     enabled: true
     data:
       heading: Simple pricing. Start free.
@@ -167,64 +260,65 @@ sections:
             - Analytics dashboard
           cta:
             text: Get Pro
-            url: '#subscribe'
+            url: '/auth/login'
           highlighted: true
       variant: cards
     style:
       fullWidth: true
       background: '#0a0a0a'
-      textColor: '#f1f5f9'
+      textColor: '#f0ede8'
       padding: '5rem 2rem'
 
   # --- FAQ ---
   - type: faq
-    order: 5
+    order: 7
     enabled: true
     data:
       heading: Questions?
       items:
         - question: How is this different from Carrd or Framer?
-          answer: Carrd and Framer are general website builders. tree-id is purpose-built for product landing pages. You describe your product — AI generates a complete page with the right sections. No drag-and-drop, no template hunting.
+          answer: Carrd and Framer are general website builders. tree-id is purpose-built for product landing pages. You describe your product — AI generates a complete page. No drag-and-drop, no template hunting.
         - question: What AI model do you use?
-          answer: We use Google's Gemini API to generate landing page copy and suggest section layouts. You can edit everything after generation — the AI is a starting point, not a lock-in.
+          answer: We use Google's Gemini API to generate landing page copy and suggest sections. You can edit everything after — the AI is a starting point, not a lock-in.
         - question: Can I use my own domain?
-          answer: Custom domain support is on the roadmap for Pro plan users. For now, your page lives at tree-id.dev/your-slug — which is perfectly fine for a first launch.
-        - question: What if I want to move my page somewhere else?
-          answer: Your landing page config is just structured data. You own your content. We're working on an export feature — but honestly, once you see how easy it is to iterate here, you won't want to leave.
-        - question: Is there a free plan?
-          answer: Yes. Free plan gives you 1 landing page and 3 AI generates per month. That's enough to launch one product. Upgrade to Pro ($19/mo) for unlimited pages and generates.
+          answer: Custom domain support is on the roadmap for Pro plan. For now, your page lives at tree-id.dev/your-slug — perfectly fine for a first launch.
+        - question: Do I need to sign up to try?
+          answer: No! Enter your product description on the homepage and we'll generate a landing page instantly. You only need to sign up when you want to save, customize, or publish.
+        - question: Is there really a free plan?
+          answer: Yes. 1 landing page, 3 AI generates per month. Enough to launch one product. Upgrade to Pro ($19/mo) for unlimited.
         - question: Who built this?
-          answer: tree-id is built by an indie maker who got tired of spending days on landing pages instead of shipping products. The entire stack is Astro + Turso + Cloudflare — costs almost nothing to run, and we pass those savings to you.
+          answer: An indie maker who got tired of spending days on landing pages instead of shipping products. The whole stack costs almost nothing to run — we pass those savings to you.
       variant: accordion
     style:
       fullWidth: true
-      background: '#141414'
-      textColor: '#f1f5f9'
+      background: '#111111'
+      textColor: '#f0ede8'
       padding: '5rem 2rem'
 
   # --- CTA ---
   - type: cta
-    order: 6
+    order: 8
     enabled: true
     data:
-      headline: Your AI project deserves customers.
-      subheadline: Stop building landing pages from scratch. Describe your product, launch in 5 minutes, and start getting users today.
+      headline: Your product deserves customers.
+      subheadline: Stop procrastinating on your landing page. Describe what you built. Launch today. Get your first users this week.
       cta:
-        text: Start Free — No Credit Card
-        url: '/auth/login'
+        text: Try it now — free
+        url: '#section-ai-search'
       variant: banner
     style:
       fullWidth: true
-      background: 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)'
-      textColor: '#ffffff'
+      background: 'linear-gradient(135deg, rgba(200,169,126,0.15) 0%, rgba(200,169,126,0.05) 100%)'
+      textColor: '#f0ede8'
+      accentColor: '#c8a97e'
       padding: '5rem 2rem'
 
   # --- Footer ---
   - type: footer
-    order: 7
+    order: 9
     enabled: true
     data:
-      text: "© 2026 tree-id. Built for indie makers."
+      text: "© 2026 tree-id · Built for builders"
       links:
         - label: Articles
           href: /seeds
@@ -235,4 +329,4 @@ sections:
     style:
       fullWidth: true
       background: '#0a0a0a'
-      textColor: '#94a3b8'
+      textColor: 'rgba(240,237,232,0.25)'
