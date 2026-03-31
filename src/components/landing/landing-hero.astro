@@ -15,7 +15,7 @@ import HeroFullscreen from './landing-hero-fullscreen.astro'
 import HeroSlider from './landing-hero-slider.astro'
 
 interface Props extends HeroData {}
-const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered', items } = Astro.props
+const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered', items, badge } = Astro.props
 
 const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
 const isVideoEmbed = embed ? /\.(mp4|webm)(\?.*)?$/i.test(embed) : false
@@ -39,6 +39,12 @@ function ctaClass(index: number, ctaVariant?: string): string {
     {hasBg && <div class="lp-hero-bg" style={`background-image: url(${backgroundImage})`} />}
     {hasBg && <div class="lp-hero-overlay" />}
     <div style={hasBg ? 'position: relative; z-index: 2; max-width: 720px' : 'max-width: 720px; margin: 0 auto'}>
+      {badge && (
+        <div style="display:inline-flex;align-items:center;gap:8px;background:color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 12%, transparent);border:1px solid color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 25%, transparent);border-radius:100px;padding:6px 16px;font-size:0.75rem;color:var(--lp-accent, var(--lp-primary));letter-spacing:0.08em;text-transform:uppercase;font-weight:500;margin-bottom:2rem">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--lp-accent, var(--lp-primary));animation:lp-badge-pulse 2s ease infinite"></span>
+          {badge}
+        </div>
+      )}
       <h1
         class="font-bold tracking-tight"
         style={`font-family: var(--lp-font-heading), serif; font-size: clamp(2.4rem, 5.5vw, 4.5rem); line-height: 1.1; letter-spacing: -0.01em; ${hasBg ? 'color: #fff' : ''}`}

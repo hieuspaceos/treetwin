@@ -6,6 +6,8 @@
 export interface HeroData {
   headline: string
   subheadline?: string
+  /** Badge text above headline (e.g. "AI-powered landing pages") */
+  badge?: string
   /** Single CTA (legacy) or array of CTAs — first = primary, rest = secondary/outline */
   cta?: { text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' } | Array<{ text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' }>
   backgroundImage?: string
@@ -160,6 +162,8 @@ export interface NavData {
   variant?: 'default' | 'centered' | 'transparent' | 'hamburger' | 'mega'
   /** Social media links shown in nav */
   socialLinks?: Array<{ icon: string; url: string; label?: string }>
+  /** CTA button in nav (e.g. "Sign In") */
+  cta?: { text: string; url: string }
   /** Link groups for mega dropdown variant — array of { label, links[] } */
   groups?: Array<{ label: string; links: Array<{ label: string; href: string; description?: string }> }>
 }

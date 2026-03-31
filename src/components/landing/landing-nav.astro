@@ -17,7 +17,7 @@ interface Props extends NavData {
   sectionStyle?: SectionStyle
 }
 
-const { brandName, logo, topBar, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle, groups = [] } = Astro.props
+const { brandName, logo, topBar, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle, groups = [], cta } = Astro.props
 
 /** Build inline style from section style overrides (background, textColor, padding) */
 const navStyleParts: string[] = []
@@ -82,6 +82,11 @@ const brandLogo = logo
                 aria-label={sl.label || sl.icon}>{sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}</a>
             ))}
           </span>
+        )}
+        {cta && (
+          <a href={cta.url} style={`margin-left:0.5rem;padding:0.45rem 1rem;border-radius:8px;font-size:0.85rem;font-weight:500;text-decoration:none;background:color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 15%, transparent);border:1px solid color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 25%, transparent);color:var(--lp-accent, var(--lp-primary));transition:all 0.2s`}>
+            {cta.text}
+          </a>
         )}
       </div>
       {/* Hamburger button — visible only on mobile */}
