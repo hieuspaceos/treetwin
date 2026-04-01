@@ -30,6 +30,8 @@ export interface SkeletonRow {
   /** Filled during step 2 */
   data?: Record<string, unknown>
   style?: Record<string, unknown>
+  /** Per-section CSS override derived from original design */
+  customCss?: string
   order?: number
   enabled?: boolean
 }
@@ -141,6 +143,7 @@ function flattenRow(
         ...(row.data || {}),
       },
       style: row.style || {},
+      customCss: row.customCss,
     })
   } else if (row.type === 'section' && row.sectionType) {
     // Leaf section: use extracted data directly
@@ -151,6 +154,7 @@ function flattenRow(
       enabled: row.enabled !== false,
       data: row.data || {},
       style: row.style || {},
+      customCss: row.customCss,
     })
   }
 
