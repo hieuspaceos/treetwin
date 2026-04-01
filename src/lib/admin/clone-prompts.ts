@@ -46,6 +46,15 @@ CONVERSION:
 - contact-form: Fields: heading, fields[{label,type}], submitText, submitUrl
 - comparison: Fields: heading, subheading, columns[{label}], rows[{label,values[],highlight}]
 
+UTILITY:
+- map: Fields: address, embedUrl (Google Maps embed), height (px)
+- divider: Fields: style(line|dots|space), height (px)
+- countdown: Fields: targetDate (ISO string), heading, expiredText
+- popup: variants=[centered, bottom-bar, slide-in-right, slide-in-left, fullscreen, top-bar, notification]. Fields: heading, text, image, cta{text,url}, trigger{type(scroll|time|exit-intent),value}, showOnce, dismissLabel, variant
+  Use for newsletter modals, exit-intent offers, announcement bars. Set trigger.type and trigger.value (scroll %, seconds, or exit-intent).
+- product-showcase: Fields: featureProducts[{id,name,description,price,image,url,badge}]
+  Use for highlighted product cards or featured items grid.
+
 MEDIA:
 - video: Fields: url, caption, autoplay, heading, subheading, cta{text,url}, items[{url,caption}]
   IMPORTANT: If page has multiple videos, use "items" array for 2x2 grid. Extract ALL video embed URLs.
@@ -118,6 +127,18 @@ IMPORTANT: Most landing pages alternate dark/light section backgrounds for visua
 - Footer (always fullWidth)
 - Any section with a visibly different background color from the page default
 Only omit style for sections that truly use the page's default white/light background with no distinctive styling.
+
+Per-section custom CSS ("customCss" field):
+For EACH section, generate a "customCss" string with CSS rules that make the section visually match the ORIGINAL page design. This CSS is scoped to #section-{type} automatically. Write CSS that targets inner elements:
+- .landing-section — main container (padding, background fine-tuning)
+- h1, h2, h3, p, a — typography overrides
+- .lp-card-hover — card styling (border, shadow, radius)
+- .lp-icon-bg — icon backgrounds
+- .landing-btn-primary — button styling
+- .landing-stat-value — stat numbers
+Focus on: typography (font-size, letter-spacing, line-height), spacing (padding, gap, margin), colors, shadows, borders, gradients. Keep it concise — only what makes the section look polished and distinct from default styling.
+Example: "customCss": "h2 { font-size: 2.8rem; letter-spacing: -0.03em; } .lp-card-hover { border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }"
+If a section has no special styling beyond what "style" covers, omit "customCss".
 
 Return ONLY valid JSON:
 {
@@ -333,6 +354,11 @@ Section data schemas (the "data" object shape for each section type):
 - contact-form: { heading, fields[{label,type}], submitText }
 - social-proof: { text, icon, link }
 - banner: { text, cta{text,url}, variant(info|warning|success) }
+- map: { address, embedUrl, height }
+- divider: { style(line|dots|space), height }
+- countdown: { targetDate (ISO), heading, expiredText }
+- popup: { heading, text, image, cta{text,url}, trigger{type(scroll|time|exit-intent),value}, showOnce, dismissLabel, variant(centered|bottom-bar|slide-in-right|fullscreen|top-bar|notification) }
+- product-showcase: { featureProducts[{id,name,description,price,image,url,badge}] }
 
 Rules:
 - Keep the same structure — do NOT change types, variants, or layout arrangements
@@ -346,5 +372,6 @@ Rules:
 
 For each leaf section node (type="section"), add a "data" object matching the schema above.
 Also add "style" for sections with non-white backgrounds: { fullWidth, background, textColor, textMutedColor, padding }.
+Also add "customCss" string for sections needing visual polish beyond basic style — typography, shadows, borders, spacing tweaks to match the original design. CSS targets inner classes (.landing-section, h2, .lp-card-hover, etc.) and is auto-scoped to #section-{type}. Omit if no special styling needed.
 
-Return the same JSON structure with "data" and optional "style" fields added to each section node.`
+Return the same JSON structure with "data", optional "style", and optional "customCss" fields added to each section node.`

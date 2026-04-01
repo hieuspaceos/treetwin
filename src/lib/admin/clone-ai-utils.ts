@@ -13,7 +13,7 @@ export interface CloneResult {
     fonts?: { heading?: string; body?: string }
     borderRadius?: string
   }
-  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown>; style?: Record<string, unknown> }>
+  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown>; style?: Record<string, unknown>; customCss?: string }>
   usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
   structure?: Array<{ type: string; variant: string; confidence: number; itemCount: number; note: string }>
   missingSections?: string[]
@@ -27,7 +27,7 @@ export const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 /** Section types available in the builder */
-export const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
+export const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout','popup','product-showcase']
 
 /** Fetch HTML via direct HTTP */
 export async function directFetch(url: string): Promise<string> {
