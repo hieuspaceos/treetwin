@@ -1,7 +1,7 @@
 # System Architecture
 
-**Version:** v3.4.0 — Database-First Migration
-**Last Updated:** 2026-04-01
+**Version:** v4.0.0 — SaaS Stable
+**Last Updated:** 2026-04-02
 **Deployment:** Cloudflare Pages + Turso DB
 **Framework:** Astro 5 (Hybrid SSR) + Keystatic + Better Auth
 

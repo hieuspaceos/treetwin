@@ -4,6 +4,33 @@ All notable changes to TreeTwin are documented here.
 
 ## Releases
 
+### v4.0.0 — SaaS Stable (2026-04-02)
+
+#### Landing Page Builder
+- 28 section types (added popup, product-showcase, map, divider, countdown, ai-search)
+- Per-section custom CSS: admin-editable textarea, scoped to `#section-{type}`, sanitized
+- CSS badge indicator on section cards when customCss is set
+- 18 design presets (10 new: Midnight Neon, Forest Calm, Ocean Breeze, Rose Minimal, Slate Pro, Retro Pop, Aurora Gradient, Charcoal Gold, Candy Pastel, Monochrome Sharp)
+- Auto preset matching: clone extracts colors → matches nearest preset or generates palette
+- Removed scopedCss system (replaced by per-section customCss)
+
+#### Clone Pipeline
+- Gemini prompts synced with all 28 section types
+- customCss prompt uses CSS variables (var(--lp-*)) for preset compatibility
+- Design-system-derived CSS rules: consistency rule (shared radius, shadow, button style)
+- Clear rules for when to use/omit customCss per section type
+
+#### UX
+- Smooth scroll for nav anchor links (JS-based, desktop + mobile)
+- Mobile menu: close overlay before scrolling with delay for overflow reset
+- Amber timeout hint instead of red error on AI timeout ("AI server is busy, retry")
+
+#### Architecture
+- Database-first migration: Turso DB + Cloudflare Workers (6 phases)
+- IO Factory Pattern: code works with Turso, Local SQLite, or GitHub
+- Better Auth + Google OAuth for SaaS auth
+- Per-tenant database provisioning
+
 ### v3.4.0 — Codebase Hardening (2026-04-01)
 
 #### Security

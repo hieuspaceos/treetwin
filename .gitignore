@@ -100,3 +100,4 @@ release-manifest.json
 
 # Local SQLite fallback (generated at runtime)
 data/
+local.db

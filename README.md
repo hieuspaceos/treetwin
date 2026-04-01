@@ -1,6 +1,6 @@
 # TreeTwin
 
-Your digital twin — a personal content engine. Fork, configure, deploy.
+Ship & Sell your digital product — content engine + marketplace + landing page builder. Fork, configure, deploy.
 
 ## Quick Start
 
@@ -25,10 +25,16 @@ Admin panel: http://localhost:4321/admin
 - **Email capture** — Resend API with git-tracked YAML subscribers
 - **Multi-user auth** — JSON-based roles (admin/editor) via env var
 - **GA4 analytics** — Conditional on env var, admin analytics page
+- **Landing page builder** — AI clone from URL (Gemini), 28 section types, 8 layout variants, drag-and-drop editor
+- **18 design presets** — One-click theme switching with CSS variable system
+- **Per-section custom CSS** — Admin-editable CSS overrides, auto-scoped, preset-compatible
+- **AI clone with preset matching** — Extract colors from source → auto-match nearest preset or generate palette
 - **Content distribution** — Gemini Flash social post generation for 10 platforms
 - **AI/LLM optimized** — JSON-LD, llms.txt, RSS, per-agent robots.txt
 - **Static search** — Pagefind with zero runtime cost
 - **GoClaw API adapter** — External AI agents integrate via `/api/goclaw/*` endpoints
+- **SaaS auth** — Better Auth + Turso, email/password + Google OAuth, per-tenant DB provisioning
+- **Product checkout** — Payment integration, product catalog, license management
 
 All features are **opt-in via env vars**. No env var = feature hidden.
 
@@ -81,7 +87,8 @@ Set env vars on Cloudflare — only `PUBLIC_SITE_URL` is required.
 | `GA_MEASUREMENT_ID` | No | Google Analytics 4 |
 | `CF_ANALYTICS_TOKEN` | No | Cloudflare Web Analytics |
 | `R2_*` variables | No | Cloudflare R2 for media |
-| `GEMINI_API_KEY` | No | AI features |
+| `GEMINI_API_KEY` | No | AI features (clone, distribution, voice) |
+| `FIRECRAWL_API_KEY` | No | Enhanced page scraping for AI clone (WordPress, Wix) |
 | `POSTIZ_API_KEY` | No | Social scheduling |
 | `GOCLAW_API_KEY` | No | GoClaw API adapter |
 | `GOCLAW_WEBHOOK_SECRET` | No | GoClaw webhook signature |
