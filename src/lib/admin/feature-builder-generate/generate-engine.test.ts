@@ -313,7 +313,7 @@ describe('generateApiRoute', () => {
     const files = generateApiRoute(spec)
 
     expect(files[0].content).toContain('export const GET: APIRoute')
-    expect(files[0].content).toContain("const slug = url.searchParams.get('slug')")
+    expect(files[0].content).toContain("const slug = safeSlug(url.searchParams.get('slug'))")
     expect(files[0].content).toContain('const entries = await Promise.all')
   })
 

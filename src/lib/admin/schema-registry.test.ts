@@ -13,7 +13,6 @@ describe('collectionSchemas', () => {
   it('defines schemas for all collections', () => {
     expect(collectionSchemas).toHaveProperty('articles')
     expect(collectionSchemas).toHaveProperty('notes')
-    expect(collectionSchemas).toHaveProperty('records')
     expect(collectionSchemas).toHaveProperty('categories')
   })
 
