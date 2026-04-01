@@ -219,6 +219,43 @@ export async function cloneWithV3Pipeline(
 
   normalizeSections(sections)
 
+  // Step 3.5: generate customCss for sections that need visual polish
+  console.log('[Clone V3] Step 3.5: generating customCss...')
+  try {
+    const sectionSummary = sections
+      .filter(s => !['divider', 'map'].includes(s.type))
+      .map((s, i) => `[${i}] type=${s.type}, heading="${(s.data as any).headline || (s.data as any).heading || ''}", bg=${(s.style as any)?.background || 'default'}`)
+      .join('\n')
+    const cssPrompt = `Generate customCss for these landing page sections. The page design uses CSS variables:
+var(--lp-primary), var(--lp-secondary), var(--lp-accent), var(--lp-bg), var(--lp-surface), var(--lp-text), var(--lp-text-muted), var(--lp-radius), var(--lp-font-heading), var(--lp-font-body).
+
+RULES:
+- NEVER hardcode hex colors — always use var(--lp-*) or rgba() for opacity
+- Only generate CSS that matches the original page's visual style
+- Focus on: typography (font-size with clamp, letter-spacing), card styling (radius, shadow), button polish, spacing
+- Use color-mix() for opacity: color-mix(in srgb, var(--lp-primary) 15%, transparent)
+- Skip sections that don't need customCss (dividers, maps, plain text)
+
+Sections:\n${sectionSummary}
+
+Return JSON: { "css": [{ "index": 0, "customCss": "h1 { font-size: clamp(2.5rem,5vw,4rem); } .landing-btn-primary { border-radius: var(--lp-radius); }" }, ...] }
+Only include sections that benefit from customCss.`
+    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, `Original page URL: ${url}`, 4096)
+    const cssResult = safeJsonParse(cssText) as { css?: Array<{ index: number; customCss: string }> } | null
+    if (cssResult?.css) {
+      for (const entry of cssResult.css) {
+        if (sections[entry.index] && entry.customCss) {
+          sections[entry.index].customCss = entry.customCss
+        }
+      }
+      console.log(`[Clone V3] Step 3.5 done: ${cssResult.css.length} sections got customCss, ${p3}+${o3} tokens`)
+    }
+    totalPrompt += p3
+    totalOutput += o3
+  } catch (e) {
+    console.log(`[Clone V3] Step 3.5 skipped: ${e instanceof Error ? e.message : 'unknown'}`)
+  }
+
   const result: CloneResult = {
     title: filled.title || '',
     description: filled.description,
