@@ -129,16 +129,42 @@ IMPORTANT: Most landing pages alternate dark/light section backgrounds for visua
 Only omit style for sections that truly use the page's default white/light background with no distinctive styling.
 
 Per-section custom CSS ("customCss" field):
-For EACH section, generate a "customCss" string with CSS rules that make the section visually match the ORIGINAL page design. This CSS is scoped to #section-{type} automatically. Write CSS that targets inner elements:
-- .landing-section — main container (padding, background fine-tuning)
-- h1, h2, h3, p, a — typography overrides
-- .lp-card-hover — card styling (border, shadow, radius)
-- .lp-icon-bg — icon backgrounds
-- .landing-btn-primary — button styling
+Generate a "customCss" string for EACH section to make it visually polished and match the original design. This CSS is auto-scoped to #section-{type}. The "customCss" complements the "style" field — "style" sets basic bg/text/accent colors, "customCss" handles everything else for visual fidelity.
+
+Targetable inner elements:
+- .landing-section — main container
+- h1, h2, h3, p, a, span — text elements
+- .lp-card-hover — cards
+- .lp-icon-bg — icon circles
+- .landing-btn-primary, .landing-btn-outline — buttons
 - .landing-stat-value — stat numbers
-Focus on: typography (font-size, letter-spacing, line-height), spacing (padding, gap, margin), colors, shadows, borders, gradients. Keep it concise — only what makes the section look polished and distinct from default styling.
-Example: "customCss": "h2 { font-size: 2.8rem; letter-spacing: -0.03em; } .lp-card-hover { border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }"
-If a section has no special styling beyond what "style" covers, omit "customCss".
+- .lp-stars — star ratings
+- .lp-quote-mark — quote marks
+- .lp-avatar — avatars
+- .landing-grid-2, .landing-grid-3, .landing-grid-4 — grids
+- .glass-card — generic cards
+- img — images
+
+What to include in customCss:
+1. BACKGROUNDS: gradients, patterns, backdrop-filter, background-blend-mode, subtle texture overlays (e.g. radial-gradient for spotlight effects, repeating-linear-gradient for subtle stripes)
+2. TYPOGRAPHY: font-size (use clamp for responsive), letter-spacing, line-height, font-weight, text-transform, text-shadow for hero/CTA text on dark bg
+3. SPACING: padding, margin, gap adjustments for visual breathing room
+4. CARDS & CONTAINERS: border-radius, box-shadow (layered for depth), border, backdrop-filter for glass effects, hover transforms (translateY, scale)
+5. BUTTONS: gradient backgrounds, hover transitions, box-shadow, border-radius, padding
+6. IMAGES: border-radius, object-fit, box-shadow, aspect-ratio, hover scale
+7. DECORATIVE: ::before/::after pseudo-elements for accent lines, dots, geometric shapes
+8. TRANSITIONS: smooth hover/focus transitions on interactive elements
+9. RESPONSIVE: use clamp() for fluid typography, min() for responsive spacing
+
+Design principles to follow:
+- Visual rhythm: alternate section visual weight (dense → spacious → dense)
+- Contrast: ensure text readability on all backgrounds
+- Consistency: use the same border-radius, shadow intensity, spacing scale across sections
+- Hierarchy: hero/CTA sections should feel bold and immersive, content sections clean and readable
+- Polish: subtle shadows, smooth transitions, consistent spacing signal quality
+
+Example: "customCss": ".landing-section { background: linear-gradient(180deg, rgba(0,0,0,0.02) 0%, transparent 100%); padding: 5rem 2rem; } h2 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.03em; } .lp-card-hover { border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; } .lp-card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -4px rgba(0,0,0,0.15); } .landing-btn-primary { border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }"
+IMPORTANT: Generate customCss for MOST sections — not just a few. Even "simple" sections benefit from subtle background gradients, refined typography, and card polish. Only omit for truly plain dividers or spacers.
 
 Return ONLY valid JSON:
 {
@@ -372,6 +398,6 @@ Rules:
 
 For each leaf section node (type="section"), add a "data" object matching the schema above.
 Also add "style" for sections with non-white backgrounds: { fullWidth, background, textColor, textMutedColor, padding }.
-Also add "customCss" string for sections needing visual polish beyond basic style — typography, shadows, borders, spacing tweaks to match the original design. CSS targets inner classes (.landing-section, h2, .lp-card-hover, etc.) and is auto-scoped to #section-{type}. Omit if no special styling needed.
+Also add "customCss" string for MOST sections — CSS for visual polish: backgrounds (gradients, patterns, backdrop-filter), typography (font-size with clamp, letter-spacing, text-shadow), card styling (border-radius, layered box-shadow, hover transforms), button polish (gradient bg, shadow, radius), spacing (padding, gap), transitions, and decorative pseudo-elements. Auto-scoped to #section-{type}. Target inner classes: .landing-section, h1-h3, p, .lp-card-hover, .landing-btn-primary, .lp-icon-bg, .landing-stat-value, img. Only omit for plain dividers/spacers.
 
 Return the same JSON structure with "data", optional "style", and optional "customCss" fields added to each section node.`
