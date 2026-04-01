@@ -226,21 +226,34 @@ export async function cloneWithV3Pipeline(
       .filter(s => !['divider', 'map'].includes(s.type))
       .map((s, i) => `[${i}] type=${s.type}, heading="${(s.data as any).headline || (s.data as any).heading || ''}", bg=${(s.style as any)?.background || 'default'}`)
       .join('\n')
-    const cssPrompt = `Generate customCss for these landing page sections. The page design uses CSS variables:
-var(--lp-primary), var(--lp-secondary), var(--lp-accent), var(--lp-bg), var(--lp-surface), var(--lp-text), var(--lp-text-muted), var(--lp-radius), var(--lp-font-heading), var(--lp-font-body).
+    const cssPrompt = `You are an expert CSS designer. Generate customCss for each section to make this landing page look polished and professional.
 
-RULES:
-- NEVER hardcode hex colors — always use var(--lp-*) or rgba() for opacity
-- Only generate CSS that matches the original page's visual style
-- Focus on: typography (font-size with clamp, letter-spacing), card styling (radius, shadow), button polish, spacing
-- Use color-mix() for opacity: color-mix(in srgb, var(--lp-primary) 15%, transparent)
-- Skip sections that don't need customCss (dividers, maps, plain text)
+CSS variables available (use these, NEVER hardcode hex colors):
+--lp-primary, --lp-secondary, --lp-accent, --lp-bg, --lp-surface, --lp-text, --lp-text-muted, --lp-radius, --lp-font-heading, --lp-font-body
+
+Targetable elements inside each section:
+.landing-section (container), h1/h2/h3/p/a (text), .lp-card-hover (cards), .lp-icon-bg (icon circles), .landing-btn-primary/.landing-btn-outline (buttons), .landing-stat-value (numbers), .lp-stars (ratings), .lp-avatar (avatars), .landing-grid-2/3/4 (grids), img
+
+Per section type, generate CSS for:
+- hero: large typography (h1 clamp(2.5rem,5vw,4rem)), text-shadow on dark bg, bold button styling, generous padding (5rem+)
+- features: card border-radius var(--lp-radius), subtle box-shadow, hover translateY(-2px), icon-bg with color-mix
+- testimonials: italic quote styling, avatar border, card bg with color-mix, star color var(--lp-accent)
+- team: photo border-radius 50%, name font-weight 600, role color var(--lp-text-muted)
+- cta: large h2 clamp(1.8rem,4vw,2.5rem), prominent button, section padding 4rem+
+- pricing: highlighted plan border with var(--lp-primary), badge styling, feature list spacing
+- stats: large stat-value font-size clamp(2rem,4vw,3rem), label spacing
+- nav: subtle box-shadow on scroll, link hover color var(--lp-primary)
+- footer: muted link colors, column gap, smaller font-size
+
+Use color-mix(in srgb, var(--lp-primary) 15%, transparent) for subtle backgrounds.
+Use color-mix(in srgb, var(--lp-primary) 80%, black) for darker variants.
+Keep each section's CSS concise (3-8 rules). Every rule must use var(--lp-*).
 
 Sections:\n${sectionSummary}
 
-Return JSON: { "css": [{ "index": 0, "customCss": "h1 { font-size: clamp(2.5rem,5vw,4rem); } .landing-btn-primary { border-radius: var(--lp-radius); }" }, ...] }
-Only include sections that benefit from customCss.`
-    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, `Original page URL: ${url}`, 4096)
+Return JSON: { "css": [{ "index": 0, "customCss": ".landing-section { box-shadow: 0 1px 3px rgba(0,0,0,0.08); } a:hover { color: var(--lp-primary); }" }, { "index": 1, "customCss": "h1 { font-size: clamp(2.5rem,5vw,4rem); letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.3); } .landing-btn-primary { border-radius: var(--lp-radius); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }" }, ...] }
+Generate CSS for ALL sections listed above.`
+    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, `Original page URL: ${url}`, 8192)
     const cssResult = safeJsonParse(cssText) as { css?: Array<{ index: number; customCss: string }> } | null
     if (cssResult?.css) {
       for (const entry of cssResult.css) {
