@@ -54,31 +54,39 @@ Or create files directly:
 ## Deploy
 
 ```bash
-vercel deploy
+npm run build      # Test build locally
+wrangler deploy    # Deploy to Cloudflare Pages
 ```
 
-Set env vars on Vercel — only `PUBLIC_SITE_URL` is required.
+Set env vars on Cloudflare — only `PUBLIC_SITE_URL` is required.
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `PUBLIC_SITE_URL` | Yes | Your deployed URL |
+| `TURSO_URL` | Yes (prod) | Turso database connection URL |
+| `TURSO_AUTH_TOKEN` | Yes (prod) | Turso authentication token |
+| `TURSO_PLATFORM_TOKEN` | No | Turso Platform API for tenant provisioning |
+| `TURSO_ORG` | No | Turso organization (for tenant provisioning) |
+| `TURSO_GROUP` | No | Turso group (for tenant provisioning) |
+| `BETTER_AUTH_SECRET` | No | Auth session signing key (min 32 chars) |
+| `GOOGLE_CLIENT_ID` | No | Google OAuth for SaaS auth |
+| `GOOGLE_CLIENT_SECRET` | No | Google OAuth secret |
 | `ADMIN_PASSWORD` | No | Admin login password |
-| `ADMIN_SECRET` | No | JWT signing key (min 32 chars) |
-| `ADMIN_API_KEY` | No | Bearer token for product API access (separate from JWT secret) |
 | `ADMIN_USERS` | No | Multi-user JSON array |
-| `GITHUB_TOKEN` | No | GitHub API for production content writes |
-| `RESEND_API_KEY` | No | Email newsletter via Resend |
+| `GITHUB_TOKEN` | No | GitHub API for content writes |
+| `RESEND_API_KEY` | No | Email via Resend |
 | `RESEND_FROM_EMAIL` | No | Verified sender email |
 | `GA_MEASUREMENT_ID` | No | Google Analytics 4 |
-| `R2_*` variables | No | Cloudflare R2 for media storage |
-| `GEMINI_API_KEY` | No | AI features (voice analysis, preview, content distribution) |
-| `POSTIZ_API_KEY` | No | Social media scheduling |
-| `GOCLAW_API_KEY` | No | GoClaw API adapter for external AI agents |
-| `GOCLAW_WEBHOOK_SECRET` | No | HMAC-SHA256 webhook signature verification (GoClaw) |
+| `CF_ANALYTICS_TOKEN` | No | Cloudflare Web Analytics |
+| `R2_*` variables | No | Cloudflare R2 for media |
+| `GEMINI_API_KEY` | No | AI features |
+| `POSTIZ_API_KEY` | No | Social scheduling |
+| `GOCLAW_API_KEY` | No | GoClaw API adapter |
+| `GOCLAW_WEBHOOK_SECRET` | No | GoClaw webhook signature |
 
-See `.env.example` for the full list with descriptions.
+See `.env.example` for full details.
 
 ## GoClaw API Integration
 
@@ -95,14 +103,17 @@ External AI agents (like GoClaw) can read/write Tree Identity content via authen
 
 ## Tech Stack
 
-- **Astro 5** — zero JS by default, content-first SSG
-- **Keystatic** — git-based CMS (schema + GitHub storage mode)
-- **React 19** — admin dashboard islands
-- **CodeMirror 6** — Obsidian-like Markdown editor
-- **Pagefind** — static search index, zero runtime cost
-- **Tailwind CSS 4** — utility-first with glass morphism theme
-- **Vitest** — unit testing
-- **Vercel** — deployment target
+- **Astro 5** — hybrid SSR (static content + dynamic apps)
+- **Keystatic** — git-based CMS with GitHub storage
+- **Turso** — SQLite-based database (serverless)
+- **Better Auth** — Authentication with Google OAuth
+- **Drizzle ORM** — Type-safe database queries
+- **React 19** — Admin dashboard + landing builder
+- **CodeMirror 6** — Advanced Markdown editor
+- **Pagefind** — Static search, zero runtime
+- **Tailwind CSS 4** — Utility-first styling
+- **Cloudflare Pages** — Deployment + Workers
+- **Vitest** — Unit testing
 
 ## Extend
 

@@ -1,56 +1,75 @@
 # TreeTwin — Codebase Summary
 
-**Status:** v3.4.0 — Codebase Hardening
+**Status:** v3.4.0 — Database-First Architecture
 **Last Updated:** 2026-04-01
-**Stack:** Astro 5 (hybrid SSR) + Keystatic + Better Auth + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
-**Deployment:** Vercel
+**Stack:** Astro 5 (hybrid SSR) + Keystatic + Better Auth + Turso DB + Drizzle ORM + Gemini AI + Cloudflare Pages
+**Deployment:** Cloudflare Pages + Workers
 
 ## Overview
 
-TreeTwin is a **hybrid platform** combining static content engine with digital marketplace. Content (articles/landing pages) remains static-first and zero-database, while marketplace (products/orders/licenses) uses Supabase PostgreSQL with Google OAuth and AI-powered search. Built with Astro 5 (hybrid SSG+SSR), Keystatic (git-based CMS), Pagefind (static search), Gemini AI (intent search), Supabase Auth, and Vercel.
+TreeTwin combines **static content engine** with **SaaS multi-tenant platform**:
 
-**Why Hybrid Static + SSR:**
-- **Content layer:** No database, git-tracked Markdown/YAML, fully static (zero JS by default)
-- **Marketplace layer:** Supabase PostgreSQL for user state, orders, licenses (SSR-enabled routes only)
-- **Search:** Pagefind for static indexing (zero runtime) + Gemini AI for semantic product search
-- **Auth:** Supabase Google OAuth for checkout + dashboard (server-side JWT + session cookies)
-- **Dev experience:** SQLite fallback for local development (no Supabase keys needed)
-- **Performance:** Content pages pre-rendered (cache-hit), marketplace pages rendered on-demand
+- **Content Layer:** Git-tracked articles/notes (zero database for public content)
+- **SaaS Layer:** Turso DB for user auth, products, orders, licenses, per-tenant data
+- **Backend:** IO Factory Pattern abstracts storage (Turso/LocalIO/GitHub)
+- **Deployment:** Cloudflare Pages + Workers (serverless, global)
+
+**Key Design:**
+- **Content:** Keystatic (git CMS) + Markdoc articles remain static-first, zero DB
+- **Database:** Turso (SQLite serverless) for user state, SaaS features, tenant provisioning
+- **Auth:** Better Auth + Google OAuth for SaaS flows
+- **IO Pattern:** All data access via factories — code works identically on Turso/Local/GitHub
+- **Dev:** SQLite fallback (better-sqlite3) when `TURSO_URL` not set — no DB setup needed
+- **Scale:** Per-tenant DB provisioning via Turso Platform API (optional, fallback to shared DB)
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| Framework | Astro 5 | Hybrid SSG + SSR, content-first |
-| CMS | Keystatic | Git-based admin UI + content file storage |
-| Database | Supabase (PostgreSQL) | User profiles, products, orders, licenses, payments |
-| Database (Dev) | SQLite via better-sqlite3 | Local fallback when Supabase unavailable |
-| Auth | Better Auth | Email/password + OAuth authentication |
-| Content Format | Markdoc (articles) + YAML (notes/records) | Type-safe, semantic |
-| Search | Pagefind (static) + Gemini (AI intent) | Static index + AI product matching |
-| Storage | Cloudflare R2 | Optional, for video manifests + media |
-| Styling | Tailwind CSS 4 | Utility-first, theme variables |
-| Payments | Checkout/Confirm APIs | Skeleton with local dev simulation |
-| Deploy | Vercel | Serverless, hybrid SSR-ready |
+| Framework | Astro 5 | Hybrid SSR, static-first content |
+| CMS | Keystatic | Git-based admin UI + file storage |
+| Database | Turso (SQLite serverless) | User auth, products, orders, licenses, per-tenant data |
+| Database (Dev) | SQLite via better-sqlite3 | Local fallback (no setup needed) |
+| ORM | Drizzle ORM | Type-safe DB queries |
+| Auth | Better Auth | Email/password + Google OAuth |
+| Content Format | Markdoc (articles) + YAML (notes) | Type-safe, semantic |
+| Search | Pagefind (static) + Gemini (AI) | Static index + intent search |
+| Storage | Cloudflare R2 | Media uploads + manifests |
+| Styling | Tailwind CSS 4 | Utility-first with variables |
+| Deploy | Cloudflare Pages + Workers | Serverless, global CDN |
+| Testing | Vitest | Unit + integration tests |
 
 ## Key Design Decisions
 
-- **Git-tracked content** — Articles/notes in Markdown/YAML at `src/content/`
-- **Hybrid mode** — `output: 'server'` for SSR-capable endpoints (auth, marketplace, checkout)
-- **Supabase backend** — PostgreSQL for user state, orders, licenses; Google OAuth integration
-- **Local dev fallback** — SQLite via better-sqlite3 when Supabase unavailable (no API key needed)
-- **Git-based CMS** — Keystatic edits save as files, no product DB writes
-- **Custom admin dashboard** — Full-featured React UI at `/admin`, not Keystatic
-- **Theme system** — CSS variables (`--t-*`) for glass morphism UI
-- **Island architecture** — Astro by default, React only for interactive components
-- **Landing page system** — YAML-driven modular sections, 25 section types (50+ layout variants), D&D editor, design system (6 presets + custom colors/fonts)
-- **AI landing cloner** — Paste URL, AI extracts sections + design, auto-retry missing sections, per-section quality assessment, layout multi-column support
-- **Feature builder** — AI-assisted feature generation with hybrid code generation engine (Gemini + templates)
-- **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
-- **Marketplace** — Product catalog with AI intent search, Google OAuth required for checkout
-- **Payment skeleton** — `/checkout/[slug]` and `/dashboard` with license key delivery
-- **Self-hosted assets** — Fonts in `public/fonts/`, Google Fonts auto-load, no external CDN dependencies
-- **Shared head component** — `base-head.astro` for OG/Twitter/accessibility metadata
+**Storage & Data Access:**
+- **IO Factory Pattern** — All data access via factories (`getContentIO()`, `getEntityIO()`, etc.)
+- **Backend abstraction** — Code works identically with Turso/LocalIO/GitHubIO
+- **Git-tracked content** — Articles/notes in Markdown/YAML at `src/content/` (no DB)
+- **Turso for SaaS** — Serverless SQLite for user auth, products, licenses, tenant data
+- **Local dev fallback** — SQLite via better-sqlite3 when `TURSO_URL` not set (no setup)
+- **Per-tenant provisioning** — Auto-create databases via Turso Platform API (optional)
+
+**Framework & Architecture:**
+- **Hybrid SSR** — `output: 'server'` for SSR routes; static pages use `prerender = true`
+- **Island architecture** — Astro by default, React islands for interactivity only
+- **Keystatic CMS** — Git-based file editing, admin at `/keystatic`
+- **Admin SPA** — Full React dashboard at `/admin` (separate from Keystatic)
+
+**Features:**
+- **Landing builder** — 32 section types, 50+ layout variants, D&D editor, design system
+- **Landing cloner** — AI extracts sections/design from URLs, auto-retry, quality scoring
+- **Feature builder** — AI-assisted generation with hybrid code engine
+- **Entity system** — Custom data schemas with dynamic form fields
+- **Theme system** — CSS variables for glass morphism design
+- **Multi-product** — Per-product admin, scoped API, feature toggles
+- **Marketplace** — Product catalog with AI intent search, checkout flow, dashboard
+- **Email** — Resend API + git-tracked YAML subscribers
+
+**Deployment:**
+- **Cloudflare Pages** — Serverless static + Workers for API routes
+- **Global CDN** — Fast content delivery worldwide
+- **Workers Node.js compat** — Full Node.js runtime for API routes
+- **R2 storage** — Cloudflare R2 for media uploads (optional)
 
 ## Directory Structure
 
@@ -188,34 +207,45 @@ treetwin/
 │   │   │   └── ... (existing)
 │   │   └── ...
 │   ├── lib/
-│   │   ├── supabase/               # NEW: Database layer
-│   │   │   ├── client.ts           # Supabase client (server-side)
-│   │   │   ├── db-fallback.ts      # SQLite fallback for local dev
-│   │   │   ├── types.ts            # Database schema types (profiles, orders, licenses, etc.)
-│   │   │   └── queries.ts          # Database query helpers
-│   │   ├── marketplace/            # NEW: Marketplace business logic
-│   │   │   ├── product-service.ts  # Product queries + AI search
-│   │   │   ├── order-service.ts    # Order creation + management
-│   │   │   ├── license-service.ts  # License key generation + validation
-│   │   │   └── ai-intent-search.ts # Gemini-powered product matching
-│   │   ├── auth/                   # NEW: Authentication
-│   │   │   ├── supabase-auth.ts    # Supabase Auth client
-│   │   │   ├── jwt-utils.ts        # JWT token management
-│   │   │   └── session.ts          # Session/cookie handling
-│   │   ├── landing/                # NEW: Landing page system
+│   │   ├── db/                     # Database layer (Turso + Drizzle)
+│   │   │   ├── client.ts           # Turso connection singleton
+│   │   │   ├── tenant-client.ts    # Per-tenant DB LRU cache
+│   │   │   ├── schema.ts           # Drizzle schema (Better Auth tables)
+│   │   │   ├── schema-content.ts   # Content tables
+│   │   │   ├── schema-tenant.ts    # Tenant registry
+│   │   │   ├── seed-content.ts     # YAML→DB migration
+│   │   │   └── seed-templates.ts   # Template seeding
+│   │   ├── admin/                  # Admin business logic
+│   │   │   ├── content-io.ts       # Content factory (Turso/Local/GitHub)
+│   │   │   ├── content-io-types.ts # ContentIO interface
+│   │   │   ├── content-io-turso.ts # Turso implementation
+│   │   │   ├── content-io-local.ts # SQLite fallback
+│   │   │   ├── content-io-github.ts # GitHub storage
+│   │   │   ├── entity-io.ts        # Entity factory
+│   │   │   ├── entity-io-turso.ts  # Entity Turso impl
+│   │   │   ├── entity-io-local.ts  # Entity local impl
+│   │   │   ├── product-io.ts       # Product factory
+│   │   │   ├── product-io-turso.ts # Product Turso impl
+│   │   │   ├── product-io-local.ts # Product local impl
+│   │   │   ├── clone-ai-utils.ts   # Shared clone utilities
+│   │   │   ├── landing-clone-ai.ts # Landing page AI cloner
+│   │   │   ├── validation.ts       # Zod schemas
+│   │   │   └── feature-registry.ts # Feature toggles
+│   │   ├── saas/                   # SaaS-specific logic
+│   │   │   ├── tenant-provisioner.ts # Per-tenant DB provisioning
+│   │   │   └── landing-page-db.ts   # Landing page DB queries
+│   │   ├── landing/                # Landing page system
+│   │   │   ├── landing-io.ts       # Landing page IO
 │   │   │   ├── landing-types.ts    # TypeScript types
-│   │   │   ├── landing-config-reader.ts   # YAML read/write
-│   │   │   ├── landing-renderer.ts # YAML → HTML
-│   │   │   ├── ai-setup-generator.ts      # Gemini integration
-│   │   │   └── template-apply.ts   # Template helper
-│   │   ├── admin/
-│   │   │   ├── clone-ai-utils.ts        # NEW v3.1.0: Shared utilities (Gemini, HTML cleaning, JSON parsing)
-│   │   │   ├── landing-clone-ai.ts      # NEW v2.6.0: Landing page cloner (3-phase pipeline)
-│   │   │   ├── clone-section-logger.ts  # Logging for cloned sections
-│   │   │   ├── entity-io.ts             # Entity CRUD operations
-│   │   │   ├── feature-registry.ts      # Feature modules
-│   │   │   └── ... (existing)
-│   │   └── ...
+│   │   │   ├── template-apply.ts   # Template helpers
+│   │   │   └── design-presets.ts   # Design system
+│   │   ├── email/                  # Email integration
+│   │   │   ├── subscriber-io.ts    # Subscriber factory
+│   │   │   └── resend-client.ts    # Resend API client
+│   │   ├── distribution/           # Social distribution
+│   │   │   ├── distribution-io.ts  # Distribution logs
+│   │   │   └── distribution-generator.ts # Gemini generation
+│   │   └── ... (existing)
 │   ├── themes/
 │   │   ├── theme-types.ts
 │   │   ├── theme-resolver.ts
@@ -231,11 +261,12 @@ treetwin/
 │   └── development-roadmap.md
 ├── .env.example
 ├── astro.config.mjs
+├── wrangler.toml                  # Cloudflare Pages config
 ├── keystatic.config.ts
+├── drizzle.config.ts              # Drizzle ORM config
 ├── tailwind.config.ts
 ├── tsconfig.json
 ├── package.json
-├── vercel.json
 └── README.md
 ```
 

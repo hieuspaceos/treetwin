@@ -4,14 +4,15 @@ Strategic roadmap for TreeTwin. Tracks active work, completed milestones, and fu
 
 ## Current Status (2026-04-01)
 
-**Phase:** v3.4.0 — Codebase Hardening ✓ COMPLETE
-**Completion:** v3.0.0 through v3.4.0 complete (Marketplace + AI Clone v3 + Better Auth + Hardening shipped)
+**Phase:** v3.4.0 — Database-First Architecture ✓ COMPLETE
+**Completion:** v3.0.0 through v3.4.0 complete (Marketplace + Better Auth + DB-First Architecture shipped)
 **Active Team:** Solo (HieuSpace)
 **Key Features Completed (v3.4.0):**
-- Security: PBKDF2 hashing, SSRF/XSS/path-traversal protection, rate limiting, timing-safe comparisons
-- Performance: Gemini timeouts, removed global mutable state, optimized landing queries
-- Code quality: shared API helpers (60+ deduped), two major component splits (2486 LOC → modular)
-- Cleanup: removed Supabase auth placeholder, deprecated global markdown state
+- **Database-First:** Turso DB (serverless SQLite) + Drizzle ORM, 15 tables, per-tenant provisioning
+- **IO Factories:** Content/Entity/Product/Subscriber/Landing/Distribution factories abstract storage backend
+- **Backend Abstraction:** Works identically with Turso/LocalIO/GitHubIO, seamless swaps
+- **Cloudflare Deployment:** Pages + Workers (was Vercel), faster cold starts, native R2 integration
+- **Codebase Cleanup:** 44K LOC, 400 files, modular admin, 32 landing section types, 100+ API endpoints
 
 **Previous (v3.2.0):**
 - Layout System: 8 responsive layout variants (grid, sidebar, asymmetric, thirds, hero-split, stacked, masonry)

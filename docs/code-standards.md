@@ -320,6 +320,75 @@ export async function getPublishedArticles() {
 }
 ```
 
+## IO Factory Pattern
+
+All data access uses factory functions that abstract storage backend (Turso/LocalIO/GitHubIO).
+
+**Always use factories, never instantiate IO classes directly:**
+
+```typescript
+// ✅ Correct — uses factory
+import { getContentIO, getEntityIO, getProductIO } from '@/lib/admin'
+
+export async function loadArticles() {
+  const io = getContentIO()
+  return io.listEntries('articles')
+}
+
+// ❌ Avoid — direct instantiation
+import { TursoContentIO } from '@/lib/admin/content-io-turso'
+const io = new TursoContentIO()  // Wrong approach
+```
+
+**Factory Functions:**
+
+| Factory | Purpose | Returns |
+|---------|---------|---------|
+| `getContentIO(db?)` | Articles/notes/records | ContentIO (Turso/Local/GitHub) |
+| `getEntityIO(db?)` | Custom entities | EntityIO |
+| `getProductIO(db?)` | Product definitions | ProductIO |
+| `getSubscriberIO(db?)` | Email subscribers | SubscriberIO |
+| `getLandingIO(db?)` | Landing pages | LandingIO |
+| `getDistributionIO()` | Social distribution logs | DistributionIO |
+
+**Backend Selection:**
+
+```typescript
+// Factory automatically selects backend:
+// 1. Production + TURSO_URL set → TursoIO
+// 2. Production + GitHub storage → GitHubIO
+// 3. Development (any TURSO_URL) → TursoIO
+// 4. No TURSO_URL → LocalIO (SQLite via better-sqlite3)
+
+const io = getContentIO()  // Auto-selects backend
+```
+
+**Database Parameter (optional):**
+
+```typescript
+// Pass Turso DB for batch operations in API routes
+import { getDatabase } from '@/db/client'
+
+const db = getDatabase()
+const io = getContentIO(db)  // Reuse connection
+```
+
+### Async IO Operations
+
+All IO methods are **async** and may read from database:
+
+```typescript
+// ✅ Correct — await all IO calls
+async function fetchArticles() {
+  const io = getContentIO()
+  const articles = await io.listEntries('articles')
+  return articles
+}
+
+// ❌ Avoid — missing await
+const articles = io.listEntries('articles')  // Returns Promise, not data
+```
+
 ## Imports
 
 ### Astro-Specific

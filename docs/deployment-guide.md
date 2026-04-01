@@ -4,109 +4,112 @@
 
 ### Prerequisites
 
-- Node.js 18+ (check: `node --version`)
-- npm 9+ (check: `npm --version`)
+- Node.js 18+
+- npm 9+
 - Git
-- Text editor (VS Code recommended)
+- (Optional) Wrangler CLI for local Cloudflare Workers testing
 
 ### Quick Start (Local)
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/hieuspaceos/treetwin.git my-site
 cd my-site
-
-# 2. Install dependencies
 npm install
-
-# 3. Create .env.local
 cp .env.example .env.local
-# (Edit .env.local if using R2 — otherwise defaults work locally)
 
-# 4. Start dev server
+# Dev mode (Astro SSR with local SQLite fallback)
 npm run dev
-
-# 5. Open browser
 # Frontend: http://localhost:4321
-# Keystatic admin: http://localhost:4321/keystatic
+# Admin: http://localhost:4321/admin
+# Keystatic: http://localhost:4321/keystatic
 ```
 
-## Admin Panel (Keystatic)
+**No database setup needed locally.** Uses SQLite fallback when `TURSO_URL` not set.
 
-Keystatic is a git-based CMS with a web UI. Content saves as files in `src/content/`.
+## Admin Interfaces
 
-### In Development
+### Keystatic (Content Editor)
 
 ```
 http://localhost:4321/keystatic
 ```
 
-**Capabilities:**
-- Create/edit articles (Markdoc), notes (YAML), records (YAML)
-- Edit global site settings (theme ID)
-- All changes save to disk as files (git-tracked)
+Git-based CMS for Markdown/YAML content.
 
-**Workflow:**
-1. Edit content in Keystatic UI
-2. Files auto-save to `src/content/`
-3. Commit changes: `git add . && git commit -m "..."` (manual)
-4. Push to GitHub (optional, for CI/CD)
+**Features:**
+- Create/edit articles, notes, records
+- All changes saved as files in `src/content/`
+- GitHub storage mode for production
 
-### In Production (Vercel)
+### Admin Dashboard (React SPA)
 
-Keystatic admin is **disabled** on production. To edit content:
+```
+http://localhost:4321/admin
+```
 
-1. Clone repo locally
-2. Run dev server: `npm run dev`
-3. Edit at `http://localhost:4321/keystatic`
-4. Commit + push to GitHub
-5. Vercel auto-deploys on push
+Full-featured admin UI for:
+- Landing page builder (D&D editor, 32+ section types)
+- Feature builder (AI-assisted feature generation)
+- Entity management (custom data schemas)
+- Media management (Cloudflare R2)
+- Analytics dashboard
+- Email campaigns
+- Social distribution
 
-## Vercel Deployment
+**Local auth:** Default password in `.env.local` (see `.env.example`)
+**Production auth:** Better Auth + Google OAuth (set `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`)
+
+## Cloudflare Pages Deployment
 
 ### Prerequisites
 
 - GitHub account + repo
-- Vercel account (free tier OK)
+- Cloudflare account (free tier OK)
+- Turso database (free tier available at turso.tech)
 
 ### Deploy Steps
 
-**Option 1: Deploy Button (Fastest)**
-
-Click "Deploy to Vercel" in [README.md](../README.md) or:
-
-```
-https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieuspaceos%2Ftreetwin
-```
-
-**Option 2: Manual Setup**
-
 1. Push repo to GitHub
-2. Visit [vercel.com/new](https://vercel.com/new)
-3. Import your GitHub repo
-4. Set environment variables (see below)
-5. Click Deploy
 
-### Environment Variables (Vercel Dashboard)
+2. Link Cloudflare Pages to GitHub:
+   - Log in to [Cloudflare Dashboard](https://dash.cloudflare.com)
+   - Pages → Create project → Connect to Git
+   - Select your repository
+   - Build settings: auto-detected (Astro + wrangler)
 
-**Required:**
-- `PUBLIC_SITE_URL` — Your deployed domain (e.g., `https://my-site.vercel.app`)
+3. Set environment variables in Cloudflare dashboard:
 
-**Optional (R2 video manifests):**
-- `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_BUCKET`, `R2_REGION`, `R2_PUBLIC_URL`
+**Required (prod):**
+- `PUBLIC_SITE_URL` — Your deployed domain
+- `TURSO_URL` — Turso database URL (from turso.tech)
+- `TURSO_AUTH_TOKEN` — Turso auth token
 
-**Optional (GoClaw AI agent integration):**
-- `GOCLAW_API_KEY` — Bearer token for external orchestration systems
-- `GOCLAW_WEBHOOK_SECRET` — HMAC-SHA256 secret for webhook signature verification
+**Optional (SaaS):**
+- `TURSO_PLATFORM_TOKEN` — For tenant provisioning
+- `TURSO_ORG` — Organization name
+- `TURSO_GROUP` — Group name
+- `GOOGLE_CLIENT_ID` — OAuth provider
+- `GOOGLE_CLIENT_SECRET` — OAuth secret
+- `BETTER_AUTH_SECRET` — Auth session key (32+ chars)
 
-Add these under **Settings → Environment Variables** in Vercel dashboard.
+**Optional (integrations):**
+- `GEMINI_API_KEY` — AI features
+- `RESEND_API_KEY` — Email service
+- `R2_*` variables — Media storage
+- `GA_MEASUREMENT_ID` — Analytics
+- `POSTIZ_API_KEY` — Social scheduling
+
+4. Trigger deployment:
+   - Git push to main branch
+   - Or manually trigger in Cloudflare dashboard
 
 ### First Deploy
 
-After environment variables are set:
-1. Trigger new deployment (Vercel dashboard or `git push`)
-2. Wait for build (2-3 min)
-3. Visit your deployed URL
+1. Verify `wrangler.toml` exists and build settings are correct
+2. Push to GitHub (or manual trigger in Cloudflare dashboard)
+3. Wait for build (~2-3 min)
+4. Visit your deployed URL
+5. Admin dashboard available at `/admin` (if `BETTER_AUTH_SECRET` set)
 
 ## Build Verification
 
@@ -125,6 +128,38 @@ npm run build
 - [ ] Images/assets load (check `dist/`)
 - [ ] Search index generated (check `dist/pagefind/`)
 - [ ] Sitemap present (`dist/sitemap.xml`)
+
+## Database Setup (Turso)
+
+### Create Turso Database
+
+1. Sign up at [turso.tech](https://turso.tech)
+2. Create a new database in the dashboard
+3. Copy the database URL and authentication token
+4. Add to your deployment env vars:
+
+```env
+TURSO_URL=libsql://your-db-xxxx.turso.io
+TURSO_AUTH_TOKEN=eyJhbGc...
+```
+
+**Local development:** SQLite fallback auto-activates when `TURSO_URL` not set. No setup needed.
+
+### Tenant Provisioning (SaaS)
+
+For multi-tenant deployments:
+
+1. Enable on Turso Platform API
+2. Generate API token at turso.tech/settings
+3. Add env vars:
+
+```env
+TURSO_PLATFORM_TOKEN=your-api-token
+TURSO_ORG=your-org-name
+TURSO_GROUP=group-name
+```
+
+The provisioner auto-creates per-tenant databases on signup.
 
 ## Cloudflare R2 Setup (Optional)
 
