@@ -148,15 +148,13 @@ export async function cloneLandingPage(
   } else if (html.length <= 60_000) {
     cloneInput = html
     inputFormat = 'html-clean'
-  } else if (structureHtml.length <= 80_000) {
-    // Prefer structure HTML over markdown — preserves semantic tags for layout detection
+  } else if (structureHtml.length <= 120_000) {
+    // Prefer structure HTML over markdown — preserves semantic tags + class names for layout detection
     cloneInput = structureHtml
     inputFormat = 'html-structure'
-  } else if (lastMd.length > 500) {
-    cloneInput = lastMd.slice(0, 30_000)
-    inputFormat = 'markdown'
   } else {
-    cloneInput = structureHtml.slice(0, 80_000)
+    // Truncate structure HTML — still better than markdown for layout fidelity
+    cloneInput = structureHtml.slice(0, 120_000)
     inputFormat = 'html-structure-trimmed'
   }
 

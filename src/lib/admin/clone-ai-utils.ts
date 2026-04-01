@@ -77,7 +77,7 @@ export function cleanKeepStyles(html: string): string {
 export function cleanForStructure(html: string): string {
   return sanitizeHtml(cleanBasic(html), {
     allowedTags: ['html','head','body','title','meta','h1','h2','h3','h4','h5','h6','p','a','img','ul','ol','li','nav','footer','header','section','article','figure','figcaption','blockquote','video','source','button','form','input','textarea','table','tr','td','th','thead','tbody','div','span'],
-    allowedAttributes: { a: ['href'], img: ['src','alt'], video: ['src'], source: ['src'], meta: ['name','content'], input: ['type','placeholder'], '*': [] },
+    allowedAttributes: { a: ['href'], img: ['src','alt'], video: ['src'], source: ['src'], meta: ['name','content'], input: ['type','placeholder'], div: ['class','id'], section: ['class','id'], header: ['class','id'], footer: ['class','id'], nav: ['class','id'], article: ['class','id'], '*': [] },
     allowedSchemes: ['http','https','data'],
   }).replace(/\s{2,}/g, ' ').trim()
 }
