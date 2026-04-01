@@ -19,8 +19,6 @@ export interface CloneResult {
   missingSections?: string[]
   sectionQuality?: Array<{ index: number; score: 'good' | 'partial' | 'poor'; issue?: string }>
   retried?: boolean
-  /** AI-generated scoped CSS blocks per section for visual fidelity */
-  scopedCss?: Array<{ selector: string; css: string }>
 }
 
 export const GEMINI_API_URL =

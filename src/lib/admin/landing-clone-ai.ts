@@ -17,7 +17,8 @@ import {
 import {
   DIRECT_CLONE_PROMPT, RETRY_MISSING_PROMPT, IMPROVE_SECTION_PROMPT,
 } from './clone-prompts'
-import { extractDesign, extractSectionStyles, buildScopedCssFromStyles } from './clone-design-extractor'
+import { extractDesign, extractSectionStyles } from './clone-design-extractor'
+import { matchOrCreatePreset } from './clone-preset-matcher'
 import { applySmartStyleDefaults, assessSectionQuality, postProcessCloneResult } from './clone-post-processor'
 import { cloneWithV3Pipeline } from './clone-pipeline-v3'
 
@@ -177,6 +178,16 @@ export async function cloneLandingPage(
       addUsage(r, designResult.promptTokens, designResult.outputTokens)
     } catch {}  // non-critical
 
+    // Match extracted colors to existing preset or generate harmonious palette
+    const presetMatch = matchOrCreatePreset(r.design || {})
+    r.design = {
+      ...r.design,
+      colors: presetMatch.colors,
+      fonts: presetMatch.fonts,
+      borderRadius: presetMatch.borderRadius,
+      preset: presetMatch.presetId || undefined,
+    } as any
+
     // Per-section style extraction — separate call with raw HTML + CSS
     try {
       const styleResult = await extractSectionStyles(apiKey, rawHtml, r.sections)
@@ -191,10 +202,6 @@ export async function cloneLandingPage(
 
     // Apply smart style defaults for sections without AI-detected styles
     applySmartStyleDefaults(r.sections, r.design)
-
-    // Generate scoped CSS from section styles — programmatic, not AI
-    const cssBlocks = buildScopedCssFromStyles(r.sections)
-    if (cssBlocks.length > 0) r.scopedCss = cssBlocks
   }
 
   // Detect missing sections — compare page H2s vs cloned headings

@@ -7,7 +7,6 @@ import { geminiCall, safeJsonParse, type CloneResult } from './clone-ai-utils'
 import {
   DESIGN_EXTRACT_PROMPT,
   SECTION_STYLES_PROMPT,
-  SCOPED_CSS_PROMPT,
 } from './clone-prompts'
 
 /** Separate Gemini call to extract design from HTML/CSS (more accurate than Markdown) */
@@ -45,35 +44,6 @@ export async function extractSectionStyles(
   const { text, promptTokens, outputTokens } = await geminiCall(apiKey, SECTION_STYLES_PROMPT, userPrompt, 4096)
   const parsed = safeJsonParse(text) as { styles?: Array<{ index: number } & Record<string, unknown>> } | null
   return { styles: parsed?.styles || [], promptTokens, outputTokens }
-}
-
-/**
- * Generate scoped CSS for each section to match original site's visual quality.
- * @deprecated Currently unused in main pipeline — buildScopedCssFromStyles is preferred (no AI guessing)
- */
-export async function generateScopedCss(
-  apiKey: string,
-  html: string,
-  sections: Array<{ type: string; data: Record<string, unknown> }>
-): Promise<{ cssBlocks: Array<{ selector: string; css: string }>; promptTokens: number; outputTokens: number }> {
-  const designHtml = html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .slice(0, 40_000)
-  const sectionList = sections.map((s, i) => {
-    const d = s.data as Record<string, unknown>
-    const heading = String(d?.headline || d?.heading || d?.brandName || d?.text || '').slice(0, 50)
-    return `- [data-section="section-${s.type}${i > 0 && sections.slice(0, i).some(p => p.type === s.type) ? `-${i + 1}` : ''}"] → ${s.type}${heading ? `: "${heading}"` : ''}`
-  }).join('\n')
-  const userPrompt = `My sections:\n${sectionList}\n\nOriginal page HTML+CSS:\n${designHtml}`
-  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, SCOPED_CSS_PROMPT, userPrompt, 8192)
-  const parsed = safeJsonParse(text) as { sectionCss?: Array<{ selector: string; css: string }> } | null
-
-  // Sanitize CSS — strip dangerous patterns
-  const dangerous = /javascript:|@import|url\s*\(\s*data:|expression\s*\(|position\s*:\s*fixed/gi
-  const blocks = (parsed?.sectionCss || []).filter(b => b.selector && b.css && !dangerous.test(b.css))
-  return { cssBlocks: blocks, promptTokens, outputTokens }
 }
 
 /** Build scoped CSS blocks from per-section style overrides — reliable, no AI guessing */

@@ -41,17 +41,10 @@ import '@/styles/landing.css'
 interface Props {
   sections: LandingSection[]
   pageTitle?: string
-  /** AI-generated scoped CSS blocks for visual fidelity */
-  scopedCss?: Array<{ selector: string; css: string }>
 }
 
-const { sections, pageTitle, scopedCss } = Astro.props
+const { sections, pageTitle } = Astro.props
 
-/** Build scoped CSS string — each block wrapped in its selector */
-function buildScopedCssString(blocks?: Array<{ selector: string; css: string }>): string {
-  if (!blocks?.length) return ''
-  return blocks.map(b => `${b.selector} { ${b.css} }`).join('\n')
-}
 const enabled = sections.filter(s => s.enabled !== false)
 
 // Nav and footer are special — rendered outside the main sections flow
@@ -184,11 +177,6 @@ const componentMap: Record<string, any> = {
 
 {/* Popup overlays — rendered outside body/footer flow */}
 {popupSections.map(s => <LandingPopup {...s.data as any} pageSlug={pageTitle} />)}
-
-{/* AI-generated scoped CSS for visual fidelity */}
-{scopedCss && scopedCss.length > 0 && (
-  <style set:html={sanitizeCss(buildScopedCssString(scopedCss))} />
-)}
 
 {/* Per-section custom CSS overrides (admin-editable) */}
 {perSectionCssStr && (

@@ -360,7 +360,6 @@ export function LandingPageEditor({ slug }: Props) {
               description: cloned.description || c.description,
               design: cloned.design as LandingDesign,
               sections: cloned.sections as LandingSection[],
-              scopedCss: (cloned as any).scopedCss,
             }))
             setCloneOpen(false)
           }}

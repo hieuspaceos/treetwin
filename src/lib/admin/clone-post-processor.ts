@@ -349,21 +349,6 @@ export function postProcessCloneResult(r: CloneResult, rawHtml: string, _url?: s
     }
   }
 
-  // Fix 6: Add global scoped CSS preset (orange buttons, Dancing Script for hero)
-  if (!r.scopedCss) r.scopedCss = []
-  const hasGlobalCss = r.scopedCss.some((c: { selector: string }) => c.selector === '.landing-page-root')
-  if (!hasGlobalCss) {
-    r.scopedCss.unshift({
-      selector: '.landing-page-root',
-      css: `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-.landing-btn-primary { background: var(--lp-accent, var(--lp-primary)); border-radius: 25px; }`,
-    })
-    r.scopedCss.splice(1, 0, {
-      selector: '[data-section="section-hero"]',
-      css: `h1, h2 { font-family: 'Dancing Script', cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); }`,
-    })
-  }
-
   // Fix 7: Nav logo — find site logo if AI missed it
   if (nav && !nav.data.logo) {
     const logoUrls = [...rawHtml.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g)]
@@ -402,15 +387,6 @@ export function postProcessCloneResult(r: CloneResult, rawHtml: string, _url?: s
     }
   }
 
-  // Fix 8b: Don't inject Dancing Script for non-script sites
-  const hasCursiveFont = /font-family[^;]*(?:Dancing|Script|Cursive|cursive|Pacifico|Lobster)/i.test(rawHtml)
-  if (!hasCursiveFont && r.scopedCss) {
-    const heroScoped = r.scopedCss.find((c: { selector: string; css: string }) => c.selector.includes('section-hero') && c.css.includes('Dancing Script'))
-    if (heroScoped) {
-      heroScoped.css = heroScoped.css.replace(/font-family:\s*['"]?Dancing Script['"]?,\s*cursive;\s*/g, '')
-    }
-  }
-
   // Fix 8c: Clean broken color values (e.g. "#" without hex digits)
   for (const s of r.sections) {
     if (!s.style) continue
@@ -435,19 +411,6 @@ export function postProcessCloneResult(r: CloneResult, rawHtml: string, _url?: s
     }
   }
 
-  // Fix 9: Strip hardcoded colors from AI-generated scoped CSS — let design vars handle colors
-  if (r.scopedCss) {
-    for (const css of r.scopedCss as Array<{ selector: string; css: string }>) {
-      if (!css.css || css.selector === '.landing-page-root') continue
-      css.css = css.css
-        .replace(/\.landing-section\s*\{[^}]*background:[^}]+\}\s*/g, '')
-        .replace(/h[1-6][^{]*\{[^}]*color:\s*#[^}]+\}\s*/g, '')
-        .replace(/p,\s*li,\s*span[^{]*\{[^}]*color:[^}]+\}\s*/g, '')
-        .trim()
-    }
-    r.scopedCss = r.scopedCss.filter((c: { css: string }) => c.css.length > 0)
-  }
-
   // Fix 10: Testimonials with dark bg + cards → switch to light bg for readability
   const testimonials = r.sections.find(s => s.type === 'testimonials')
   if (testimonials?.style) {
@@ -457,10 +420,6 @@ export function postProcessCloneResult(r: CloneResult, rawHtml: string, _url?: s
       testimonials.style.background = '#faf6f1'
       delete testimonials.style.textColor
       delete testimonials.style.textMutedColor
-      const scopedTest = r.scopedCss?.find((c: { selector: string }) => c.selector.includes('testimonials'))
-      if (scopedTest) {
-        scopedTest.css = `.lp-card-hover { background: var(--lp-bg, #fff); border-color: rgba(0,0,0,0.08); } .lp-stars { color: var(--lp-accent, #f59e0b); }`
-      }
     }
   }
 

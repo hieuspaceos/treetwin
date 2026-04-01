@@ -20,7 +20,6 @@ let sections: LandingSection[] = []
 let title = ''
 let description = ''
 let design: LandingDesign | undefined
-let scopedCss: Array<{ selector: string; css: string }> | undefined
 let seo: LandingSeo | undefined
 let product: any = null
 
@@ -30,7 +29,6 @@ if (yamlPage) {
   title = yamlPage.data.title
   description = yamlPage.data.description || ''
   design = pageData.design as LandingDesign | undefined
-  scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
   seo = pageData.seo as LandingSeo | undefined
 
   // Product association (YAML only)
@@ -58,7 +56,6 @@ if (yamlPage) {
       title = config.title || dbPage.name
       description = config.description || ''
       design = config.design
-      scopedCss = config.scopedCss
       seo = config.seo
     } catch {
       return Astro.redirect('/404')
@@ -88,5 +85,5 @@ const hasFooter = sections.some(s => s.type === 'footer')
   {seo?.keywords && <meta slot="head" name="keywords" content={seo.keywords} />}
   {seo?.noindex && <meta slot="head" name="robots" content="noindex, nofollow" />}
   {seo?.canonicalUrl && <link slot="head" rel="canonical" href={seo.canonicalUrl} />}
-  <LandingSectionRenderer sections={sections} pageTitle={title} scopedCss={scopedCss} />
+  <LandingSectionRenderer sections={sections} pageTitle={title} />
 </LandingLayout>

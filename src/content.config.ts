@@ -128,11 +128,6 @@ const landingPages = defineCollection({
       /** Per-section visual style overrides (background, textColor, padding, etc.) */
       style: z.record(z.unknown()).optional(),
     })),
-    /** AI-generated scoped CSS blocks for per-section visual fidelity */
-    scopedCss: z.array(z.object({
-      selector: z.string(),
-      css: z.string(),
-    })).optional(),
   }),
 })
 
